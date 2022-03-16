@@ -1,3 +1,4 @@
+
 def normalize_signal(signal,method='zscore'):
     if(method=='zscore'):
         return (signal-signal.mean())/signal.std()
