@@ -1,18 +1,18 @@
 import numpy as np
 
-def naive_segment(signal,window_size,overlap_size=1,sampling_rate=20):
+def naive_segment(signal,window_size,step_size=1,sampling_rate=20):
     """[summary]
 
     Args:
-        signal ([type]): [Any signal to be segmented into windows]
+        signal ([1-D arraylike]): [Any signal to be segmented into windows]
         window_size ([type]): [Size of signal windows in seconds]
-        overlap_ratio (float, optional): [description]. Defaults to 0.5.
+        step_size (float, optional): [Step Size in seconds]. Defaults to 1.
         sampling_rate (int, optional): [Frequency of the signal]. Defaults to 20.
 
     Returns:
-        [type]: [Collection of signal windows]
+        [2-D array]: [Collection of signal windows]
     """       
-    step=overlap_size*sampling_rate
+    step=step_size*sampling_rate
     
     window_length=window_size*sampling_rate
     segmented=[]
