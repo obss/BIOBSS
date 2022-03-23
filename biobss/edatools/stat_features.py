@@ -1,21 +1,27 @@
 import numpy as np
 from scipy import stats
 
-def get_stat_features(signal,prefix="signal"):
-    
-    s_features={}
-    min = np.min(signal)
-    max = np.max(signal)
-    s_features[prefix+"_mean"] = signal.mean()
-    s_features[prefix+"_std"] = np.std(signal)
-    s_features[prefix+"_max"] = max
-    s_features[prefix+"_min"] = min
-    s_features[prefix+"_drange"] = (max-min)
-    s_features[prefix+"kusc"] = stats.kurtosis(signal)
-    s_features[prefix+"sksc"] = stats.skew(signal)
-    s_features[prefix+"mosc"] = stats.moment(signal, 2)
-    
+STAT_FEATURES = {
+
+    "mean": lambda x: np.mean(x),
+    "std": lambda x: np.std(x),
+    "max": lambda x: np.max(x),
+    "min": lambda x: np.min(x),
+    "range": lambda x: np.max(x)-np.min(x),
+    "kurtosis": lambda x: stats.kurtosis(x),
+    "skew": lambda x: stats.skew(x),
+    "momentum": lambda x: stats.moment(x, 2),
+
+}
+
+def get_feature_names():
+    return STAT_FEATURES.keys()
+
+def get_stat_features(signal, prefix="signal"):
+
+    s_features = {}
+
+    for k, f in STAT_FEATURES.items():
+        s_features["_".join([prefix, k])] = f(signal)
+
     return s_features
-
-
-

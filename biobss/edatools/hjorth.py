@@ -31,6 +31,4 @@ def complexity(signal):
     _mobility = mobility(signal)
     f_derivative = np.gradient(signal, edge_order=1)
     complexity = mobility(f_derivative) / _mobility
-    # mobility=np.log10(mobility)
-    # complexity=np.log10(complexity)
     return complexity, _mobility

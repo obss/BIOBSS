@@ -76,7 +76,7 @@ def from_scr(signal):
     scr_features={}
     scr_features.update(get_stat_features(signal,prefix='scr'))
     scr_features.update(get_hjorth_features(signal,prefix='scr'))
-    scr_features.update(get_signal_features(signal,prefix='scr'))
+    #scr_features.update(get_signal_features(signal,prefix='scr'))
     scr_features.update(get_freq_features(signal,prefix='scr'))
 
     return scr_features

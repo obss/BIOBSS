@@ -2,16 +2,30 @@ import numpy as np
 import neurokit2 as nk
 
 
+SIGNAL_FEATURES = {
+
+    "rms": lambda x: rms(x),
+    "al": lambda x: calculate_al(x),
+    "in": lambda x: calculate_in(x),
+    "ap": lambda x: calculate_ap(x),
+
+}
+
+
+def get_feature_names():
+    return SIGNAL_FEATURES.keys()
+
+
 def get_signal_features(signal, prefix="signal"):
 
     s_features = {}
-    s_features[prefix + "_rmse"] = rmse(signal)  # root mean square
-    s_features[prefix + "_al"] = calculate_alsc(signal)  # average arc length
-    s_features[prefix + "_in"] = calculate_insc(signal)  # integral
-    s_features[prefix + "_ap"] = calculate_apsc(signal)  # average power
+    for k, f in SIGNAL_FEATURES.items():
+        s_features["_".join([prefix, k])] = f(signal)
+
     return s_features
 
-def rmse(sig):
+
+def rms(sig):
     tot = 0
     for s in sig:
         tot += np.abs(s) * np.abs(s)
@@ -20,7 +34,7 @@ def rmse(sig):
     return tot
 
 
-def calculate_alsc(sig):
+def calculate_al(sig):
 
     alsc = 0
     for i in range(1, len(sig)):
@@ -28,11 +42,11 @@ def calculate_alsc(sig):
     return alsc
 
 
-def calculate_insc(sig):
+def calculate_in(sig):
     return np.abs(sig).sum()
 
 
-def calculate_apsc(sig):
+def calculate_ap(sig):
     apsc = 0
     for i in range(0, len(sig)):
         apsc += sig[i] ** 2
