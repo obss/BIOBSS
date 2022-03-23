@@ -1,23 +1,21 @@
-import numpy as np
-import pandas as pd
 from scipy import signal
 
 def filter_signal(sig,filter_type,N,fs,f1=None,f2=None):
     """Filters the signal using a Butterworth filter
 
     Args:
-        sig (_type_): Signal to be filtered
-        filter_type (_type_): Low-pass, high-pass or band-pass 
-        N (_type_): Filter order
-        fs (_type_): Sampling rate
-        f1 (_type_, optional): Lower cutoff frequency. Defaults to None.
-        f2 (_type_, optional): Higher cutoff frequency. Defaults to None.
+        sig (array): Signal to be filtered
+        filter_type (str): Low-pass, high-pass or band-pass 
+        N (int): Filter order
+        fs (float): Sampling rate
+        f1 (float, optional): Lower cutoff frequency. Defaults to None.
+        f2 (float, optional): Higher cutoff frequency. Defaults to None.
 
     Raises:
         ValueError: _description_
 
     Returns:
-        _type_: filtered signal
+        (array): filtered signal
     """
 
     if filter_type=='lowpass':

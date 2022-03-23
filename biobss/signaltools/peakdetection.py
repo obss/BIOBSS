@@ -1,25 +1,22 @@
-import numpy as np
 from numpy import NaN, Inf, arange, isscalar, asarray, array
-import pandas as pd
 import heartpy as hp
-import scipy as sp
 import sys
 
 
-def peakdetection(sig,fs, method='peakdet', delta=None):
-    """Detects peaks and valleys of a signal using one of two methods.
+def peak_detection(sig,fs, method='peakdet', delta=None):
+    """Detects peaks and troughs of a signal using one of two methods.
 
     Args:
-        sig (_type_): Signal to be analyzed
-        fs (_type_): Sampling rate
-        delta (_type_): Parameter of the peakdet method
+        sig (array): Signal to be analyzed
+        fs (float): Sampling rate
+        delta (float): Parameter of the peakdet method
         method (str, optional): 'peakdet' or 'heartpy'. Defaults to 'peakdet'.
 
     Raises:
         ValueError: _description_
 
     Returns:
-        _type_: A dictionary containing peak locations, peak values, onset locations and onset values.
+        (dict): Dictionary of peak locations, peak amplitudes, trough locations and trough amplitudes.
     """
     info={}
 
@@ -29,13 +26,13 @@ def peakdetection(sig,fs, method='peakdet', delta=None):
 
         locs_p=maxtab[:,0].astype(int)
         peaks=maxtab[:,1]
-        locs_v=mintab[:,0].astype(int)
-        valleys=mintab[:,1]
+        locs_t=mintab[:,0].astype(int)
+        troughs=mintab[:,1]
 
         info["Peak_locs"]= locs_p
         info["Peaks"]=peaks
-        info["Onset_locs"]=locs_v
-        info["Onsets"]=valleys
+        info["Trough_locs"]=locs_t
+        info["Troughs"]=troughs
 
 
     elif method=='heartpy':
@@ -45,12 +42,12 @@ def peakdetection(sig,fs, method='peakdet', delta=None):
         info["Peak_locs"] = wd_p['peaklist']
         info["Peaks"]=sig[wd_p['peaklist']]
 
-        sig_v=max(sig)-sig
+        sig_t=max(sig)-sig
 
-        wd_v=_peakdetection_heartpy(sig_v,fs)
+        wd_t=_peakdetection_heartpy(sig_t,fs)
 
-        info["Onset_locs"] = wd_v['peaklist']
-        info["Onsets"]=sig[wd_v['peaklist']]
+        info["Trough_locs"] = wd_t['peaklist']
+        info["Troughs"]=sig[wd_t['peaklist']]
 
 
     else:
@@ -152,7 +149,7 @@ def _peakdetection_heartpy(sig,fs):
 
     wd, m = hp.process(sig, sample_rate=fs)
 
-    return wd
+    return wd, m
 
 
 
