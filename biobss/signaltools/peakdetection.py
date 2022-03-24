@@ -1,9 +1,10 @@
-from numpy import NaN, Inf, arange, isscalar, asarray, array
+from typing import Any
+import numpy as np
 import heartpy as hp
 import sys
+from numpy.typing import ArrayLike
 
-
-def peak_detection(sig,fs, method='peakdet', delta=None):
+def peak_detection(sig: ArrayLike, fs: float, method: str='peakdet', delta: float=None) -> dict:
     """Detects peaks and troughs of a signal using one of two methods.
 
     Args:
@@ -59,7 +60,7 @@ def peak_detection(sig,fs, method='peakdet', delta=None):
 
 
 
-def _peakdetection_peakdet(v, delta, x= None): 
+def _peakdetection_peakdet(v: ArrayLike, delta: float, x: ArrayLike= None) -> ArrayLike: 
 
     """
     Converted from MATLAB script at http://billauer.co.il/peakdet.html
@@ -90,25 +91,25 @@ def _peakdetection_peakdet(v, delta, x= None):
     mintab = []
        
     if x is None:
-        x = arange(len(v))
+        x = np.arange(len(v))
     
-    v = asarray(v)
+    v = np.asarray(v)
     
     if len(v) != len(x):
         sys.exit('Input vectors v and x must have same length')
     
-    if not isscalar(delta):
+    if not np.isscalar(delta):
         sys.exit('Input argument delta must be a scalar')
     
     if delta <= 0:
         sys.exit('Input argument delta must be positive')
     
-    mn, mx = Inf, -Inf
-    mnpos, mxpos = NaN, NaN
+    mn, mx = np.Inf, -np.Inf
+    mnpos, mxpos = np.NaN, np.NaN
     
     lookformax = True
     
-    for i in arange(len(v)):
+    for i in np.arange(len(v)):
         this = v[i]
         if this > mx:
             mx = this
@@ -132,20 +133,11 @@ def _peakdetection_peakdet(v, delta, x= None):
 
 
 
-    return array(maxtab), array(mintab)
-
-# if __name__=="__main__":
-#     from matplotlib.pyplot import plot, scatter, show
-#     series = [0,0,0,2,0,0,0,-2,0,0,0,2,0,0,0,-2,0]
-#     maxtab, mintab = peakdet(series,.3)
-#     plot(series)
-#     scatter(array(maxtab)[:,0], array(maxtab)[:,1], color='blue')
-#     scatter(array(mintab)[:,0], array(mintab)[:,1], color='red')
-#     show()
+    return np.array(maxtab), np.array(mintab)
 
 
 
-def _peakdetection_heartpy(sig,fs):
+def _peakdetection_heartpy(sig: ArrayLike, fs: float) -> Any:
 
     wd, m = hp.process(sig, sample_rate=fs)
 

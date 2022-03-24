@@ -1,6 +1,7 @@
 from scipy import signal
+from numpy.typing import ArrayLike
 
-def filter_signal(sig,filter_type,N,fs,f1=None,f2=None):
+def filter_signal(sig: ArrayLike, filter_type: str, N: int, fs: float, f1: float=None,f2: float=None, axis=0) -> dict:
     """Filters the signal using a Butterworth filter
 
     Args:
@@ -20,30 +21,39 @@ def filter_signal(sig,filter_type,N,fs,f1=None,f2=None):
 
     if filter_type=='lowpass':
 
-        W2=f2/(fs/2) #normalized frequency
-        btype='lowpass'
-        b2,a2 = signal.butter(N,W2,btype)
-        filtered_sig=signal.filtfilt(b2,a2,sig,axis=0)    
+        if f2 is not None:
+
+            W2=f2/(fs/2) #normalized frequency
+            btype='lowpass'
+            b2,a2 = signal.butter(N,W2,btype)
+            filtered_sig=signal.filtfilt(b2,a2,sig,axis=axis)
+        else:
+            raise ValueError("f2 is required.")
 
     elif filter_type=='highpass':
 
-        W1=f1/(fs/2) #normalized frequency
-        btype='highpass'
-        b1,a1 = signal.butter(N,W1,btype)
-        filtered_sig=signal.filtfilt(b1,a1,sig,axis=0)
+        if f1 is not None:
+            W1=f1/(fs/2) #normalized frequency
+            btype='highpass'
+            b1,a1 = signal.butter(N,W1,btype)
+            filtered_sig=signal.filtfilt(b1,a1,sig,axis=axis)
+        else:
+            raise ValueError("f1 is required.")
 
     elif filter_type=='bandpass':
 
-        W2=f2/(fs/2) #normalized frequency
-        btype='lowpass'
-        b2,a2 = signal.butter(N,W2,btype)
-        temp_sig=signal.filtfilt(b2,a2,sig,axis=0)       
+        if f1 is not None and f2 is not None: 
+            W2=f2/(fs/2) #normalized frequency
+            btype='lowpass'
+            b2,a2 = signal.butter(N,W2,btype)
+            temp_sig=signal.filtfilt(b2,a2,sig,axis=axis)       
 
-        W1=f1/(fs/2) #normalized frequency
-        btype='highpass'
-        b1,a1 = signal.butter(N,W1,btype)
-        filtered_sig=signal.filtfilt(b1,a1,temp_sig,axis=0)
-
+            W1=f1/(fs/2) #normalized frequency
+            btype='highpass'
+            b1,a1 = signal.butter(N,W1,btype)
+            filtered_sig=signal.filtfilt(b1,a1,temp_sig,axis=axis)
+        else:
+            raise ValueError("f1 and f2 are required.")
 
     else:
 

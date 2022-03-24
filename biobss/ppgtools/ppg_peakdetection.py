@@ -1,7 +1,7 @@
 import numpy as np
+from numpy.typing import ArrayLike
 
-
-def peak_control(locs_peaks,peaks,locs_troughs,troughs):
+def peak_control(locs_peaks: ArrayLike ,peaks: ArrayLike ,locs_troughs: ArrayLike ,troughs: ArrayLike) -> dict:
     """Applies rules to check relative peak and onset locations
 
     Args:

@@ -1,6 +1,7 @@
 from ..signaltools import filtering
+from numpy.typing import ArrayLike
 
-def filter_ppg(sig,fs):
+def filter_ppg(sig: ArrayLike, fs: float) -> ArrayLike:
     """Filters the ppg signal using predefined filter parameters
 
     Args:
