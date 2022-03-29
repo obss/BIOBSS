@@ -16,6 +16,6 @@ def normalize_signal(signal : ArrayLike,method='zscore') -> ArrayLike:
         return (signal-signal.mean())/signal.std()
     elif(method=='minmax'):
         return (signal-signal.min())/(signal.max()-signal.min())
+    
     else:
-        print("Normalization method error! Using Default (Zscore)")
-        return (signal-signal.mean())/signal.std()
+        raise ValueError(f"Unknown method '{method}', available values are [zscore, minmax].")
