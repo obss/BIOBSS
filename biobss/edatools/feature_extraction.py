@@ -10,13 +10,13 @@ from .stat_features import *
 from .hjorth import *
 from .signal_features import *
 from .freq_features import *
+from numpy.typing import ArrayLike
 
-
-def from_decomposed(signal_phasic, signal_tonic, sr):
+def from_decomposed(signal_phasic:ArrayLike, signal_tonic:ArrayLike, sr:float)->dict:
     """Method to calculate features over Tonic and Phasic EDA components
 
     Args:
-        signal_phasic (arraylike): Phasic component of EDA
+        signal_phasic (1-D): Phasic component of EDA
         signal_tonic (arraylike): Tonic component of EDA
         sr (float): Sampling Rate
 
@@ -33,7 +33,7 @@ def from_decomposed(signal_phasic, signal_tonic, sr):
     return features
 
 
-def from_signal(signal, sr=20):
+def from_signal(signal:ArrayLike, sr=20.)->dict:
     """Method to calculate features over EDA signal
 
     Args:
@@ -51,7 +51,7 @@ def from_signal(signal, sr=20):
     return features
 
 
-def from_windows(eda_windows, sr=20, parallel=False, n_jobs=6):
+def from_windows(eda_windows:ArrayLike, sr=20., parallel=False, n_jobs=6)->pd.DataFrame:
     """Method to calculate EDA features over set of EDA signals
 
     Args:
@@ -77,8 +77,8 @@ def from_windows(eda_windows, sr=20, parallel=False, n_jobs=6):
 
 
 def from_decomposed_windows(
-    phasic_windows, tonic_windows, sr, parallel=False, n_jobs=6
-):
+    phasic_windows:ArrayLike, tonic_windows:ArrayLike, sr, parallel=False, n_jobs=6
+)->pd.DataFrame:
     """Method to calculate EDA features over set of decomposed EDA signals
 
     Args:
@@ -112,8 +112,8 @@ def from_decomposed_windows(
     return pd.concat([scr_features, scl_features], axis=0, ignore_index=True)
 
 
-def from_scr(signal):
-    """_summary_
+def from_scr(signal:ArrayLike)->dict:
+    """Calculate features over Phasic EDA signal
 
     Args:
         signal (arraylike): Phasic EDA signal
@@ -131,8 +131,8 @@ def from_scr(signal):
     return scr_features
 
 
-def from_scl(signal):
-    """_summary_
+def from_scl(signal:ArrayLike)->dict:
+    """Calculate features over Tonic EDA signal
 
     Args:
         signal (arraylike): Tonic EDA signal

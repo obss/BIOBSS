@@ -6,7 +6,8 @@ import neurokit2 as nk
 import pandas as pd
 
 
-def eda_decompose(eda_signal, sr, method="highpass"):
+
+def eda_decompose(eda_signal:np.ndarray, sr:float, method="highpass") ->pd.DataFrame:
     """_summary_
 
     Args:

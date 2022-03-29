@@ -1,6 +1,7 @@
 import numpy as np
+from numpy.typing import ArrayLike
 
-def naive_segment(signal,window_size,step_size=1,sampling_rate=20):
+def naive_segment(signal:ArrayLike,window_size:float,step_size=1.,sampling_rate=20.)->ArrayLike:
     """[summary]
 
     Args:

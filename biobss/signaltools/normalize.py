@@ -1,5 +1,6 @@
+from numpy.typing import ArrayLike
 
-def normalize_signal(signal,method='zscore'):
+def normalize_signal(signal : ArrayLike,method='zscore') -> ArrayLike:
     """Method for normalizing given signal
 
     Args:

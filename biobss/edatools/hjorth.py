@@ -1,7 +1,17 @@
 import numpy as np
+from numpy.typing import ArrayLike
 
+def get_hjorth_features(signal:ArrayLike, prefix="signal"):
+    """This method returns Hjörth parameters for the given signal.
+    For more details, see the https://en.wikipedia.org/wiki/Hjorth_parameters
 
-def get_hjorth_features(signal, prefix="signal"):
+    Args:
+        signal (ArrayLike): Input signal
+        prefix (str, optional): prefix for signal name. Defaults to "signal".
+
+    Returns:
+        dict: calculated hjorth parameters
+    """
 
     h_features = {}
     h_features[prefix + "_activity"] = activity(signal)

@@ -1,6 +1,7 @@
 import numpy as np
 import neurokit2 as nk
 from copy import copy
+from numpy.typing import ArrayLike
 
 SIGNAL_FEATURES = {
     "rms": lambda x: rms(x),
@@ -14,8 +15,24 @@ def get_feature_names():
     return SIGNAL_FEATURES.keys()
 
 
-def get_signal_features(signal, prefix="signal"):
+def get_signal_features(signal:ArrayLike, prefix="signal")->dict:
+    """This method calculates features over a given signal.
+    
+    RMS (Root Mean Square):
+    AL  (Arc Length)
+    IN  (Integral)
+    AP  (Normalized Average Power)
 
+    Args:
+        signal (ArrayLike): input signal
+        prefix (str, optional): prefix for signal name. Defaults to "signal".
+
+    Returns:
+        dict: _description_
+    """
+
+    signal=np.array(signal)
+    signal=signal.flatten()
     s_features = {}
     for k, f in SIGNAL_FEATURES.items():
         s_features["_".join([prefix, k])] = f(signal)
