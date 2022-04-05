@@ -9,7 +9,7 @@ from ..edatools import hjorth
 
 
 def extract_resp_sig(peaks_locs: ArrayLike, peaks_amp: ArrayLike, troughs_amp: ArrayLike, sampling_rate: float, mod_type: str=['AM','FM','BW'],resampling_rate: float=10) -> dict:
-    """Calculates the modulations resulted from respiratory activity.
+    """Extracts the respiratory signal using the modulations resulted from respiratory activity.
 
     Args:
         peaks_locs (ArrayLike): PPG signal peak locations
@@ -83,7 +83,7 @@ def extract_resp_sig(peaks_locs: ArrayLike, peaks_amp: ArrayLike, troughs_amp: A
 
 
 def filter_resp_sig(resampling_rate: float=10, **kwargs) -> dict:
-    """Filters extracted respiratory signal
+    """Filters extracted respiratory signal.
 
     Args:
         resampling_rate (float, optional): Resampling rate. Defaults to 10.
@@ -132,8 +132,8 @@ def estimate_rr(resp_sig: ArrayLike, sampling_rate: float, method: str='peakdet'
     Args:
         resp_sig (Array): Extracted respiratory signal.
         sampling_rate (float): Sampling rate (resampled)
-        method (str): mod_type of rr estimation. 'peakdet', 'count_adv' or 'xcorr'. Defaults to 'peakdet'.
-        delta (float, optional): Parameter of 'peakdet' mod_type. Defaults to 0.001.
+        method (str): method for rr estimation. 'peakdet', 'count_adv' or 'xcorr'. Defaults to 'peakdet'.
+        delta (float, optional): Parameter of 'peakdet' method. Defaults to 0.001.
 
     Returns:
         float: Estimated respiratory rate
@@ -215,12 +215,22 @@ def estimate_rr(resp_sig: ArrayLike, sampling_rate: float, method: str='peakdet'
     else:
         raise ValueError("The method should be 'peakdet','count_adv' or 'xcorr'")
         
-
-    
+   
     return mean_rr
 
-def calc_rqi(resp_sig, f_rs=10, rqi_method=['autocorr','hjorth']) -> dict:
 
+
+def calc_rqi(resp_sig: ArrayLike, resampling_rate: float=10, rqi_method: ArrayLike=['autocorr','hjorth']) -> dict:
+    """Calculates respiratory quality index for the given respiratory signal. 
+
+    Args:
+        resp_sig (Array): Respiratory signal
+        f_rs (float, optional): Sampling rate (after resampling) of the respiratory signal. Defaults to 10.
+        rqi_method (list, optional): Method for calculating respiratory quality index. Defaults to ['autocorr','hjorth'].
+
+    Returns:
+        dict: Dictionary of calculated RQIs.
+    """
     rqindices={}
 
     if 'autocorr' in rqi_method:
@@ -228,8 +238,8 @@ def calc_rqi(resp_sig, f_rs=10, rqi_method=['autocorr','hjorth']) -> dict:
         corr_coeff=[]
 
         sig=pd.Series(resp_sig)
-        lag_min=int(1.33*f_rs) #samples
-        lag_max=int(5*f_rs) #samples #should be 10
+        lag_min=int(1.33*resampling_rate) #samples
+        lag_max=int(10*resampling_rate) #samples 
 
         
         for lag in range(lag_min,lag_max+1):
@@ -248,23 +258,27 @@ def calc_rqi(resp_sig, f_rs=10, rqi_method=['autocorr','hjorth']) -> dict:
 
         rqindices['hjorth']=hjorth_par['signal_complexity']
         
-    
-
 
     return rqindices
 
 
-def fuse_rr(fusion_method: str='SmartFusion', rqi=None, **kwargs) -> float:
+def fuse_rr(fusion_method: str='SmartFusion', rqi: ArrayLike=None, **kwargs) -> float:
     """Fuses respiratory rates calculated from different modulation types.
 
     Args:
+        fusion_method (str, optional): Fusion method. 'SmartFusion' of 'QualityFusion'. Defaults to 'SmartFusion'.
+        rqi (Array, optional): Respiratory quality indices. Defaults to None.
         rr_am (float, optional): Respiratory rate calculated from amplitude modulation. Defaults to None.
         rr_fm (float, optional): Respiratory rate calculated from frequency modulation. Defaults to None.
         rr_bw (float, optional): Respiratory rate calculated from baseline wander. Defaults to None.
-        fusion_method (str, optional): Fusion mod_type. Defaults to 'Smart' (Smart Fusion).
+
+    Raises:
+        ValueError: _description_
+        ValueError: _description_
+        ValueError: _description_
 
     Returns:
-        _type_: _description_
+        float: Fused respiratory rate
     """
 
     if kwargs:
@@ -276,14 +290,14 @@ def fuse_rr(fusion_method: str='SmartFusion', rqi=None, **kwargs) -> float:
 
         
 
-        if fusion_method=='SmartFusion': #Smart Fusion
+        if fusion_method=='SmartFusion': 
                        
             rr_std=np.std(rr_est)
 
             if (rr_std <= 4 ):
                 rr_fused=np.mean(rr_est)               
             else:  
-                rr_fused=[]
+                rr_fused=['invalid signal']
 
 
         elif fusion_method=='QualityFusion':
@@ -298,7 +312,6 @@ def fuse_rr(fusion_method: str='SmartFusion', rqi=None, **kwargs) -> float:
 
         else:
             raise ValueError("The method should be 'SmartFusion' or 'QualityFusion'.") 
-
 
 
     else:
