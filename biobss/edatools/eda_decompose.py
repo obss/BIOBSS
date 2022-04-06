@@ -8,7 +8,7 @@ import pandas as pd
 
 
 def eda_decompose(eda_signal:np.ndarray, sr:float, method="highpass") ->pd.DataFrame:
-    """_summary_
+    """This methods takes an 1-D Array input and decompose it into tonic and phasic components.
 
     Args:
         eda_signal (arraylike): EDA signal
@@ -16,7 +16,8 @@ def eda_decompose(eda_signal:np.ndarray, sr:float, method="highpass") ->pd.DataF
         method  (str): Method selection to be used in decomposition
 
     Returns:
-        DataFrame: A Dataframe composed of Phasic and Tonic o
+        DataFrame: A Dataframe composed of Phasic and Tonic components of EDA signal
+        
     """
 
     if method == "cvxeda":
@@ -28,14 +29,14 @@ def eda_decompose(eda_signal:np.ndarray, sr:float, method="highpass") ->pd.DataF
     elif method == "bandpass":
         decomposed = _eda_bandpass(eda_signal, sr)
     else:
-        print("Wrong method selected for decomposition! Using default.")
-        decomposed = _eda_highpass(eda_signal, sr)
+        raise Exception("Method not implemented")
 
     return decomposed
 
 
 def _eda_highpass(eda_signal, sr):
-
+    # Highpass filter for EDA signal decomposition
+    
     phasic = nk.signal_filter(
         eda_signal, sampling_rate=sr, lowcut=0.05, method="butter"
     )
@@ -49,7 +50,7 @@ def _eda_highpass(eda_signal, sr):
 
 
 def _eda_bandpass(eda_signal, sr):
-
+    # Bandpass filter for EDA signal decomposition
     phasic = nk.signal_filter(eda_signal, sr, 0.2, 1)
     tonic = nk.signal_filter(eda_signal, sr, highcut=0.2)
 

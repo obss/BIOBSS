@@ -22,23 +22,41 @@ def get_hjorth_features(signal:ArrayLike, prefix="signal"):
 
 
 def activity(signal):
-    activity = 0
-    s_mean = signal.mean()
-    for s in signal:
-        activity += np.power(s - s_mean, 2)
-    activity = np.log10(activity)
-    return activity
+    """ This method returns Hjörth activity for the given signal.
+
+    Args:
+        signal (arraylile): input signal
+
+    Returns:
+        _type_: _description_
+    """
+    
+    return np.var(signal)
+
 
 
 def mobility(signal):
+    """ This method returns Hjörth mobility for the given signal.
+    """
     f_derivative = np.gradient(signal, edge_order=1)
     mobility = np.square(np.var(f_derivative) / np.var(signal))
     return mobility
 
 
 def complexity(signal):
+    """ This method returns Hjörth complexity and mobility for the given signal.
 
+    Mobility : The ratio of the variance of the first derivative of the signal to the variance of the signal.
+    Complexity : The ratio of the variance of the second derivative of the signal to the variance of the signal.
+    
+    Args:
+        signal (arraylike): input signal
+
+    Returns:
+        _type_: _description_
+    """
     _mobility = mobility(signal)
     f_derivative = np.gradient(signal, edge_order=1)
     complexity = mobility(f_derivative) / _mobility
     return complexity, _mobility
+

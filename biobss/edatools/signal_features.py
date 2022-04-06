@@ -52,6 +52,7 @@ def rms(sig):
 
 
 def calculate_al(sig):
+    # This is the arc length of the signal
     sig = np.array(sig)
     sig1 = copy(sig[1:])
     sig2 = copy(sig[:-1])
@@ -63,11 +64,13 @@ def calculate_al(sig):
 
 
 def calculate_in(sig):
+    # This is the integral of the signal
     return np.abs(sig).sum()
 
 
 def calculate_ap(sig):
-
+    # This is the normalized average power of the signal
+    
     rms_ = lambda x: x**2
     rms_func = np.vectorize(rms_)
     sig_ = rms_func(sig)

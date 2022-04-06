@@ -1,10 +1,10 @@
 from .normalize import normalize_signal
 from .resample import resample_signal
-from .segment_data import naive_segment
+from .segment_data import segment_signal
 
 
 __all__ = [
-"naive_segment",
+"segment_signal",
 "resample_signal",
 "normalize_signal",
 ]
