@@ -9,8 +9,8 @@ FREQ_FEATURES={
     "f1sc": lambda x,freqs: x[np.where(np.logical_and(freqs > 0.1, freqs < 0.2))].mean(),
     "f2sc": lambda x,freqs: x[np.where(np.logical_and(freqs > 0.2, freqs < 0.3))].mean(),
     "f3sc": lambda x,freqs: x[np.where(np.logical_and(freqs > 0.3, freqs < 0.4))].mean(),
-    "Energy": lambda x: np.sum(x**2),
-    "Entropy": lambda x: np.sum(x*np.log(x)),
+    "Energy": lambda x,freqs: np.sum(x**2),
+    "Entropy": lambda x,freqs: np.sum(x*np.log(x)),
     "max_freq": lambda x,freqs: freqs[np.argmax(x)],
 }
 
@@ -46,3 +46,4 @@ def get_freq_features(sig:ArrayLike, prefix="signal")->dict:
         sig_features["_".join([prefix, k])] = f(psd, freqs)
 
     return sig_features
+
