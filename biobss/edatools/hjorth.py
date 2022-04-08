@@ -14,14 +14,14 @@ def get_hjorth_features(signal:ArrayLike, prefix="signal"):
     """
 
     h_features = {}
-    h_features[prefix + "_activity"] = activity(signal)
-    h_features[prefix + "_complexity"], h_features[prefix + "_mobility"] = complexity(
+    h_features[prefix + "_activity"] = calculate_activity(signal)
+    h_features[prefix + "_complexity"], h_features[prefix + "_mobility"] = calculate_complexity(
         signal
     )
     return h_features
 
 
-def activity(signal):
+def calculate_activity(signal):
     """ This method returns Hjörth activity for the given signal.
 
     Args:
@@ -35,7 +35,7 @@ def activity(signal):
 
 
 
-def mobility(signal):
+def calculate_mobility(signal):
     """ This method returns Hjörth mobility for the given signal.
     """
     f_derivative = np.gradient(signal, edge_order=1)
@@ -43,7 +43,7 @@ def mobility(signal):
     return mobility
 
 
-def complexity(signal):
+def calculate_complexity(signal):
     """ This method returns Hjörth complexity and mobility for the given signal.
 
     Mobility : The ratio of the variance of the first derivative of the signal to the variance of the signal.
@@ -55,8 +55,8 @@ def complexity(signal):
     Returns:
         _type_: _description_
     """
-    _mobility = mobility(signal)
+    _mobility = calculate_mobility(signal)
     f_derivative = np.gradient(signal, edge_order=1)
-    complexity = mobility(f_derivative) / _mobility
+    complexity = calculate_mobility(f_derivative) / _mobility
     return complexity, _mobility
 

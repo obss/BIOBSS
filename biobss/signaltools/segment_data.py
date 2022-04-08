@@ -1,5 +1,8 @@
 import numpy as np
 from numpy.typing import ArrayLike
+from collections.abc import Iterable
+
+
 
 def segment_signal(signal:ArrayLike,window_size:float,step_size=1.,sampling_rate=20.)->ArrayLike:
     """[summary]
@@ -14,10 +17,8 @@ def segment_signal(signal:ArrayLike,window_size:float,step_size=1.,sampling_rate
         [2-D array]: [Collection of signal windows]
     """       
     # Verify the inputs
-    try:
-        it = iter(signal)
-    except TypeError:
-        raise Exception("**ERROR** data must be iterable.")
+    if not isinstance(signal, Iterable):
+        raise ValueError("Expecting an iterable")
     if not ((type(window_size) == type(0) or type(window_size) == type(0.) ) and (type(step_size) == type(0) or type(step_size) == type(0.))):
         raise Exception("**ERROR** type(window_size) and type(step_size) must be int of float.")
     if window_size <= 0 or step_size <= 0:

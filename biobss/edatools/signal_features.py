@@ -4,12 +4,11 @@ from copy import copy
 from numpy.typing import ArrayLike
 
 SIGNAL_FEATURES = {
-    "rms": lambda x: rms(x),
-    "al": lambda x: calculate_al(x),
-    "in": lambda x: calculate_in(x),
-    "ap": lambda x: calculate_ap(x),
+    "rms": lambda x: calculate_rms(x),
+    "acr_length": lambda x: calculate_arc_length(x),
+    "integral": lambda x: calculate_integral(x),
+    "average_power": lambda x: calculate_avg_pow(x),
 }
-
 
 def get_feature_names():
     return SIGNAL_FEATURES.keys()
@@ -40,7 +39,7 @@ def get_signal_features(signal:ArrayLike, prefix="signal")->dict:
     return s_features
 
 
-def rms(sig):
+def calculate_rms(sig):
 
     rms_ = lambda x: x**2
     rms_func = np.vectorize(rms_)
@@ -51,7 +50,7 @@ def rms(sig):
     return tot
 
 
-def calculate_al(sig):
+def calculate_arc_length(sig):
     # This is the arc length of the signal
     sig = np.array(sig)
     sig1 = copy(sig[1:])
@@ -63,12 +62,12 @@ def calculate_al(sig):
     return tot
 
 
-def calculate_in(sig):
+def calculate_integral(sig):
     # This is the integral of the signal
     return np.abs(sig).sum()
 
 
-def calculate_ap(sig):
+def calculate_avg_pow(sig):
     # This is the normalized average power of the signal
     
     rms_ = lambda x: x**2
