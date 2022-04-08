@@ -6,7 +6,7 @@ def elim_vlf(ppg_sig: ArrayLike, sampling_rate: float) -> ArrayLike:
     The cutoff frequencies are determined considering the frequency range of the respiration.
 
     Args:
-        sig (Array): PPG signal
+        ppg_sig (Array): PPG signal
         sampling_rate (float): Sampling rate of the PPG signal
 
     Returns:
@@ -26,8 +26,8 @@ def elim_vhf(ppg_sig: ArrayLike, sampling_rate: float) -> ArrayLike:
     The cutoff frequencies are determined considering the frequency range of the respiration.
 
     Args:
-        sig (Array): PPG signal
-        fs (float): Sampling rate of the PPG signal
+        ppg_sig (Array): PPG signal
+        sampling_rate (float): Sampling rate of the PPG signal
 
     Returns:
         Array: Filtered PPG signal
