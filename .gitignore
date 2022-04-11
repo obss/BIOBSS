@@ -1,31 +1,3 @@
-Skip to content
-Search or jump to…
-Pull requests
-Issues
-Marketplace
-Explore
- 
-@tascic 
-github
-/
-gitignore
-Public
-Code
-Pull requests
-226
-Actions
-Security
-Insights
-gitignore/Python.gitignore
-@willfrey
-willfrey Update Python.gitignore
-…
-Latest commit eabb671 on 2 Feb
- History
- 88 contributors
-@arcresu@shiftkey@jwg4@GabrielC101@misaelnieto@pmsosa@svkampen@vltr@thedrow@matheussl@Lucretiel@hugovk
-152 lines (124 sloc)  2.7 KB
-   
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -183,18 +155,4 @@ notes*
 
 .vscode/
 .idea/
-
-© 2022 GitHub, Inc.
-Terms
-Privacy
-Security
-Status
-Docs
-Contact GitHub
-Pricing
-API
-Training
-Blog
-About
-
 

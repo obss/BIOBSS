@@ -6,10 +6,10 @@ from .eda_decompose import *
 from .signal_features import *
 import multiprocessing
 from functools import partial
-from .stat_features import *
+from ..common.stat_features import *
 from .hjorth import *
 from .signal_features import *
-from .freq_features import *
+from ..common.freq_features import *
 from numpy.typing import ArrayLike
 
 def from_decomposed(signal_phasic:ArrayLike, signal_tonic:ArrayLike, sr:float)->dict:
