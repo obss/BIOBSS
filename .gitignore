@@ -156,3 +156,23 @@ notes*
 .vscode/
 .idea/
 
+**/__pycache__/
+dist/*
+biobss.egg-info/*
+build/*
+.eggs/*
+.vscode/*
+Empatica_files/*
+.ipynb_checkpoints/ppg_analysis-checkpoint.ipynb
+
+ppg_development.ipynb
+
+biobss/signaltools/empatica.py
+biobss/signaltools/e4_format.py
+biobss/signaltools/dataloader.py
+biobss/ppgtools/ppg_features.py
+sample_data/ieee_wearable_P1_bp.csv
+sample_data/ieee_wearable_P1_par.csv
+sample_data/ieee_wearable_P1_ppg.csv
+additional_methods.ipynb
+biobss/ppgtools/features.py
