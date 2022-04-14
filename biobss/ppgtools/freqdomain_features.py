@@ -6,12 +6,12 @@ from numpy.typing import ArrayLike
 
 #Frequency domain features
 FUNCTIONS_FREQ_SEGMENT= {
-'p_1': lambda sigfft,freq,_0,_1: fft_peaks(sigfft,freq,1),
-'f_1': lambda sigfft,freq,_0,_1: fft_peaks(sigfft,freq,1,True),
-'p_2': lambda sigfft,freq,_0,_1: fft_peaks(sigfft,freq,2),
-'f_2': lambda sigfft,freq,_0,_1: fft_peaks(sigfft,freq,2,True),
-'p_3': lambda sigfft,freq,_0,_1: fft_peaks(sigfft,freq,3),
-'f_3': lambda sigfft,freq,_0,_1: fft_peaks(sigfft,freq,3,True),
+'p_1': lambda sigfft,freq,_0,_1: fft_peakdet(sigfft,freq,1),
+'f_1': lambda sigfft,freq,_0,_1: fft_peakdet(sigfft,freq,1,True),
+'p_2': lambda sigfft,freq,_0,_1: fft_peakdet(sigfft,freq,2),
+'f_2': lambda sigfft,freq,_0,_1: fft_peakdet(sigfft,freq,2,True),
+'p_3': lambda sigfft,freq,_0,_1: fft_peakdet(sigfft,freq,3),
+'f_3': lambda sigfft,freq,_0,_1: fft_peakdet(sigfft,freq,3,True),
 'pow': lambda _0,_1,pxx,f: fft_pow(pxx,f,0,2),
 'rpow': lambda _0,_1,pxx,f: fft_relpow(pxx,f,[0,2.25],[0,5]),
 }  
@@ -37,26 +37,24 @@ def get_freq_features(sig: ArrayLike, fs: float, type: str, prefix: str='signal'
         prefix (str, optional): Prefix for signal type. Defaults to 'signal'.
 
     Raises:
-        ValueError: if type is not equal to 'segment'.
+        ValueError: if type is not 'segment'.
 
     Returns:
         dict: Dictionary of calculated features
     """
 
     if type=='segment':
-
         #nfft=2**math.ceil(math.log2(abs(len(sig))))
-        nfft=len(sig)
-            
+        nfft=len(sig) 
+         
         freq=fft.fftfreq(nfft,1/fs)
         sigfft=np.abs(fft.fft(sig,nfft)/len(sig))
-        P1=sigfft[0:nfft/2]
+        P1=sigfft[0:int(nfft/2)]
         P1[1:-1] = 2 * P1[1:-1]
         sigfft=P1
         freq=freq[0 : int(len(sig)/ 2)]
 
         sig_=sig-np.mean(sig)
-        #n=math.ceil(math.log2(abs(len(sig_))))
         f,pxx=signal.welch(sig_, fs=fs, nfft=nfft)
         
         features_freq={}
@@ -69,13 +67,13 @@ def get_freq_features(sig: ArrayLike, fs: float, type: str, prefix: str='signal'
     return features_freq
 
 
-def fft_peaks(sigfft: ArrayLike, freq:ArrayLike, peakno: int, loc:bool=False) -> float:
+def fft_peakdet(sigfft: ArrayLike, freq:ArrayLike, peakno: int, loc:bool=False) -> float:
     """Detects peaks from the fft of the signal. Returns peak amplitudes or peak locations (frequencies).
 
     Args:
         sigfft (ArrayLike): fft array to be analyzed.
         freq (ArrayLike): frequencies of the fft array.
-        peakno (int): Number of the peak to be returned, when sorted in descending order.
+        peakno (int): Index of the peak to be returned, when sorted in descending order.
         loc (bool, optional): If True, frequency value is returned. Defaults to False.
 
     Returns:
@@ -92,7 +90,6 @@ def fft_peaks(sigfft: ArrayLike, freq:ArrayLike, peakno: int, loc:bool=False) ->
     
     if not loc:
         return sorted_peaks[peakno-1]
-
     else:
         return sorted_freq[peakno-1]
 
@@ -114,14 +111,14 @@ def fft_pow(pxx:ArrayLike, f:ArrayLike, f1:float, f2:float) -> float:
 
     return pow
 
-def fft_relpow(pxx,f,F1,F2) -> float:
+def fft_relpow(pxx:ArrayLike,f:ArrayLike,F1:list,F2:list) -> float:
     """Calculates power of the signal for the given frequency ranges.
 
     Args:
-        pxx (_type_): Array of power spectral density values.
-        f (_type_): frequencies of the pxx array.
-        F1 (_type_): Lower limit of the frequency range.
-        F2 (_type_): Upper limit of the frequency range.
+        pxx (ArrayLike): Array of power spectral density values.
+        f (ArrayLike): frequencies of the pxx array.
+        F1 (list): Lower limit of the frequency range.
+        F2 (list): Upper limit of the frequency range.
 
     Returns:
         float: Relative power of the signal for the given frequency ranges.

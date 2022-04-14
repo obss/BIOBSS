@@ -68,11 +68,11 @@ def get_time_features(sig: ArrayLike,fs: float,type: str, prefix: str='signal', 
     Args:
         sig (ArrayLike): Signal to be analyzed.
         fs (float): Sampling rate
-        type (_type_, optional): Type of feature calculation, should be 'segment' or 'cycle'. Defaults to None.
+        type (str, optional): Type of feature calculation, should be 'segment' or 'cycle'. Defaults to None.
         prefix (str, optional): Prefix for signal type. Defaults to 'signal'.
 
     Raises:
-        ValueError: if Type is not equal to 'cycle' or 'segment'.
+        ValueError: if Type is not 'cycle' or 'segment'.
 
     Returns:
         dict: Dictionary of calculated features.
@@ -98,10 +98,10 @@ def calculate_SW(sig: ArrayLike, peaks: ArrayLike, locs_peaks: ArrayLike, locs_o
     """Calculates systolic phase duration of the PPG waveform.
 
     Args:
-        sig (array): Signal
-        peaks (array): Peak amplitudes
-        locs_peaks (array): Peak locations
-        locs_onsets (array): Trough amplitudes
+        sig (ArrayLike): Signal
+        peaks (ArrayLike): Peak amplitudes
+        locs_peaks (ArrayLike): Peak locations
+        locs_onsets (ArrayLike): Trough amplitudes
         fs (float): Sampling rate
         ratio (float): Ratio (signal amplitude/peak amplitude) at which the feature is calculated
 
@@ -121,10 +121,10 @@ def calculate_DW(sig: ArrayLike, peaks: ArrayLike, locs_peaks: ArrayLike, locs_o
     """Calcualtes diastolic phase duration of the waveform.
 
     Args:
-        sig (array): Signal
-        peaks (array): Peak amplitudes
-        locs_peaks (array): Peak locations
-        locs_onsets (array): Trough amplitudes
+        sig (ArrayLike): Signal
+        peaks (ArrayLike): Peak amplitudes
+        locs_peaks (ArrayLike): Peak locations
+        locs_onsets (ArrayLike): Trough amplitudes
         fs (float): Sampling rate
         ratio (float): Ratio (signal amplitude/peak amplitude) at which the feature is calculated
 
@@ -144,27 +144,23 @@ def calculate_zcr(sig: ArrayLike) -> float:
     """Calculates zero crossing rate, defined as number of zero-crossings to signal length
 
     Args:
-        sig (array): Signal
+        sig (ArrayLike): Signal
 
     Returns:
         float: Zero crossing rate
     """
-    zeroCrossingNum=0
+
     sig_=sig-np.mean(sig)
-    for i in range(len(sig_)-1):
-        if sig_[i]*sig_[i+1]<=0:
-            zeroCrossingNum+=1
+    numZeroCrossing = len(np.where(np.diff(np.sign(sig_)))[0])
 
-    zcrate=zeroCrossingNum/len(sig_)
-
-    return zcrate
+    return numZeroCrossing/len(sig_)
 
 
 def calculate_snr(sig: ArrayLike) -> float:
     """Calculates signal to noise ratio.
 
     Args:
-        sig (array): Signal
+        sig (ArrayLike): Signal
 
     Returns:
         float: Signal to noise ratio

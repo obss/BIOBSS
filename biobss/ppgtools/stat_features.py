@@ -44,7 +44,7 @@ def get_stat_features(sig: ArrayLike,fs: float,type: str, prefix: str='signal', 
         prefix (str, optional): Prefix for signal type. Defaults to 'signal'.
 
     Raises:
-        ValueError: if type is not equal to 'cycle' or 'segment'.
+        ValueError: if type is not 'cycle' or 'segment'.
 
     Returns:
         dict: Dictionary of calculated features.

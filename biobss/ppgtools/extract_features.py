@@ -1,5 +1,4 @@
 from numpy.typing import ArrayLike
-from typing import Tuple
 
 from biobss.ppgtools.freqdomain_features import get_freq_features
 from biobss.ppgtools.stat_features import get_stat_features
@@ -26,7 +25,7 @@ def from_cycles(sig: ArrayLike, peaks_locs: ArrayLike, peaks_amp: ArrayLike, tro
         prefix (str, optional): Prefix for signal type. Defaults to 'signal'.
 
     Raises:
-        ValueError: if elements of feature_types are not equal to 'Time' or 'Stat'.
+        ValueError: If elements of feature_types are not 'Time' or 'Stat'.
 
     Returns:
         dict: Dictionary of calculated features.
@@ -53,7 +52,7 @@ def from_segment(sig: ArrayLike,sampling_rate: float, feature_types: ArrayLike=[
         prefix (str, optional): Prefix for signal type. Defaults to 'signal'.
 
     Raises:
-        ValueError: if elements of feature_types are not equal to 'Time', 'Stat' or 'Freq'.
+        ValueError: if elements of feature_types are not 'Time', 'Stat' or 'Freq'.
 
     Returns:
         dict: Dictionary of calculated features.

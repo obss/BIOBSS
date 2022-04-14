@@ -169,7 +169,7 @@ def check_morph(peaks_locs: ArrayLike ,peaks_amps: ArrayLike, troughs_locs: Arra
     #Rule 3:
     PWD = np.diff(troughs_locs)/sampling_rate
 
-    if np.size(np.where(PWD < MIN_PWD))>0 or np.size(ind2=np.where(PWD > MAX_PWD))>0:
+    if np.size(np.where(PWD < MIN_PWD))>0 or np.size(np.where(PWD > MAX_PWD))>0:
         info['Rule 3']=False
     else:
         info['Rule 3']=True
