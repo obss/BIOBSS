@@ -1,8 +1,9 @@
 
+from signal import Signal
 """ Process list object with add and iterate process objects"""
 class Process_list():
     """ Process list object with add and iterate process objects"""
-    def __init__(self,modality,sigtype):
+    def __init__(self,modality="Generic",sigtype="Generic"):
         self.process_list=[]
         self.modality=modality
         self.sigtype=sigtype
@@ -20,3 +21,9 @@ class Process_list():
             if(process.name==name):
                 return process
         raise ValueError('Process with name '+name+' not found')
+    
+    
+    def run_process_queue(self,signal:Signal):
+        for process in self.process_list:
+            signal=process.process(signal)
+        return signal

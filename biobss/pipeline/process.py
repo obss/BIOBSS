@@ -1,3 +1,5 @@
+from signal import Signal
+
 """generic signal process object"""
 
 class Bio_process():
@@ -20,8 +22,8 @@ class Bio_process():
         else:
             return False
         
-    def process(self,signal,sampling_rate):    
-        return 
+    def process(self,signal:Signal):
+        signal.signal=self.method(signal.signal,**self.kwargs)
     
     def get_name(self):
         return self.method

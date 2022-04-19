@@ -2,7 +2,6 @@ import numpy as np
 from scipy import signal
 from numpy.typing import ArrayLike
 
-
 def resample_signal(signal:ArrayLike,sample_rate:float,target_sample_rate:float) -> ArrayLike:
     """_summary_
 
