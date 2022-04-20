@@ -8,5 +8,6 @@ class Signal():
         self.sampling_rate=sampling_rate
         self.modality=modality
         self.sigtype=sigtype
+        self.channel_number=1
 
         
