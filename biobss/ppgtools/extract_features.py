@@ -1,15 +1,23 @@
 from numpy.typing import ArrayLike
+from typing import Callable
 
 from biobss.ppgtools.freqdomain_features import get_freq_features
 from biobss.ppgtools.stat_features import get_stat_features
 from biobss.ppgtools.timedomain_features import get_time_features
 
-DOMAIN_FUNCTIONS = {
-    'Time' : get_time_features,
-    'Freq' : get_freq_features,   
-    'Stat' : get_stat_features,
-    }
 
+def get_domain_function(domain:str) -> Callable:
+
+    if domain == "Time":
+        return get_time_features
+    elif domain == "Freq":
+        return get_freq_features
+    elif domain == "Stat":
+        return get_stat_features
+    else:
+        raise ValueError("Unknown domain:", domain)   
+
+    
 
 def from_cycles(sig: ArrayLike, peaks_locs: ArrayLike, peaks_amp: ArrayLike, troughs_locs: ArrayLike ,troughs_amp: ArrayLike ,sampling_rate: float, feature_types: ArrayLike=['Time','Stat'], prefix: str='signal') -> dict:
     """Calculates cycle-based features.
@@ -37,7 +45,8 @@ def from_cycles(sig: ArrayLike, peaks_locs: ArrayLike, peaks_amp: ArrayLike, tro
         if domain not in valid_types:
             raise ValueError("Invalid feature type: " + domain)
         else:
-            features.update(DOMAIN_FUNCTIONS[domain](sig,sampling_rate,type='cycle',prefix=prefix, peaks_locs=peaks_locs, peaks_amp=peaks_amp, troughs_locs=troughs_locs, troughs_amp=troughs_amp))
+            domain_function = get_domain_function(domain)
+            features.update(domain_function(sig,sampling_rate,type='cycle',prefix=prefix, peaks_locs=peaks_locs, peaks_amp=peaks_amp, troughs_locs=troughs_locs, troughs_amp=troughs_amp))
 
     return features
 
@@ -64,7 +73,8 @@ def from_segment(sig: ArrayLike,sampling_rate: float, feature_types: ArrayLike=[
         if domain not in valid_types:
             raise ValueError("invalid feature type: " + domain)
         else:
-            features.update(DOMAIN_FUNCTIONS[domain](sig,sampling_rate,type='segment',prefix=prefix))
+            domain_function = get_domain_function(domain)
+            features.update(domain_function(sig,sampling_rate,type='segment',prefix=prefix))
 
     return features
 

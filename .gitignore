@@ -163,16 +163,10 @@ build/*
 .eggs/*
 .vscode/*
 Empatica_files/*
-.ipynb_checkpoints/ppg_analysis-checkpoint.ipynb
+Polar_files/*
+.ipynb_checkpoints/*
 
-ppg_development.ipynb
+*.csv
 
-biobss/signaltools/empatica.py
-biobss/signaltools/e4_format.py
-biobss/signaltools/dataloader.py
-biobss/ppgtools/ppg_features.py
-sample_data/ieee_wearable_P1_bp.csv
-sample_data/ieee_wearable_P1_par.csv
-sample_data/ieee_wearable_P1_ppg.csv
-additional_methods.ipynb
-biobss/ppgtools/features.py
+
+
