@@ -13,5 +13,3 @@ from .filtering import *
 from .peakdetection import *
 from .derivation import *
 from .dataloader import *
-#from .e4_format import *
-#from .empatica import *
