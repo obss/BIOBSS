@@ -104,53 +104,103 @@ def timestamp_to_msec(timestamp_df:pd.DataFrame, start_time:datetime.datetime=No
     return np.asarray(timediff_usec)/1000
 
 
-def update_csv(csv_dir:str):
-    """Adds a column to the csv file for relative time in microseconds. The timepoints are calculated referenced to the earliest timestamp for all sensors.
+def get_start_time(csv_dir:str, file_types:list=['HR','PPI','ACC','PPG','MAGN','GYRO'],marker:bool=False) ->datetime.datetime:
+    """Returns the earliest timestamp for selected filetypes.
 
     Args:
-        csv_dir (str): Directory of the csv files
+        csv_dir (str): Directory of the csv files for a specific record.
+        file_types (list, optional): File types to be included. Defaults to ['HR','PPI','ACC','PPG','MAGN','GYRO'].
+        marker (bool, optional): True if marker file exists. Defaults to False.
+
+    Returns:
+        datetime.datetime: Datetime object for start time.
+    """
+    files=os.listdir(csv_dir)
+    os.chdir(csv_dir)
+    if len(files)!=0:
+        csv_files=[]
+        sig_start=[]
+        sig_stop=[]
+        
+        if marker:
+
+            marker_files=glob.glob("*MARKER*.csv*")
+            if marker_files:
+                csv_files.append(marker_files[0])
+                
+        for file_type in file_types:
+            filenames=glob.glob("*_{}.csv*".format(file_type))
+            if filenames:
+                csv_files.append(filenames[0])
+   
+        
+        for filename in csv_files:
+
+            filepath=csv_dir+"\\"+filename    
+            df= pd.read_csv(filepath)
+            timestamps=df['Phone timestamp'].values.tolist()
+            if timestamps:
+                tses = [datetime.datetime.fromisoformat(x) for x in timestamps]
+                sig_start.append(tses[0])
+                sig_stop.append(tses[-1])
+
+        sorted_start=sorted(sig_start)
+        t_start=sorted_start[0]
+
+    return t_start
+
+
+def update_csv(csv_dir:str, file_types:list=['HR','PPI','ACC','PPG','MAGN','GYRO'],marker:bool=False,start_time=None):
+    """Adds a column to the selected csv files for relative time in milliseconds. The timepoints are calculated referenced to the start_time.
+
+    Args:
+        csv_dir (str): Directory of the csv files for a specific record.
+        file_types (list, optional): File types to be included. Defaults to ['HR','PPI','ACC','PPG','MAGN','GYRO'].
+        marker (bool, optional): True if marker file exists. Defaults to False.
+        start_time (datetime.datetime, optional): Reference start time. Defaults to None. If None, it is calculated as the earliest timestamp of the selected files.
     """
 
-    for root, _, files in os.walk(csv_dir):
-        os.chdir(root)
+    files=os.listdir(csv_dir)
+    os.chdir(csv_dir)
 
-        if len(files)!=0:
-            sig_start=[]
-            sig_stop=[]
-            
-            csv_files=glob.glob("*.csv*")
-            for filename in csv_files:
+    if len(files)!=0:
 
-                filepath=root+"\\"+filename    
-                df= pd.read_csv(filepath)
-                timestamps=df['Phone timestamp'].values.tolist()
-                if timestamps:
-                    tses = [datetime.datetime.fromisoformat(x) for x in timestamps]
-                    sig_start.append(tses[0])
-                    sig_stop.append(tses[-1])
+        if start_time is None:
 
-            sorted_start=sorted(sig_start)
-            t_start=sorted_start[0]
+            start_time=get_start_time(csv_dir,file_types=file_types,marker=marker)
 
-            sorted_stop=sorted(sig_stop)
-            t_stop=sorted_stop[-1]
+        csv_files=[]
 
-            for filename in csv_files:
+        if marker:
 
-                filepath=root+"\\"+filename
-                df= pd.read_csv(filepath)
-                timediff_usec=timestamp_to_msec(df['Phone timestamp'],t_start)
-                df['Time_record (ms)']=timediff_usec
-                df.to_csv(filepath,index=None)
+            marker_files=glob.glob("*MARKER*.csv*")
+            if marker_files:
+                csv_files.append(marker_files[0])
+
+        for file_type in file_types:
+            filenames=glob.glob("*_{}.csv*".format(file_type))
+            if filenames:
+                csv_files.append(filenames[0])            
 
 
-def calculate_sync_time(csv_dir:str, time_step:float, save_file:bool=False) -> pd.DataFrame:
+        for filename in csv_files:
+
+            filepath=csv_dir+"\\"+filename
+            df= pd.read_csv(filepath)
+            timediff_usec=timestamp_to_msec(df['Phone timestamp'],start_time)
+            df['Time_record (ms)']=timediff_usec
+            df.to_csv(filepath,index=None)
+
+
+def calculate_sync_time(csv_dir:str, time_step:float,file_types=['HR','PPI','ACC','PPG','MAGN','GYRO'], save_file:bool=False, marker=False) -> pd.DataFrame:
     """Generates a time list for synchronization.
 
     Args:
-        csv_dir (str): Directory of the csv files
+        csv_dir (str): Directory of the csv files for a specific record.
         time_step (float): Time step in milliseconds.
+        file_types (list, optional): File types to be included. Defaults to ['HR','PPI','ACC','PPG','MAGN','GYRO'].
         save_file (bool, optional): If True, the generated time list is saved as a txt file. Defaults to False.
+        marker (bool, optional): True if marker file exists. Defaults to False.
 
     Raises:
         ValueError: If the directory is empty.
@@ -160,16 +210,27 @@ def calculate_sync_time(csv_dir:str, time_step:float, save_file:bool=False) -> p
     """
 
     os.chdir(csv_dir)
-    dir = os.listdir(csv_dir)
+    files = os.listdir(csv_dir)
 
-    if len(dir)==0:
+    if len(files)==0:
         raise ValueError("Empty directory")
 
     else:
+        csv_files=[]
         sig_start=[]
         sig_stop=[]
         
-        csv_files=glob.glob("*.csv*")
+        if marker:
+
+            marker_files=glob.glob("*MARKER*.csv*")
+            if marker_files:
+                csv_files.append(marker_files[0])
+                
+        for file_type in file_types:
+            filenames=glob.glob("*_{}.csv*".format(file_type))
+            if filenames:
+                csv_files.append(filenames[0]) 
+                
         for filename in csv_files:
 
             filepath=csv_dir+"\\"+filename
@@ -192,6 +253,7 @@ def calculate_sync_time(csv_dir:str, time_step:float, save_file:bool=False) -> p
             timelist_df.to_csv(csv_dir+"\\times.txt",header=None,index=None)
         
     return timelist_df
+
 
 
 def synchronize_signals(csv_dir:str, time_list=None, interp_method:str='linear', sampling_rate:int=1000, resampling_rate:int=1000, file_types:list=['ACC','PPG','MAGN','GYRO'],save_files:bool=False) -> pd.DataFrame:
@@ -295,7 +357,14 @@ def segment_events(filepath:str, markerpath:str,events:list,out_path:str,save_fi
 
 
 def csv_to_pkl(csv_dir:str,file_types:list=['HR','PPI','ACC','PPG','MAGN','GYRO'], record_id: str=None):
-      
+    """Reads csv files and saves as pkl files.
+
+    Args:
+        csv_dir (str): Directory of the csv files.
+        file_types (list, optional): File types to be included. Defaults to ['HR','PPI','ACC','PPG','MAGN','GYRO'].
+        record_id (str, optional): Record id of the file. It is used to rename the file. Defaults to None.
+    """
+    
     for root, _, files in os.walk(csv_dir):
 
         if len(files)!=0:
