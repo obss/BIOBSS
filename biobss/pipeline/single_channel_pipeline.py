@@ -1,9 +1,13 @@
-from git import RemoteProgress
-from jsonschema import RefResolutionError
 from .. import signaltools
 from .process_list import Process_List
-from .signal_windows import Signal_Windows
-from .signal import Signal
+from .bio_data import Bio_Data
+from .data_channel import Data_Channel
+from typing import Union
+import numpy as np
+import pandas as pd
+from numpy.typing import ArrayLike
+
+from biobss.pipeline import data_channel
 """a biological signal processing object with preprocessing and postprocessing steps"""
 
 class Bio_Pipeline:
@@ -29,40 +33,56 @@ class Bio_Pipeline:
         
         
         
-    def set_input(self,signal,sampling_rate,modality,name):
+    def set_input(self,signal:Union[Bio_Data,ArrayLike],sampling_rate=None,modality="Generic",name=None,timestamp=None,timestamp_start=0):
         if(modality!=self.modality):
             raise ValueError("Input modality does not match pipeline modality")
         
-        self.input = signal
-        self.sampling_rate = sampling_rate
-        self.signal_name=name
-        self.signal=Signal(signal,sampling_rate,modality,name)
+        if(isinstance(signal,Bio_Data)):
+            self.input=signal
+        else:
+            if(sampling_rate is None):
+                raise ValueError("If signal is not a Bio_Data object, sampling_rate must be specified")
+            if(name is None):
+                raise ValueError("If signal is not a Bio_Data object, name must be specified")
+            self.input=Bio_Data()
+            if(isinstance(signal,pd.Series)):
+                self.input.add_channel(Data_Channel(signal.values,sampling_rate=sampling_rate,name=name,timestamp=timestamp,timestamp_start=timestamp_start))
+            elif(isinstance(signal,np.ndarray)):
+                self.input.add_channel(Data_Channel(signal,sampling_rate=sampling_rate,name=name,timestamp=timestamp,timestamp_start=timestamp_start))
+            elif(isinstance(signal,pd.DataFrame)):
+                for column in signal.columns:
+                    self.input.add_channel(Data_Channel(signal[column],sampling_rate=sampling_rate,name=column,timestamp=timestamp,timestamp_start=timestamp_start))
+            elif(isinstance(signal,list)):
+                self.input.add_channel(Data_Channel(signal,sampling_rate=sampling_rate,name=name,timestamp=timestamp,timestamp_start=timestamp_start))
+            else:
+                raise ValueError("Input signal must be a Bio_Data object, a pandas DataFrame, a pandas Series, a numpy array, or a list")
         
+
         
     def set_window_parameters(self,window_size=10,step_size=5):
         self.window_size=window_size
         self.step_size=step_size
         
     def convert_windows(self):
-        windows=signaltools.segment_signal(self.input,self.window_size,self.step_size,sampling_rate=self.sampling_rate)
-        windows=Signal_Windows(windows,self.window_size,self.step_size,self.sampling_rate) 
-        self.signal_windows=windows
+        for ch in self.input.get_channel_names():
+            channel=self.input[ch]
+            windowed=signaltools.segment_signal(channel.channel,self.window_size,self.step_size,sampling_rate=channel.sampling_rate)
+            timestamps=signaltools.segment_signal(channel.timestamp,self.window_size,self.step_size,sampling_rate=channel.sampling_rate)
+            self.input.modify_signal(windowed,channel.signal_name,timestamp=timestamps,sampling_rate=channel.sampling_rate)
+
         self.segmented=True
         
-    def convert_windows(self,signal):       
-        windows=signaltools.segment_signal_object(signal,self.window_size,self.step_size,sampling_rate=self.sampling_rate)
-        return windows
         
     def create_feature_list(self,feature_list):
         self.feature_list=[]
         
     def run_pipeline(self):
         
-        self.preprocessed_signal=self.preprocess_queue.run_process_queue(self.input)
+        self.input=self.preprocess_queue.run_process_queue(self.input)
         if(self.windowed):
-            self.preprocessed_signal=self.convert_windows(self.preprocessed_signal)
+            self.convert_windows()
 
-        self.processed_signal=self.process_queue.run_process_queue(self.preprocessed_signal)
+        self.input=self.process_queue.run_process_queue(self.input)
         
         
     def __repr__(self) -> str:

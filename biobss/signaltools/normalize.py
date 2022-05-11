@@ -1,5 +1,5 @@
 from numpy.typing import ArrayLike
-from ..pipeline.signal import Signal
+from ..pipeline.data_channel import Data_Channel
 
 def normalize_signal(signal : ArrayLike,method='zscore') -> ArrayLike:
     """Method for normalizing given signal
@@ -23,20 +23,4 @@ def normalize_signal(signal : ArrayLike,method='zscore') -> ArrayLike:
 
 
 
-def normalize_signal_object(signal : Signal,method='zscore') -> Signal:
-    """Method for normalizing given signal
-
-    Args:
-        signal (arraylike): _description_
-        method (str, optional): Normalization method. Defaults to 'zscore'.
-
-    Returns:
-        1-D array: normalized signal
-    """
-    
-    # Need to add signal check
-    for s in signal.channels:
-        signal.change_channel_data(s,normalize_signal(signal.get_channel_data(s),method))
-        
-    return signal
         

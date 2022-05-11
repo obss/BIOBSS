@@ -1,4 +1,4 @@
 from .bio_process import Bio_Process
 from .single_channel_pipeline import Bio_Pipeline
-from .signal_windows import Signal_Windows
-from .signal import Signal
+from .bio_data import Bio_Data
+from .data_channel import Data_Channel

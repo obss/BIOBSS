@@ -4,33 +4,9 @@ import cvxopt.solvers
 from pyparsing import srange
 import neurokit2 as nk
 import pandas as pd
-from ..pipeline.signal import Signal
 
 
-
-
-def eda_decompose_signal(eda_signal:Signal,method="highpass")->Signal:
-    """This methods takes an Signal input and decompose it into tonic and phasic components.
-    Args:
-        eda_signal (Signal): EDA signal
-
-    Returns:
-        DataFrame: A Dataframe composed of Phasic and Tonic components of EDA signal
-        
-    """
-    eda_signal=eda_signal.copy()
-    if(eda_signal.modality!= "EDA"):
-        raise ValueError("Signal is not EDA signal")
-    if(not "EDA_Raw" in eda_signal.channels):
-        raise ValueError("You need a EDA_Raw channel to use decompose method")
-    
-    decomposed = eda_decompose(eda_signal["EDA_Raw"], eda_signal.sampling_rate,method=method)
-    eda_signal.add_channel(decomposed["EDA_Tonic"], "EDA_Tonic")
-    eda_signal.add_channel(decomposed["EDA_Phasic"], "EDA_Phasic")
-
-    return eda_signal
-
-def eda_decompose(eda_signal:np.ndarray, sr:float, method="highpass") ->pd.DataFrame:
+def eda_decompose(eda_signal:np.ndarray, sampling_rate:float, method="highpass") ->pd.DataFrame:
     """This methods takes an 1-D Array input and decompose it into tonic and phasic components.
 
     Args:
@@ -42,7 +18,7 @@ def eda_decompose(eda_signal:np.ndarray, sr:float, method="highpass") ->pd.DataF
         DataFrame: A Dataframe composed of Phasic and Tonic components of EDA signal
         
     """
-
+    sr=sampling_rate
     if method == "cvxeda":
         decomposed = _cvxEDA(eda_signal, 1 / sr)
 

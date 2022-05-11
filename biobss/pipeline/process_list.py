@@ -1,6 +1,5 @@
-
-from .signal import Signal
-from .signal_windows import Signal_Windows
+from .bio_data import Bio_Data
+from .data_channel import Data_Channel
 from typing import Union
 
 """ Process list object with add and iterate process objects"""
@@ -26,15 +25,16 @@ class Process_List():
         raise ValueError('Process with name '+name+' not found')
     
     
-    def run_process_queue(self,signal:Union[Signal,Signal_Windows]) -> Union[Signal,Signal_Windows]:
+    def run_process_queue(self,signal:Bio_Data) -> Bio_Data:
+
         signal=signal.copy()
         for process in self.process_list:
-            if(isinstance(signal,Signal)):
-                signal=process.process(signal)
-            elif(isinstance(signal,Signal_Windows)):
-                segments=[]
-                for w in signal.signal_windows:
-                    segments.append(process.process(w))        
-                signal=Signal_Windows().create_from_segments(segments,signal.window_size,signal.step_size,signal.sampling_rate)
+            for channel_name,channels in signal.data.items():
+                process_result=process.process(channels)
+                if(isinstance(process_result,Bio_Data)):
+                    signal.join(process_result)
+                elif(isinstance(process_result,Data_Channel)):
+                    signal.add_channel(process_result,channel_name,modify_existed=True)
+            self.process_list.pop(process)
 
         return signal

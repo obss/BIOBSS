@@ -1,7 +1,7 @@
 import numpy as np
 from scipy import signal as sg
 from numpy.typing import ArrayLike
-from ..pipeline.signal import Signal
+from ..pipeline.data_channel import Data_Channel
 
 def resample_signal(signal:ArrayLike,sample_rate:float,target_sample_rate:float,return_time=False,t=None) -> ArrayLike:
     """_summary_
@@ -30,7 +30,7 @@ def resample_signal(signal:ArrayLike,sample_rate:float,target_sample_rate:float,
     return resampled
 
 
-def resample_signal_object(signal:Signal,target_sample_rate:float) -> Signal:
+def resample_signal_object(signal:Data_Channel,target_sample_rate:float) -> Data_Channel:
     """_summary_
 
     Args:
@@ -40,10 +40,10 @@ def resample_signal_object(signal:Signal,target_sample_rate:float) -> Signal:
     Returns:
         Signal: resampled signal
     """
+    if(not isinstance(signal,Data_Channel)):
+        raise ValueError("Expecting a Signal object")
     
-    for s in signal.channels:
-        signal.change_channel_data(s, resample_signal(signal[s],signal.sampling_rate,target_sample_rate))
-
+    signal.channel,signal.timestamp=resample_signal(signal.channel,signal.sampling_rate,target_sample_rate,return_time=True,t=signal.timestamp)
     signal.sampling_rate=target_sample_rate
     
     return signal
