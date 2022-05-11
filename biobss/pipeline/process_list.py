@@ -29,12 +29,13 @@ class Process_List():
 
         signal=signal.copy()
         for process in self.process_list:
-            for channel_name,channels in signal.data.items():
-                process_result=process.process(channels)
+            c_info=signal.get_channel_names()
+            for c_name in c_info:
+                process_result=process.process(signal[c_name])
                 if(isinstance(process_result,Bio_Data)):
                     signal.join(process_result)
                 elif(isinstance(process_result,Data_Channel)):
-                    signal.add_channel(process_result,channel_name,modify_existed=True)
-            self.process_list.pop(process)
+                    signal.add_channel(process_result,c_name,modify_existed=True,modality=signal[c_name].signal_modality)
+
 
         return signal

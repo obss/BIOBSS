@@ -17,7 +17,7 @@ class Bio_Data():
 
 
 
-    def add_channel(self,signal:Union[ArrayLike,Data_Channel],channel_name="Generic",sampling_rate=None,timestamp=None,timestamp_start=0,modify_existed=False):
+    def add_channel(self,signal:Union[ArrayLike,Data_Channel],channel_name="Generic",sampling_rate=None,timestamp=None,timestamp_start=0,modality="Generic",modify_existed=False):
         if(channel_name in self.data.keys() and not modify_existed):
             if(not modify_existed):
                 raise ValueError('Channel already exists') 
@@ -28,11 +28,12 @@ class Bio_Data():
         if(isinstance(signal,Data_Channel)):
             self.data[signal.signal_name]=signal.copy()
         else:
+            signal=np.array(signal)
             if(sampling_rate is None):
                 raise ValueError('Sampling rate must be provided if signal is not a Data_Channel object')
             if(channel_name is None):
                 raise ValueError('Channel name must be provided if signal is not a Data_Channel object')
-            channel=Data_Channel(signal,sampling_rate,timestamp,timestamp_start)
+            channel=Data_Channel(signal,sampling_rate,timestamp,timestamp_start,modality=modality)
             self.data[channel_name]=channel                 
 
             
@@ -67,7 +68,7 @@ class Bio_Data():
                     
         
     def get_channel_names(self):
-        return self.data.keys()
+        return list(self.data.keys())
             
     def copy(self):
         return copy.deepcopy(self)
