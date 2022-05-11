@@ -1,7 +1,10 @@
 
-from signal import Signal
+from .signal import Signal
+from .signal_windows import Signal_Windows
+from typing import Union
+
 """ Process list object with add and iterate process objects"""
-class Process_list():
+class Process_List():
     """ Process list object with add and iterate process objects"""
     def __init__(self,modality="Generic",sigtype="Generic"):
         self.process_list=[]
@@ -23,7 +26,15 @@ class Process_list():
         raise ValueError('Process with name '+name+' not found')
     
     
-    def run_process_queue(self,signal:Signal):
+    def run_process_queue(self,signal:Union[Signal,Signal_Windows]) -> Union[Signal,Signal_Windows]:
+        signal=signal.copy()
         for process in self.process_list:
-            signal=process.process(signal)
+            if(isinstance(signal,Signal)):
+                signal=process.process(signal)
+            elif(isinstance(signal,Signal_Windows)):
+                segments=[]
+                for w in signal.signal_windows:
+                    segments.append(process.process(w))        
+                signal=Signal_Windows().create_from_segments(segments,signal.window_size,signal.step_size,signal.sampling_rate)
+
         return signal

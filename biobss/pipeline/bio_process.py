@@ -1,12 +1,14 @@
-from signal import Signal
+from .signal import Signal
 
 """generic signal process object"""
 
-class Bio_process():
+class Bio_Process():
     
-    def __init__(self,method,modality,**kwargs) -> None:
-        self.method=method
+    def __init__(self,process_method,modality,sigtype,**kwargs) -> None:
+        
+        self.method=process_method
         self.modality=modality
+        self.sigtype=sigtype
         self.kwargs=kwargs
         
         
@@ -23,10 +25,11 @@ class Bio_process():
             return False
         
     def process(self,signal:Signal):
-        signal.signal=self.method(signal.signal,**self.kwargs)
+        signal=signal.copy()
+        return self.method(signal,**self.kwargs)
     
     def get_name(self):
-        return self.method
+        return self.method.__name__
 
     
     

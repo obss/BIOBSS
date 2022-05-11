@@ -25,8 +25,8 @@ def segment_signal(signal:ArrayLike,window_size:float,step_size=1.,sampling_rate
         raise Exception("**ERROR** type(window_size) and type(step_size) must be int of float.")
     if window_size <= 0 or step_size <= 0:
         raise Exception("**ERROR** window_size and step_size must be positive.")
-    if window_size > len(signal):
-        raise Exception("**ERROR** window_size must be smaller than the length of signal.")
+    if window_size*sampling_rate > len(signal):
+        raise Exception("**ERROR** window_size must be smaller than the length of signal. Make sure you entered window size in seconds.")
     # Number of windows
     window_size=int(window_size*sampling_rate)
     step_size=int(step_size*sampling_rate)
@@ -59,15 +59,11 @@ def segment_signal_object(signal:Signal,window_size:float,step_size=1.,sampling_
         raise Exception("**ERROR** type(window_size) and type(step_size) must be int of float.")
     if window_size <= 0 or step_size <= 0:
         raise Exception("**ERROR** window_size and step_size must be positive.")
-    if window_size > len(signal.signal):
-        raise Exception("**ERROR** window_size must be smaller than the length of signal.")
-    # Number of windows
-    window_size=int(window_size*sampling_rate)
-    step_size=int(step_size*sampling_rate)
-    num_frames = int(np.floor((len(signal.signal) - window_size) / step_size) + 1)
-    # Initialize the output signal
-    signal_out = np.zeros((num_frames, window_size))
-    # Sliding window operation
-    for i in range(num_frames):
-        signal_out[i] = signal.signal[i * step_size:i * step_size + window_size]
-    return Signal_Windows(signal_out,sampling_rate,signal.modality,signal.signal_name)
+    
+    for channel in signal.channels:
+        # Initialize the output signal
+        # Sliding window operation
+        s=signal.get_channel_data(channel)
+        signal.change_channel_data(channel,segment_signal(s,window_size,step_size,signal.sampling_rate))
+        
+    return signal

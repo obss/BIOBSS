@@ -1,5 +1,5 @@
 import numpy as np
-from scipy import signal
+from scipy import signal as sg
 from numpy.typing import ArrayLike
 from ..pipeline.signal import Signal
 
@@ -22,10 +22,10 @@ def resample_signal(signal:ArrayLike,sample_rate:float,target_sample_rate:float,
         if(t is None):
             t=np.arange(len(signal))/sample_rate
            
-        resampled_x,resampled_t=signal.resample(signal,target_length,t=t)
+        resampled_x,resampled_t=sg.resample(signal,target_length,t=t)
         resampled=[resampled_x,resampled_t]
     else:
-        resampled=signal.resample(signal,target_length)    
+        resampled=sg.resample(signal,target_length)    
            
     return resampled
 
@@ -41,7 +41,9 @@ def resample_signal_object(signal:Signal,target_sample_rate:float) -> Signal:
         Signal: resampled signal
     """
     
-    resampled=resample_signal(signal.signal,signal.sampling_rate,target_sample_rate)
-    resampled=Signal(resampled,target_sample_rate,signal.modality,signal.signal_name)
+    for s in signal.channels:
+        signal.change_channel_data(s, resample_signal(signal[s],signal.sampling_rate,target_sample_rate))
+
+    signal.sampling_rate=target_sample_rate
     
-    return resampled
+    return signal
