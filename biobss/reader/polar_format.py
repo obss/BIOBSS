@@ -277,6 +277,7 @@ def synchronize_signals(csv_dir:str, time_list=None, interp_method:str='linear',
     
     os.chdir(csv_dir)
     data=pd.DataFrame()
+    out_file="sync"
 
     if time_list is None:
         time_list=pd.read_csv('times.txt',header=None).values.tolist()
@@ -286,7 +287,7 @@ def synchronize_signals(csv_dir:str, time_list=None, interp_method:str='linear',
 
         filenames=glob.glob("*_{}.csv*".format(file_type))
         if filenames:
-
+            out_file=out_file+"_"+file_type
             filename=filenames[0]
             filepath=csv_dir+"\\"+filename
             df= pd.read_csv(filepath)
@@ -311,7 +312,7 @@ def synchronize_signals(csv_dir:str, time_list=None, interp_method:str='linear',
     data.insert(0,'Time_record (ms)',pd.Series(resampled_t))
 
     if save_files:
-        data.to_csv(csv_dir+"\\synchronized_signals.csv",index=None)
+        data.to_csv(csv_dir+"\\"+out_file+".csv",index=None)
 
     return data
 
