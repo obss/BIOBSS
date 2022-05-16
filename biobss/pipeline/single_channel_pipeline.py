@@ -6,6 +6,7 @@ from typing import Union
 import numpy as np
 import pandas as pd
 from numpy.typing import ArrayLike
+from .feature_extraction import Feature
 
 from biobss.pipeline import data_channel
 
@@ -17,12 +18,12 @@ class Bio_Pipeline:
 
     def __init__(
         self,
-        features,
         modality="Generic",
         sigtype="Generic",
         windowed_process=False,
         window_size=None,
         step_size=None,
+        features_list=[],
     ):
         if windowed_process:
             self.windowed = True
@@ -40,13 +41,15 @@ class Bio_Pipeline:
         self.preprocess_queue = Process_List(modality=modality, sigtype=sigtype)
         self.process_queue = Process_List(modality=modality, sigtype=sigtype)
         self.postprocess_queue = Process_List(modality=modality, sigtype=sigtype)
+        self.features=pd.DataFrame()
+        self.feature_list=features_list
 
     def set_input(
         self,
         signal: Union[Bio_Data, ArrayLike],
         sampling_rate=None,
-        modality="Generic",
         name=None,
+        modality="Generic",
         timestamp=None,
         timestamp_start=0,
     ):
@@ -134,15 +137,24 @@ class Bio_Pipeline:
             )
             self.input.modify_signal(
                 windowed,
-                channel.signal_name,
+                channel_name=channel.signal_name,
+                modality=channel.signal_modality,
                 timestamp=timestamps,
                 sampling_rate=channel.sampling_rate,
             )
 
         self.segmented = True
 
-    def create_feature_list(self, feature_list):
-        self.feature_list = []
+    def extract_features(self):
+        for f in self.feature_list:
+            self.calculate_feature(f)
+    
+    def add_feature_step(self,feature:Feature):
+        self.feature_list.append(feature)
+    
+    def calculate_feature(self, feature:Feature):
+        self.features=pd.concat([self.features,feature.run(self.input)],axis=1)
+
 
     def run_pipeline(self):
 

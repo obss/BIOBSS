@@ -128,6 +128,7 @@ class Bio_Process:
                 timestamp_start=signal.timestamp_start,
                 modality=signal.signal_modality,
             )
+            return result
         else:
             raise ValueError(
                 "Result must be a Data_Channel, pd.DataFrame, pd.Series, np.ndarray or list"

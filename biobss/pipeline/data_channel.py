@@ -32,22 +32,46 @@ class Data_Channel():
         self.timestamp_start = timestamp_start    
         self.signal_name=name
         self.signal_modality=modality
-        self.signal_duration=len(signal)/sampling_rate
-        
+        if(len(signal.shape)<2):
+            self.signal_duration=len(signal)/sampling_rate,
+            self.windows=1
+        else:
+            self.signal_duration=signal.shape[1]/sampling_rate
+            self.windows=signal.shape[0]
+
     def copy(self):
         return copy.deepcopy(self)
     
     def change_channel_data(self,signal:ArrayLike):
         self.channel=np.array(signal)
     
+    def get_timestamp(self,ts_point="start") -> np.ndarray:
+        
+        if(not ts_point in ["start","end","mid"]):
+            raise ValueError('ts_point must be "start","end","mid"')
+        
+        if(len(self.timestamp.shape)==1):
+            out=np.array(self.timestamp)
+        else:
+            if(ts_point=="start"):
+                out=np.array(self.timestamp[:,0])
+            elif(ts_point=="end"):
+                out=np.array(self.timestamp[:,-1])
+            elif(ts_point=="mid"):
+                out=np.array(self.timestamp[:,int(len(self.timestamp[0])/2)])
+                
+        return out
+            
     
     def __str__(self) -> str:
         return str(self.channel)
+    
     def __repr__(self) -> str:
         representation = self.signal_name
         representation += " (" + self.signal_modality + ")"
         representation += " (" + str(self.sampling_rate) + "Hz)"
         representation += " (" + str(self.signal_duration) + "s)"
+        representation += " (" + str(self.windows) + " windows)"
         representation += " (" + str(self.channel.shape) + ")"
         representation += " (" + str(self.timestamp.shape) + ")"
         representation += " (" + str(self.channel.dtype) + ")"
