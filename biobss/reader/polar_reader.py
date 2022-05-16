@@ -1,11 +1,4 @@
-import os
-import glob
 import pandas as pd
-import datetime
-import numpy as np
-from scipy import interpolate
-from scipy import signal
-
 
 from biobss.reader import polar_format
 
@@ -150,7 +143,19 @@ READER_FUNCTIONS= {
     }
 
 
-def polar_csv_reader(filepath,signal_type=None):
+def polar_csv_reader(filepath: str,signal_type: list=None) -> dict:
+    """Reads csv files and returns a dictionary of signals.
+
+    Args:
+        filepath (_type_): Path of the csv files.
+        signal_type (_type_, optional): Signal types to be processed. Defaults to None.
+
+    Raises:
+        ValueError: If signal_type is not in the "valid_types" list.
+
+    Returns:
+        dict: Dictionary of signals.
+    """
 
     valid_types=['HR','PPI','ACC','PPG','MAGN','GYRO','MARKER']
 

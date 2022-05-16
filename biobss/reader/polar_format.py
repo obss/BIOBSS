@@ -395,7 +395,7 @@ def csv_to_pkl(csv_dir:str,file_types:list=['HR','PPI','ACC','PPG','MAGN','GYRO'
                     pd.to_pickle(info,pkl_path)
                 
                 for file_type in file_types:
-                    os.chdir(csv_dir)
+                    os.chdir(root)
                     filenames=glob.glob("*_{}.csv*".format(file_type))
 
                     if filenames:
