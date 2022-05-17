@@ -14,10 +14,10 @@ def resample_signal(signal:ArrayLike,sample_rate:float,target_sample_rate:float,
     Returns:
         1-D array: resampled signal
     """
-
+    signal=np.array(signal)
     ratio=(target_sample_rate/sample_rate)
     target_length = round (len(signal) * ratio)
-    
+
     if(return_time):
         if(t is None):
             t=np.arange(len(signal))/sample_rate
@@ -42,8 +42,21 @@ def resample_signal_object(signal:Data_Channel,target_sample_rate:float) -> Data
     """
     if(not isinstance(signal,Data_Channel)):
         raise ValueError("Expecting a Signal object")
+
     
-    signal.channel,signal.timestamp=resample_signal(signal.channel,signal.sampling_rate,target_sample_rate,return_time=True,t=signal.timestamp)
-    signal.sampling_rate=target_sample_rate
+    if(len(signal.channel.shape)<2):
+        signal.channel,signal.timestamp=resample_signal(signal.channel,signal.sampling_rate,target_sample_rate,return_time=True,t=signal.timestamp)
+        signal.sampling_rate=target_sample_rate
+    else:
+        win_count=signal.channel.shape[0]
+        target_length = round (signal.channel.shape[1] * (target_sample_rate/signal.sampling_rate))
+        out=np.zeros((win_count,target_length))
+        out_ts=np.zeros((win_count,target_length))
+        for w in range(signal.channel.shape[0]):
+            out[w],out_ts[w]=resample_signal(signal.channel[w],signal.sampling_rate,target_sample_rate,return_time=True,t=signal.timestamp[w])
+        signal.channel=out
+        signal.timestamp=out_ts
+        signal.sampling_rate=target_sample_rate
+   
     
     return signal
