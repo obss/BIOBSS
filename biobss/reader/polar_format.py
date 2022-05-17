@@ -337,7 +337,8 @@ def segment_events(filepath:str, markerpath:str,events:list,out_path:str,save_fi
     marked_times=pd.read_csv(markerpath)['Time_record (ms)'].values.tolist()
 
     event_times={}
-    event_list=[]
+    event_list=np.asarray(['None']*len(timestamps),dtype=object)
+
     i=0
     for event in events:
         event_times[event] = marked_times[i:i+2]
@@ -345,9 +346,8 @@ def segment_events(filepath:str, markerpath:str,events:list,out_path:str,save_fi
         event_start=event_times[event][0]
         event_stop=event_times[event][1]
 
-        for timestamp in timestamps:
-            if timestamp>=event_start and timestamp<=event_stop:
-                event_list.append(event)
+        event_ind=np.where((timestamps >= event_start) & (timestamps <= event_stop))
+        event_list[event_ind]=event
 
     if save_file:
         pd.DataFrame(event_list).to_csv(out_path,header=None)
