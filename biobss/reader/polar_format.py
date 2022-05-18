@@ -73,6 +73,43 @@ def txt_to_csv(txt_dir:str, file_types=['HR','PPI','ACC','PPG','MAGN','GYRO'], r
                             content_df.to_csv(csv_path,index=None)
 
 
+def rename_csv(csv_dir:str, file_types=['HR','PPI','ACC','PPG','MAGN','GYRO']):
+    """Renames the csv files 
+
+    Args:
+        csv_dir (str): Directory of the csv files
+        file_types (list, optional): File types to be renamed. Defaults to ['HR','PPI','ACC','PPG','MAGN','GYRO'].
+    """
+    for root, _, files in os.walk(csv_dir):
+
+        if len(files)!=0:
+            os.chdir(root)
+
+            record_id = os.path.basename(root)       
+
+            marker_files=glob.glob("*MARKER*.csv*")
+
+            if marker_files:
+                marker_file=marker_files[0]
+
+                new_name = root + "\\" + "MARKER_" +record_id + ".csv"
+
+                if not os.path.exists(new_name):
+                    os.rename(marker_file,new_name)
+
+            for file_type in file_types:
+
+                filenames=glob.glob("*_{}.csv*".format(file_type))
+                if filenames:
+                    filename=filenames[0]
+
+                    new_name = root + "\\" +record_id + "_" + file_type + ".csv"
+
+                    if not os.path.exists(new_name):
+                        os.rename(filename,new_name)
+
+
+
 def timestamp_to_msec(timestamp_df:pd.DataFrame, start_time:datetime.datetime=None) -> ArrayLike:
     """Converts timestamp to time in milliseconds. 
 
