@@ -5,10 +5,11 @@ from typing import Union
 """ Process list object with add and iterate process objects"""
 class Process_List():
     """ Process list object with add and iterate process objects"""
-    def __init__(self,modality="Generic",sigtype="Generic"):
+    def __init__(self,name="Process_Queue",modality="Generic",sigtype="Generic"):
         self.process_list=[]
         self.modality=modality
         self.sigtype=sigtype
+        self.name=name
         
     def add_process(self,process):
         if(not process.check_modality(self.modality)):
@@ -39,3 +40,11 @@ class Process_List():
 
 
         return signal
+    
+    
+    def __str__(self) -> str:
+        representation="Process list:\n"
+        for i,p in enumerate(self.process_list):
+            representation+="\t"+str(i+1)+": "+str(p)+"\n"
+            
+        return representation

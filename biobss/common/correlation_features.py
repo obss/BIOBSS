@@ -3,7 +3,7 @@ import itertools
 from numpy.typing import ArrayLike
 
 
-def correlation_features(signals: ArrayLike, signal_names: ArrayLike):
+def correlation_features(signals: ArrayLike, signal_names: ArrayLike,prefix="signal", **kwargs) -> dict:
     """a function to calculate correlation of N signals by each other
 
     Args:

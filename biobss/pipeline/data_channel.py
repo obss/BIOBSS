@@ -23,6 +23,7 @@ class Data_Channel():
             if(np.diff(timestamp).std()>regularity_parameter):# TODO: optimize this parameter
                 raise ValueError('Timestamp must be regularly spaced')
             self.timestamp=timestamp
+            self.timestamp_start=timestamp[0]
         else:
             if(timestamp_start<0):
                 raise ValueError('Timestamp start must be greater than 0')
@@ -41,6 +42,12 @@ class Data_Channel():
 
     def copy(self):
         return copy.deepcopy(self)
+    
+    def sync_timestamps(self,offset:float):
+        if(len(self.timestamp.shape)==1):
+            self.timestamp=self.timestamp+offset
+        else:
+            self.timestamp[:,0]=self.timestamp[:,0]+offset
     
     def change_channel_data(self,signal:ArrayLike):
         self.channel=np.array(signal)

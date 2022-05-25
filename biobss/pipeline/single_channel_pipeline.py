@@ -173,4 +173,5 @@ class Bio_Pipeline:
         representation += "\tPostprocessors: " + str(self.postprocess_queue) + "\n"
         representation += "\tWindow Size(Seconds): " + str(self.window_size) + "\n"
         representation += "\tStep Size: " + str(self.step_size) + "\n"
+
         return representation

@@ -136,3 +136,6 @@ class Bio_Process:
 
     def get_name(self):
         return self.method.__name__
+
+    def __str__(self) -> str:
+        return self.method.__name__

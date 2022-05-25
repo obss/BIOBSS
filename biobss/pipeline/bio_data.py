@@ -136,8 +136,12 @@ class Bio_Data:
 
         return self
 
-    def __getitem__(self, key):
-        return self.data[key]
+    def __getitem__(self, key:Union[str, int]) -> Data_Channel:
+        if(isinstance(key, str)):
+            return self.data[key]
+        elif(isinstance(key, int)):
+            return self.data[list(self.data.keys())[key]]
+
 
     def __setitem__(self, key, value):
         return self.modify_signal(value, key)
