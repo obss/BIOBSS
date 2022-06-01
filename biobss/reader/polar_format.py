@@ -109,7 +109,6 @@ def rename_csv(csv_dir:str, file_types=['HR','PPI','ACC','PPG','MAGN','GYRO']):
                         os.rename(filename,new_name)
 
 
-
 def timestamp_to_msec(timestamp_df:pd.DataFrame, start_time:datetime.datetime=None) -> ArrayLike:
     """Converts timestamp to time in milliseconds. 
 
@@ -187,7 +186,7 @@ def get_start_time(csv_dir:str, file_types:list=['HR','PPI','ACC','PPG','MAGN','
     return t_start
 
 
-def update_csv(csv_dir:str, file_types:list=['HR','PPI','ACC','PPG','MAGN','GYRO'],marker:bool=False,start_time=None):
+def add_record_time(csv_dir:str, file_types:list=['HR','PPI','ACC','PPG','MAGN','GYRO'],marker:bool=False,start_time=None):
     """Adds a column to the selected csv files for relative time in milliseconds. The timepoints are calculated referenced to the start_time.
 
     Args:
@@ -292,7 +291,6 @@ def calculate_sync_time(csv_dir:str, time_step:float,file_types=['HR','PPI','ACC
     return timelist_df
 
 
-
 def synchronize_signals(csv_dir:str, time_list=None, interp_method:str='linear', sampling_rate:int=1000, resampling_rate:int=1000, file_types:list=['ACC','PPG','MAGN','GYRO'],save_files:bool=False) -> pd.DataFrame:
     """Synchronizes the signals by interpolating for the time_list.
 
@@ -354,7 +352,7 @@ def synchronize_signals(csv_dir:str, time_list=None, interp_method:str='linear',
     return data
 
 
-def segment_events(filepath:str, markerpath:str,events:list,out_path:str,save_file:bool=False) -> pd.DataFrame:
+def marker_to_events(filepath:str, markerpath:str,events:list,out_path:str,save_file:bool=False) -> pd.DataFrame:
     """Segments signals for events using the marker file.
 
     Args:
@@ -368,7 +366,6 @@ def segment_events(filepath:str, markerpath:str,events:list,out_path:str,save_fi
         pd.DataFrame: Dataframe of signals and corresponding events.
     """
     
-
     data=pd.read_csv(filepath)
     timestamps=data['Time_record (ms)']
     marked_times=pd.read_csv(markerpath)['Time_record (ms)'].values.tolist()
@@ -389,9 +386,38 @@ def segment_events(filepath:str, markerpath:str,events:list,out_path:str,save_fi
     if save_file:
         pd.DataFrame(event_list).to_csv(out_path,header=None)
 
+    
+    data['Events']=event_list
+    return data
+
+
+def add_events(csv_dir:str):
+    """Adds an 'events' column to the synchronized signal file.
+
+    Args:
+        csv_dir (str): Directory of the csv files for a specific record.
+
+    """
+    os.chdir(csv_dir)
+    syncfiles=glob.glob("*sync*.csv*")
+
+    if syncfiles:
+        syncfile=syncfiles[0]
     else:
-        data['Events']=event_list
-        return data
+        raise ValueError("No sync file found in the directory'")
+
+    eventfiles=glob.glob("*event_list*.txt*")
+    if eventfiles:
+        eventfile=eventfiles[0]
+    else:
+        raise ValueError("No event list file found in the directory'")
+
+
+    data=pd.read_csv(syncfile)
+    event_data=pd.read_csv(eventfile, header=None,index_col=False)
+    data['Events']=event_data[1]
+
+    data.to_csv(syncfile,index=None)
 
 
 def csv_to_pkl(csv_dir:str,file_types:list=['HR','PPI','ACC','PPG','MAGN','GYRO'], record_id: str=None):
