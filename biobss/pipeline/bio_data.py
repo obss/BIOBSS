@@ -27,9 +27,9 @@ class Bio_Data:
         modality="Generic",
         modify_existed=False,
     ):
-        if channel_name in self.data.keys() and not modify_existed:
+        if channel_name in self.data.keys():
             if not modify_existed:
-                raise ValueError("Channel already exists")
+                raise ValueError("Channel already exists set modify_existed to True to modify")
             else:
                 self.modify_signal(
                     signal, channel_name, sampling_rate, timestamp, timestamp_start
