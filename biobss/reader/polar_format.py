@@ -7,10 +7,12 @@ import numpy as np
 from scipy import interpolate
 from scipy import signal
 from numpy.typing import ArrayLike
+import warnings
+from pathlib import Path
 
 from biobss.reader import polar_reader
 
-COLUMN_NAMES={
+TYPE_TO_COLUMN_NAMES={
     'PPG' : ['channel 0','channel 1', 'channel 2', 'ambient'],
     'ACC' : ['X [mg]','Y [mg]', 'Z [mg]'],
     'MAGN' : ['X [G]','Y [G]', 'Z [G]'],
@@ -39,11 +41,11 @@ def txt_to_csv(txt_dir:str, file_types=['HR','PPI','ACC','PPG','MAGN','GYRO'], r
                 if marker_files:
                     marker_file=marker_files[0]
 
-                    txt_path=root+"\\"+marker_file
+                    txt_path=os.path.join(root,marker_file)
                     if record_id is None:
-                        csv_path=csv_dir+"\\"+os.path.splitext(marker_file)[0]+'.csv' 
+                        csv_path=os.path.join(csv_dir, Path(txt_path).stem +'.csv') 
                     else:
-                        csv_path=csv_dir+"\\"+record_id+"_marker"+'.csv'
+                        csv_path=os.path.join(csv_dir,record_id+"_marker"+'.csv')
                         
                     content_df=pd.read_csv(txt_path, delimiter=';')
                     content_df.to_csv(csv_path,index=None)
@@ -54,11 +56,11 @@ def txt_to_csv(txt_dir:str, file_types=['HR','PPI','ACC','PPG','MAGN','GYRO'], r
                     if filenames:
                         filename=filenames[0]
 
-                        txt_path=root+"\\"+filename
+                        txt_path=os.path.join(root, filename)
                         if record_id is None:
-                            csv_path=csv_dir+"\\"+os.path.splitext(filename)[0]+'.csv' 
+                            csv_path=os.path.join(csv_dir, Path(txt_path).stem +'.csv')
                         else:
-                            csv_path=csv_dir+"\\"+record_id+"_"+file_type+'.csv'
+                            csv_path=os.path.join(csv_dir, record_id+"_"+file_type+'.csv')
 
                         if file_type == 'PPG':
                             ppg_header=pd.read_csv(txt_path, delimiter=';',nrows=1).columns.tolist()
@@ -71,6 +73,9 @@ def txt_to_csv(txt_dir:str, file_types=['HR','PPI','ACC','PPG','MAGN','GYRO'], r
                         else:
                             content_df=pd.read_csv(txt_path, delimiter=';')
                             content_df.to_csv(csv_path,index=None)
+
+            else:
+                warnings.warn(f'{csv_dir} already present, skipping txt to csv conversion.')
 
 
 def rename_csv(csv_dir:str, file_types=['HR','PPI','ACC','PPG','MAGN','GYRO']):
@@ -92,7 +97,7 @@ def rename_csv(csv_dir:str, file_types=['HR','PPI','ACC','PPG','MAGN','GYRO']):
             if marker_files:
                 marker_file=marker_files[0]
 
-                new_name = root + "\\" + "MARKER_" +record_id + ".csv"
+                new_name = os.path.join(root, "MARKER_" +record_id + ".csv")
 
                 if not os.path.exists(new_name):
                     os.rename(marker_file,new_name)
@@ -103,7 +108,7 @@ def rename_csv(csv_dir:str, file_types=['HR','PPI','ACC','PPG','MAGN','GYRO']):
                 if filenames:
                     filename=filenames[0]
 
-                    new_name = root + "\\" +record_id + "_" + file_type + ".csv"
+                    new_name = os.path.join(root, record_id + "_" + file_type + ".csv")
 
                     if not os.path.exists(new_name):
                         os.rename(filename,new_name)
@@ -172,7 +177,7 @@ def get_start_time(csv_dir:str, file_types:list=['HR','PPI','ACC','PPG','MAGN','
         
         for filename in csv_files:
 
-            filepath=csv_dir+"\\"+filename    
+            filepath=os.path.join(csv_dir, filename)   
             df= pd.read_csv(filepath)
             timestamps=df['Phone timestamp'].values.tolist()
             if timestamps:
@@ -221,7 +226,7 @@ def add_record_time(csv_dir:str, file_types:list=['HR','PPI','ACC','PPG','MAGN',
 
         for filename in csv_files:
 
-            filepath=csv_dir+"\\"+filename
+            filepath=os.path.join(csv_dir, filename)
             df= pd.read_csv(filepath)
             timediff_usec=timestamp_to_msec(df['Phone timestamp'],start_time)
             df['Time_record (ms)']=timediff_usec
@@ -269,7 +274,7 @@ def calculate_sync_time(csv_dir:str, time_step:float,file_types=['HR','PPI','ACC
                 
         for filename in csv_files:
 
-            filepath=csv_dir+"\\"+filename
+            filepath=os.path.join(csv_dir, filename)
             df= pd.read_csv(filepath)
             tses=df['Time_record (ms)'].values.tolist()
             if tses:
@@ -286,7 +291,7 @@ def calculate_sync_time(csv_dir:str, time_step:float,file_types=['HR','PPI','ACC
         timelist_df=pd.DataFrame(time_list)
 
         if save_file:    
-            timelist_df.to_csv(csv_dir+"\\times.txt",header=None,index=None)
+            timelist_df.to_csv(os.path.join(csv_dir,"times.txt"),header=None,index=None)
         
     return timelist_df
 
@@ -324,11 +329,11 @@ def synchronize_signals(csv_dir:str, time_list=None, interp_method:str='linear',
         if filenames:
             out_file=out_file+"_"+file_type
             filename=filenames[0]
-            filepath=csv_dir+"\\"+filename
+            filepath=os.path.join(csv_dir, filename)
             df= pd.read_csv(filepath)
             tses=df['Time_record (ms)'].values.tolist()
 
-            columns= COLUMN_NAMES[file_type]
+            columns= TYPE_TO_COLUMN_NAMES[file_type]
             
             for column_name in columns:
                 sig=df[column_name].values.tolist()
@@ -347,7 +352,7 @@ def synchronize_signals(csv_dir:str, time_list=None, interp_method:str='linear',
     data.insert(0,'Time_record (ms)',pd.Series(resampled_t))
 
     if save_files:
-        data.to_csv(csv_dir+"\\"+out_file+".csv",index=None)
+        data.to_csv(os.path.join(csv_dir, out_file+".csv"),index=None)
 
     return data
 
@@ -444,13 +449,13 @@ def csv_to_pkl(csv_dir:str,file_types:list=['HR','PPI','ACC','PPG','MAGN','GYRO'
 
                 if marker_files:
                     marker_file=marker_files[0]
-                    csv_path=root+"\\"+marker_file 
+                    csv_path=os.path.join(root, marker_file)
 
                     if record_id is None:
-                        pkl_path=pkl_dir+"\\"+os.path.splitext(marker_file)[0]+'.pkl' 
+                        pkl_path=os.path.join(pkl_dir, Path(csv_path).stem +'.pkl')
                         
                     else:
-                        pkl_path=pkl_dir+"\\"+record_id+"_marker"+'.pkl'
+                        pkl_path=os.path.join(pkl_dir, record_id+"_marker"+'.pkl')
 
                     info=polar_reader.polar_csv_reader(csv_path,signal_type='MARKER')
 
@@ -463,17 +468,18 @@ def csv_to_pkl(csv_dir:str,file_types:list=['HR','PPI','ACC','PPG','MAGN','GYRO'
 
                     if filenames:
                         filename=filenames[0]
-                        csv_path=root+"\\"+filename
+                        csv_path=os.path.join(root, filename)
 
                         if record_id is None:
-                            pkl_path=pkl_dir+"\\"+os.path.splitext(filename)[0]+'.pkl' 
+                            pkl_path=os.path.join(pkl_dir, Path(csv_path).stem +'.pkl')
                         else:
-                            pkl_path=pkl_dir+"\\"+record_id+"_"+file_type+'.pkl'
+                            pkl_path=os.path.join(pkl_dir, record_id+"_"+file_type+'.pkl')
 
                         info=polar_reader.polar_csv_reader(csv_path,signal_type=file_type)
                         pd.to_pickle(info,pkl_path) 
 
-
+            else:
+                warnings.warn(f'{pkl_dir} already present, skipping csv to pkl conversion.')
 
 
 
