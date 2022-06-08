@@ -6,28 +6,27 @@ import neurokit2 as nk
 import pandas as pd
 
 
-
-def eda_decompose(eda_signal:np.ndarray, sr:float, method="highpass") ->pd.DataFrame:
+def eda_decompose(eda_signal: np.ndarray, sampling_rate: float, method="highpass") -> pd.DataFrame:
     """This methods takes an 1-D Array input and decompose it into tonic and phasic components.
 
     Args:
         eda_signal (arraylike): EDA signal
-        sr (float): Sampling rate of EDA signal
+        sampling_rate (float): Sampling rate of EDA signal
         method  (str): Method selection to be used in decomposition
 
     Returns:
         DataFrame: A Dataframe composed of Phasic and Tonic components of EDA signal
-        
+
     """
 
     if method == "cvxeda":
-        decomposed = _cvxEDA(eda_signal, 1 / sr)
+        decomposed = _cvxEDA(eda_signal, 1 / sampling_rate)
 
     elif method == "highpass":
-        decomposed = _eda_highpass(eda_signal, sr)  # Default
+        decomposed = _eda_highpass(eda_signal, sampling_rate)  # Default
 
     elif method == "bandpass":
-        decomposed = _eda_bandpass(eda_signal, sr)
+        decomposed = _eda_bandpass(eda_signal, sampling_rate)
     else:
         raise Exception("Method not implemented")
 
@@ -36,7 +35,7 @@ def eda_decompose(eda_signal:np.ndarray, sr:float, method="highpass") ->pd.DataF
 
 def _eda_highpass(eda_signal, sr):
     # Highpass filter for EDA signal decomposition
-    
+
     phasic = nk.signal_filter(
         eda_signal, sampling_rate=sr, lowcut=0.05, method="butter"
     )
@@ -44,7 +43,8 @@ def _eda_highpass(eda_signal, sr):
         eda_signal, sampling_rate=sr, highcut=0.05, method="butter"
     )
 
-    out = pd.DataFrame({"EDA_Tonic": np.array(tonic), "EDA_Phasic": np.array(phasic)})
+    out = pd.DataFrame({"EDA_Tonic": np.array(
+        tonic), "EDA_Phasic": np.array(phasic)})
 
     return out
 
@@ -54,7 +54,8 @@ def _eda_bandpass(eda_signal, sr):
     phasic = nk.signal_filter(eda_signal, sr, 0.2, 1)
     tonic = nk.signal_filter(eda_signal, sr, highcut=0.2)
 
-    out = pd.DataFrame({"EDA_Tonic": np.array(tonic), "EDA_Phasic": np.array(phasic)})
+    out = pd.DataFrame({"EDA_Tonic": np.array(
+        tonic), "EDA_Phasic": np.array(phasic)})
 
     return out
 
@@ -164,8 +165,10 @@ def _cvxEDA(
             ]
         )
         h = cv.matrix([z(n, 1), 0.5, 0.5, y, 0.5, 0.5, z(nB, 1)])
-        c = cv.matrix([(cv.matrix(alpha, (1, n)) * A).T, z(nC, 1), 1, gamma, z(nB, 1)])
-        res = cv.solvers.conelp(c, G, h, dims={"l": n, "q": [n + 2, nB + 2], "s": []})
+        c = cv.matrix([(cv.matrix(alpha, (1, n)) * A).T,
+                      z(nC, 1), 1, gamma, z(nB, 1)])
+        res = cv.solvers.conelp(
+            c, G, h, dims={"l": n, "q": [n + 2, nB + 2], "s": []})
         obj = res["primal objective"]
     else:
         # Use qp
@@ -181,7 +184,8 @@ def _cvxEDA(
                 ],
             ]
         )
-        f = cv.matrix([(cv.matrix(alpha, (1, n)) * A).T - Mt * y, -(Ct * y), -(Bt * y)])
+        f = cv.matrix([(cv.matrix(alpha, (1, n)) * A).T -
+                      Mt * y, -(Ct * y), -(Bt * y)])
         res = cv.solvers.qp(
             H,
             f,
@@ -194,7 +198,7 @@ def _cvxEDA(
     cv.solvers.options.update(old_options)
 
     l = res["x"][-nB:]
-    d = res["x"][n : n + nC]
+    d = res["x"][n: n + nC]
     t = B * l + C * d
     q = res["x"][:n]
     p = A * q

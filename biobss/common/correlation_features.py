@@ -3,7 +3,7 @@ import itertools
 from numpy.typing import ArrayLike
 
 
-def correlation_features(signals: ArrayLike, signal_names: ArrayLike):
+def correlation_features(signals: ArrayLike, signal_names: ArrayLike, prefix="signal", **kwargs) -> dict:
     """a function to calculate correlation of N signals by each other
 
     Args:
@@ -21,4 +21,3 @@ def correlation_features(signals: ArrayLike, signal_names: ArrayLike):
         corr_list["".join(i) + "_correl"] = pearsonr(data[i[0]], data[i[1]])[0]
 
     return corr_list
-
