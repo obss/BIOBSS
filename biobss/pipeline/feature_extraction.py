@@ -8,7 +8,7 @@ from typing import Union
 
 class Feature():
 
-    def __init__(self, name, function, parameters, input_signals: dict,**kwargs):
+    def __init__(self, name, function, parameters, input_signals: dict, **kwargs):
 
         self_name = name
         self.function = function
@@ -24,15 +24,16 @@ class Feature():
                 redundant.append(k)
         for r in redundant:
             self.parameters.pop(r)
-            
+
         if(not isinstance(data, Bio_Data)):
             raise ValueError(
                 'Feature extraction must be run on a Bio_Data object')
 
         self.data = data
 
-        for input_prefix,input  in self.input_signals.items():
-            self.feature_output = pd.concat([self.feature_output,self.__extract(input, input_prefix)], axis=1)
+        for input_prefix, input in self.input_signals.items():
+            self.feature_output = pd.concat(
+                [self.feature_output, self.__extract(input, input_prefix)], axis=1)
         return self.feature_output
 
     def __str__(self) -> str:
@@ -60,7 +61,7 @@ class Feature():
             timestamps = self.data[channel_name[0]].get_timestamp()
             feature_set = []
             self.parameters['prefix'] = prefix
-            if(len(self.data[channel_name[0]].channel.shape)<2):
+            if(len(self.data[channel_name[0]].channel.shape) < 2):
                 window_number = 1
             else:
                 window_number = self.data[channel_name[0]].channel.shape[0]
@@ -69,7 +70,8 @@ class Feature():
                 data_.append(self.data[c].channel)
             data_ = np.array(data_)
             for i in range(window_number):
-                feature_set.append(self.function(data_[:,i], **self.parameters))
+                feature_set.append(self.function(
+                    data_[:, i], **self.parameters))
 
             calculated_features = pd.DataFrame(feature_set, index=timestamps)
             return calculated_features

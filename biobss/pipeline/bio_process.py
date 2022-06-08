@@ -56,7 +56,8 @@ class Bio_Process:
                     )
                 finally:
                     for i in range(signal.channel.shape[0]):
-                        result.append(self.method(signal.channel[i], **self.kwargs))
+                        result.append(self.method(
+                            signal.channel[i], **self.kwargs))
 
                 # If vectorized method fails, try scalar method
                 if isinstance(result[0], Data_Channel):

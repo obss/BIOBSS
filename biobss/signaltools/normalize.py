@@ -1,7 +1,8 @@
 from numpy.typing import ArrayLike
 from ..pipeline.data_channel import Data_Channel
 
-def normalize_signal(signal : ArrayLike,method='zscore') -> ArrayLike:
+
+def normalize_signal(signal: ArrayLike, method='zscore') -> ArrayLike:
     """Method for normalizing given signal
 
     Args:
@@ -11,16 +12,13 @@ def normalize_signal(signal : ArrayLike,method='zscore') -> ArrayLike:
     Returns:
         1-D array: normalized signal
     """
-    
+
     # Need to add signal check
-    if(method=='zscore'):
+    if(method == 'zscore'):
         return (signal-signal.mean())/signal.std()
-    elif(method=='minmax'):
+    elif(method == 'minmax'):
         return (signal-signal.min())/(signal.max()-signal.min())
-    
+
     else:
-        raise ValueError(f"Unknown method '{method}', available values are [zscore, minmax].")
-
-
-
-        
+        raise ValueError(
+            f"Unknown method '{method}', available values are [zscore, minmax].")

@@ -38,11 +38,13 @@ class Bio_Pipeline:
 
         self.modality = modality
         self.sigtype = sigtype
-        self.preprocess_queue = Process_List(modality=modality, sigtype=sigtype)
+        self.preprocess_queue = Process_List(
+            modality=modality, sigtype=sigtype)
         self.process_queue = Process_List(modality=modality, sigtype=sigtype)
-        self.postprocess_queue = Process_List(modality=modality, sigtype=sigtype)
-        self.features=pd.DataFrame()
-        self.feature_list=features_list
+        self.postprocess_queue = Process_List(
+            modality=modality, sigtype=sigtype)
+        self.features = pd.DataFrame()
+        self.feature_list = features_list
 
     def set_input(
         self,
@@ -148,13 +150,13 @@ class Bio_Pipeline:
     def extract_features(self):
         for f in self.feature_list:
             self.calculate_feature(f)
-    
-    def add_feature_step(self,feature:Feature):
-        self.feature_list.append(feature)
-    
-    def calculate_feature(self, feature:Feature):
-        self.features=pd.concat([self.features,feature.run(self.input)],axis=1)
 
+    def add_feature_step(self, feature: Feature):
+        self.feature_list.append(feature)
+
+    def calculate_feature(self, feature: Feature):
+        self.features = pd.concat(
+            [self.features, feature.run(self.input)], axis=1)
 
     def run_pipeline(self):
 
@@ -168,10 +170,13 @@ class Bio_Pipeline:
         representation = "Bio_Pipeline:\n"
         representation += "\tModality: " + self.modality + "\n"
         representation += "\tSignal Type: " + self.sigtype + "\n"
-        representation += "\tPreprocessors: " + str(self.preprocess_queue) + "\n"
+        representation += "\tPreprocessors: " + \
+            str(self.preprocess_queue) + "\n"
         representation += "\tProcessors: " + str(self.process_queue) + "\n"
-        representation += "\tPostprocessors: " + str(self.postprocess_queue) + "\n"
-        representation += "\tWindow Size(Seconds): " + str(self.window_size) + "\n"
+        representation += "\tPostprocessors: " + \
+            str(self.postprocess_queue) + "\n"
+        representation += "\tWindow Size(Seconds): " + \
+            str(self.window_size) + "\n"
         representation += "\tStep Size: " + str(self.step_size) + "\n"
 
         return representation

@@ -1,7 +1,8 @@
 import numpy as np
 from numpy.typing import ArrayLike
 
-def get_hjorth_features(signal:ArrayLike, prefix="signal"):
+
+def get_hjorth_features(signal: ArrayLike, prefix="signal"):
     """This method returns Hjörth parameters for the given signal.
     For more details, see the https://en.wikipedia.org/wiki/Hjorth_parameters
 
@@ -30,9 +31,8 @@ def calculate_activity(signal):
     Returns:
         _type_: _description_
     """
-    
-    return np.var(signal)
 
+    return np.var(signal)
 
 
 def calculate_mobility(signal):
@@ -48,7 +48,7 @@ def calculate_complexity(signal):
 
     Mobility : The ratio of the variance of the first derivative of the signal to the variance of the signal.
     Complexity : The ratio of the variance of the second derivative of the signal to the variance of the signal.
-    
+
     Args:
         signal (arraylike): input signal
 
@@ -59,4 +59,3 @@ def calculate_complexity(signal):
     f_derivative = np.gradient(signal, edge_order=1)
     complexity = calculate_mobility(f_derivative) / _mobility
     return complexity, _mobility
-

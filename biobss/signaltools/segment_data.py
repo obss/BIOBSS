@@ -4,9 +4,7 @@ from collections.abc import Iterable
 from ..pipeline.data_channel import Data_Channel
 
 
-
-
-def segment_signal(signal:ArrayLike,window_size:float,step_size=1.,sampling_rate=20.)->ArrayLike:
+def segment_signal(signal: ArrayLike, window_size: float, step_size=1., sampling_rate=20.) -> ArrayLike:
     """[summary]
 
     Args:
@@ -17,19 +15,22 @@ def segment_signal(signal:ArrayLike,window_size:float,step_size=1.,sampling_rate
 
     Returns:
         [2-D array]: [Collection of signal windows]
-    """       
+    """
     # Verify the inputs
     if not isinstance(signal, Iterable):
         raise ValueError("Expecting an iterable")
-    if not ((type(window_size) == type(0) or type(window_size) == type(0.) ) and (type(step_size) == type(0) or type(step_size) == type(0.))):
-        raise Exception("**ERROR** type(window_size) and type(step_size) must be int of float.")
+    if not ((type(window_size) == type(0) or type(window_size) == type(0.)) and (type(step_size) == type(0) or type(step_size) == type(0.))):
+        raise Exception(
+            "**ERROR** type(window_size) and type(step_size) must be int of float.")
     if window_size <= 0 or step_size <= 0:
-        raise Exception("**ERROR** window_size and step_size must be positive.")
+        raise Exception(
+            "**ERROR** window_size and step_size must be positive.")
     if window_size*sampling_rate > len(signal):
-        raise Exception("**ERROR** window_size must be smaller than the length of signal. Make sure you entered window size in seconds.")
+        raise Exception(
+            "**ERROR** window_size must be smaller than the length of signal. Make sure you entered window size in seconds.")
     # Number of windows
-    window_size=int(window_size*sampling_rate)
-    step_size=int(step_size*sampling_rate)
+    window_size = int(window_size*sampling_rate)
+    step_size = int(step_size*sampling_rate)
     num_frames = int(np.floor((len(signal) - window_size) / step_size) + 1)
     # Initialize the output signal
     signal_out = np.zeros((num_frames, window_size))
@@ -37,5 +38,3 @@ def segment_signal(signal:ArrayLike,window_size:float,step_size=1.,sampling_rate
     for i in range(num_frames):
         signal_out[i] = signal[i * step_size:i * step_size + window_size]
     return signal_out
-
-

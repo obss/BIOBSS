@@ -1,7 +1,7 @@
 import numpy as np
 from scipy import stats
 
-#STAT_FEATURES : Dictionary of statistical features
+# STAT_FEATURES : Dictionary of statistical features
 
 
 STAT_FEATURES = {
@@ -17,13 +17,13 @@ STAT_FEATURES = {
 
 
 def get_feature_names():
-    
+
     return STAT_FEATURES.keys()
 
 
-def get_stat_features(signal:np.ndarray, prefix="signal")->dict:
+def get_stat_features(signal: np.ndarray, prefix="signal") -> dict:
     """This methods takes an 1-D Array input and calculate statistical features over it.
-    
+
     Features : 
     Mean, Standard Deviation, Max, Min, Range, Kurtosis, Skew, Momentum
     Momentum : The second moment of the signal.
@@ -42,5 +42,3 @@ def get_stat_features(signal:np.ndarray, prefix="signal")->dict:
         s_features["_".join([prefix, k])] = f(signal)
 
     return s_features
-
-

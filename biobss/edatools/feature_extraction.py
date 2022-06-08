@@ -12,7 +12,8 @@ from .signal_features import *
 from ..common.freq_features import *
 from numpy.typing import ArrayLike
 
-def from_decomposed(signal_phasic:ArrayLike, signal_tonic:ArrayLike, sr:float)->dict:
+
+def from_decomposed(signal_phasic: ArrayLike, signal_tonic: ArrayLike, sr: float) -> dict:
     """Method to calculate features over Tonic and Phasic EDA components
 
     Args:
@@ -33,7 +34,7 @@ def from_decomposed(signal_phasic:ArrayLike, signal_tonic:ArrayLike, sr:float)->
     return features
 
 
-def from_signal(signal:ArrayLike, sr=20.)->dict:
+def from_signal(signal: ArrayLike, sr=20.) -> dict:
     """Method to calculate features over EDA signal
 
     Args:
@@ -51,7 +52,7 @@ def from_signal(signal:ArrayLike, sr=20.)->dict:
     return features
 
 
-def from_windows(eda_windows:ArrayLike, sr=20., parallel=False, n_jobs=6)->pd.DataFrame:
+def from_windows(eda_windows: ArrayLike, sr=20., parallel=False, n_jobs=6) -> pd.DataFrame:
     """Method to calculate EDA features over set of EDA signals
 
     Args:
@@ -77,8 +78,8 @@ def from_windows(eda_windows:ArrayLike, sr=20., parallel=False, n_jobs=6)->pd.Da
 
 
 def from_decomposed_windows(
-    phasic_windows:ArrayLike, tonic_windows:ArrayLike, sr, parallel=False, n_jobs=6
-)->pd.DataFrame:
+    phasic_windows: ArrayLike, tonic_windows: ArrayLike, sr, parallel=False, n_jobs=6
+) -> pd.DataFrame:
     """Method to calculate EDA features over set of decomposed EDA signals
 
     Args:
@@ -112,7 +113,7 @@ def from_decomposed_windows(
     return pd.concat([scr_features, scl_features], axis=0, ignore_index=True)
 
 
-def from_scr(signal:ArrayLike)->dict:
+def from_scr(signal: ArrayLike) -> dict:
     """Calculate features over Phasic EDA signal
 
     Args:
@@ -131,7 +132,7 @@ def from_scr(signal:ArrayLike)->dict:
     return scr_features
 
 
-def from_scl(signal:ArrayLike)->dict:
+def from_scl(signal: ArrayLike) -> dict:
     """Calculate features over Tonic EDA signal
 
     Args:
