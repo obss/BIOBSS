@@ -19,7 +19,7 @@ def resample_signal(signal: ArrayLike, sample_rate: float, target_sample_rate: f
     ratio = (target_sample_rate/sample_rate)
     target_length = round(len(signal) * ratio)
 
-    if(return_time):
+    if return_time:
         if(t is None):
             t = np.arange(len(signal))/sample_rate
 

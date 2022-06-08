@@ -14,22 +14,23 @@ class Bio_Data:
     def __init__(self):
 
         self.data = {}  # Data_Channel objects
-        self.channel_count = 0  # Number of channels
         self.multichannel = False
 
     def add_channel(
         self,
         signal: Union[ArrayLike, Data_Channel],
         channel_name="Generic",
-        sampling_rate=None,
-        timestamp=None,
-        timestamp_start=0,
-        modality="Generic",
-        modify_existed=False,
+        sampling_rate: Union[int, float] = None,
+        timestamp: ArrayLike = None,
+        timestamp_start: Union[int, float] = 0,
+        modality: str = "Generic",
+        modify_existed: bool = False,
     ):
+
         if channel_name in self.data.keys():
             if not modify_existed:
-                raise ValueError("Channel already exists set modify_existed to True to modify")
+                raise ValueError(
+                    "Channel already exists set modify_existed to True to modify")
             else:
                 self.modify_signal(
                     signal, channel_name, sampling_rate, timestamp, timestamp_start
@@ -38,7 +39,6 @@ class Bio_Data:
 
         if isinstance(signal, Data_Channel):
             self.data[signal.signal_name] = signal.copy()
-            self.channel_count += 1
         else:
             signal = np.array(signal)
             if sampling_rate is None:
@@ -58,7 +58,6 @@ class Bio_Data:
                 modality=modality,
             )
             self.data[channel_name] = channel
-            self.channel_count += 1
 
         if self.channel_count > 1:
             self.multichannel = True
@@ -68,7 +67,6 @@ class Bio_Data:
         if channel_name not in self.data.keys():
             raise ValueError("Channel does not exist")
         self.data.pop(channel_name)
-        self.channel_count -= 1
         if self.channel_count == 1:
             self.multichannel = False
 
@@ -136,12 +134,11 @@ class Bio_Data:
 
         return self
 
-    def __getitem__(self, key:Union[str, int]) -> Data_Channel:
+    def __getitem__(self, key: Union[str, int]) -> Data_Channel:
         if(isinstance(key, str)):
             return self.data[key]
         elif(isinstance(key, int)):
             return self.data[list(self.data.keys())[key]]
-
 
     def __setitem__(self, key, value):
         return self.modify_signal(value, key)
@@ -160,3 +157,7 @@ class Bio_Data:
             representation += "\n"
 
         return representation
+
+    @property
+    def channel_count(self):
+        return len(self.data)

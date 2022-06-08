@@ -6,7 +6,6 @@ from typing import Union
 
 
 class Process_List():
-    """ Process list object with add and iterate process objects"""
 
     def __init__(self, name="Process_Queue", modality="Generic", sigtype="Generic"):
         self.process_list = []

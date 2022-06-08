@@ -14,7 +14,6 @@ from biobss.pipeline import data_channel
 
 
 class Bio_Pipeline:
-    """a biological signal processing object with preprocessing and postprocessing steps"""
 
     def __init__(
         self,
@@ -68,21 +67,10 @@ class Bio_Pipeline:
                     "If signal is not a Bio_Data object, name must be specified"
                 )
             self.input = Bio_Data()
-            if isinstance(signal, pd.Series):
+            if isinstance(signal, (np.ndarray, pd.Series, list)):
                 self.input.add_channel(
                     Data_Channel(
-                        signal.values,
-                        sampling_rate=sampling_rate,
-                        name=name,
-                        timestamp=timestamp,
-                        timestamp_start=timestamp_start,
-                        modality=modality,
-                    )
-                )
-            elif isinstance(signal, np.ndarray):
-                self.input.add_channel(
-                    Data_Channel(
-                        signal,
+                        np.array(signal),
                         sampling_rate=sampling_rate,
                         name=name,
                         timestamp=timestamp,
@@ -102,17 +90,6 @@ class Bio_Pipeline:
                             modality=modality,
                         )
                     )
-            elif isinstance(signal, list):
-                self.input.add_channel(
-                    Data_Channel(
-                        signal,
-                        sampling_rate=sampling_rate,
-                        name=name,
-                        timestamp=timestamp,
-                        timestamp_start=timestamp_start,
-                        modality=modality,
-                    )
-                )
             else:
                 raise ValueError(
                     "Input signal must be a Bio_Data object, a pandas DataFrame, a pandas Series, a numpy array, or a list"

@@ -10,7 +10,7 @@ import warnings
 class Bio_Process:
     def __init__(self, process_method, modality, sigtype, **kwargs) -> None:
 
-        self.method = process_method
+        self.process_method = process_method
         self.modality = modality
         self.sigtype = sigtype
         self.kwargs = kwargs
@@ -29,8 +29,8 @@ class Bio_Process:
 
     def process(self, signal: Data_Channel) -> Data_Channel:
         signal = signal.copy()
-        if self.method.__annotations__["return"] == Data_Channel:
-            result = self.method(signal, **self.kwargs)
+        if self.process_method.__annotations__["return"] == Data_Channel:
+            result = self.process_method(signal, **self.kwargs)
         else:
             self.kwargs.update({"sampling_rate": signal.sampling_rate})
             self.kwargs.update({"timestamp_start": signal.timestamp_start})
@@ -38,17 +38,17 @@ class Bio_Process:
             self.kwargs.update({"name": signal.signal_name})
             redundant = []
             for k in self.kwargs:
-                if k not in self.method.__code__.co_varnames:
+                if k not in self.process_method.__code__.co_varnames:
                     redundant.append(k)
             for r in redundant:
                 self.kwargs.pop(r)
             if len(signal.channel.shape) == 1:
-                result = self.method(signal.channel, **self.kwargs)
+                result = self.process_method(signal.channel, **self.kwargs)
             else:
                 result = []
                 # Try vectorized method
                 try:
-                    method_v = np.vectorize(self.method)
+                    method_v = np.vectorize(self.process_method)
                     result = method_v(signal.channel, **self.kwargs)
                 except:
                     warnings.warn(
@@ -56,7 +56,7 @@ class Bio_Process:
                     )
                 finally:
                     for i in range(signal.channel.shape[0]):
-                        result.append(self.method(
+                        result.append(self.process_method(
                             signal.channel[i], **self.kwargs))
 
                 # If vectorized method fails, try scalar method
@@ -135,8 +135,5 @@ class Bio_Process:
                 "Result must be a Data_Channel, pd.DataFrame, pd.Series, np.ndarray or list"
             )
 
-    def get_name(self):
-        return self.method.__name__
-
     def __str__(self) -> str:
-        return self.method.__name__
+        return self.process_method.__name__
