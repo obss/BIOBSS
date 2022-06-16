@@ -15,7 +15,7 @@ FEATURES_NL = {
 }
 
 
-def get_nl_features(sig: ArrayLike,ppi,fs: float, prefix: str='hrv') -> dict:
+def hrv_nl_features(ppi, prefix: str='hrv') -> dict:
     """Calculates nonlinear features.
 
     SD1: the standard deviation of the PoincarÃ© plot perpendicular to the line of identity

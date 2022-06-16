@@ -1,6 +1,7 @@
 import numpy as np
 from scipy import fft 
 from scipy import signal
+from scipy import interpolate
 import math
 from numpy.typing import ArrayLike
 
@@ -12,20 +13,20 @@ F_HF=[0.15, 0.4]
 F_VHF=[0.4, 0.5]
 
 FEATURES_FREQ= {
-'ulf': lambda sig,fs:_pow(sig,fs,F_ULF),
-'vlf': lambda sig,fs: _pow(sig,fs,F_VLF),
-'lf': lambda sig,fs: _pow(sig,fs,F_LF),
-'hf': lambda sig,fs: _pow(sig,fs,F_HF),
-'vhf': lambda sig,fs: _pow(sig,fs,F_VHF),
-'lf_hf_ratio': lambda sig,fs: _pow(sig,fs,F_LF)/_pow(sig,fs,F_HF),
-'total_power': lambda sig,fs: _pow(sig,fs,F_VLF)+_pow(sig,fs,F_LF)+_pow(sig,fs,F_HF),
-'lfnu': lambda sig,fs: (_pow(sig,fs,F_LF)/(_pow(sig,fs,F_LF)+_pow(sig,fs,F_HF)))*100,
-'hfnu': lambda sig,fs: (_pow(sig,fs,F_HF)/(_pow(sig,fs,F_LF)+_pow(sig,fs,F_HF)))*100,
-'lnHF': lambda sig,fs: np.log(_pow(sig,fs,F_HF)),
+'ulf': lambda pxx,f:_pow(pxx,f,F_ULF),
+'vlf': lambda pxx,f: _pow(pxx,f,F_VLF),
+'lf': lambda pxx,f: _pow(pxx,f,F_LF),
+'hf': lambda pxx,f: _pow(pxx,f,F_HF),
+'vhf': lambda pxx,f: _pow(pxx,f,F_VHF),
+'lf_hf_ratio': lambda pxx,f: _pow(pxx,f,F_LF)/_pow(pxx,f,F_HF),
+'total_power': lambda pxx,f: _pow(pxx,f,F_VLF)+_pow(pxx,f,F_LF)+_pow(pxx,f,F_HF),
+'lfnu': lambda pxx,f: (_pow(pxx,f,F_LF)/(_pow(pxx,f,F_LF)+_pow(pxx,f,F_HF)))*100,
+'hfnu': lambda pxx,f: (_pow(pxx,f,F_HF)/(_pow(pxx,f,F_LF)+_pow(pxx,f,F_HF)))*100,
+'lnHF': lambda pxx,f: np.log(_pow(pxx,f,F_HF)),
 }  
 
 
-def get_freq_features(sig: ArrayLike,ppi,fs: float, prefix: str='hrv') -> dict:
+def hrv_freq_features(ppi, prefix: str='hrv') -> dict:
     """Calculates frequency-domain features
     hrv_ulf: The spectral power density pertaining to ultra low frequency band i.e., 0 to .0033 Hz by default.
     hrv_vlf: The spectral power density pertaining to ultra low frequency band i.e., 0.0033 to 0.04 Hz by default.
@@ -57,29 +58,42 @@ def get_freq_features(sig: ArrayLike,ppi,fs: float, prefix: str='hrv') -> dict:
         dict: Dictionary of calculated features
     """
 
+    #Interpolate the ppi array
+    f_interp=4
+    t=np.zeros(len(ppi))
+
+    for i in range(len(ppi)):
+        print(i)
+        t[i]=np.sum(ppi[:i+1])
+
+    t2 = np.arange(t[0],t[-1]+1/f_interp,1/f_interp)
+
+    interp=interpolate.CubicSpline(t,ppi)
+    y=interp(t2)
+
+    #Calculate power spectral density using Welch method
+    y1=y-np.mean(y)
+    #nfft=2**math.ceil(math.log2(abs(len(y1))))
+    nfft=len(y1)
+    f,pxx=signal.welch(y1, fs=f_interp, nfft=nfft)
+
+    #freq=fft.fftfreq(nfft,1/f_interp)
+    #sigfft=np.abs(fft.fft(y1,nfft)/len(y1))
+    #P1=sigfft[0:int(nfft/2)]
+    #P1[1:-1] = 2 * P1[1:-1]
+    #sigfft=P1
+    #freq=freq[0 : int(len(y1)/ 2)]
+
     features_freq={}
 
     for key,func in FEATURES_FREQ.items():
-        features_freq["_".join([prefix, key])]=func(sig,fs)
+        features_freq["_".join([prefix, key])]=func(pxx,f)
 
 
     return features_freq
 
 
-def _pow(sig,fs,freq_band):
-
-    #nfft=2**math.ceil(math.log2(abs(len(sig))))
-    nfft=len(sig) 
-        
-    freq=fft.fftfreq(nfft,1/fs)
-    sigfft=np.abs(fft.fft(sig,nfft)/len(sig))
-    P1=sigfft[0:int(nfft/2)]
-    P1[1:-1] = 2 * P1[1:-1]
-    sigfft=P1
-    freq=freq[0 : int(len(sig)/ 2)]
-
-    sig_=sig-np.mean(sig)
-    f,pxx=signal.welch(sig_, fs=fs, nfft=nfft)
+def _pow(pxx,f,freq_band):
 
     pow= np.trapz(y=pxx[np.logical_and(f >= freq_band[0], f < freq_band[1])], x=f[np.logical_and(f >= freq_band[0], f < freq_band[1])])
     return pow

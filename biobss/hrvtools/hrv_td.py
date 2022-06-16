@@ -26,7 +26,7 @@ FEATURES_TIME = {
 }
 
 
-def get_time_features(sig: ArrayLike,ppi,fs: float, prefix: str='hrv') -> dict:
+def hrv_time_features(ppi, prefix: str='hrv') -> dict:
     """Calculates time-domain features.
 
     MeanNN: The mean of the RR intervals.
