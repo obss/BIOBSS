@@ -14,27 +14,21 @@ FEATURES_NL = {
 'SampEn': lambda ppi: ant.sample_entropy(ppi.tolist()),
 }
 
+def hrv_nl_features(ppi: ArrayLike, prefix: str='hrv') -> dict:
+    """Calculates nonlinear hrv parameters.
 
-def hrv_nl_features(ppi, prefix: str='hrv') -> dict:
-    """Calculates nonlinear features.
-
-    SD1: the standard deviation of the PoincarÃ© plot perpendicular to the line of identity
-    SD2: the standard deviation of the PoincarÃ© plot along to the line of identity
+    SD1: the standard deviation of the Poincare plot perpendicular to the line of identity
+    SD2: the standard deviation of the Poincare plot along to the line of identity
     SD2/SD1: the ratio of SD2 to SD1
     ApEn: approximate entropy of intervals
     SampEn: Sample entropy of intervals
  
     Args:
-        sig (ArrayLike): Signal to be analyzed.
-        fs (float): Sampling rate
-        type (str, optional): Type of feature calculation, should be 'segment' or 'cycle'. Defaults to None.
-        prefix (str, optional): Prefix for signal type. Defaults to 'signal'.
-
-    Raises:
-        ValueError: if Type is not 'cycle' or 'segment'.
+        ppi (ArrayLike): Peak-to-peak interval array
+        prefix (str, optional): Prefix for the calculated parameters. Defaults to 'hrv'.
 
     Returns:
-        dict: Dictionary of calculated features.
+        dict: Dictionary of nonlinear hrv parameters.
     """
 
     features_nl={}
@@ -42,19 +36,13 @@ def hrv_nl_features(ppi, prefix: str='hrv') -> dict:
     for key,func in FEATURES_NL.items():
         features_nl["_".join([prefix, key])]=func(ppi)
 
-
     return features_nl
 
 
-
 def _SD1(ppi):
-
     return np.sqrt( 0.5 * (np.std(np.diff(ppi), ddof=1) ** 2))*1000
 
-
 def _SD2(ppi):
-    
-
     return np.sqrt(2 * (np.std(ppi, ddof=1) ** 2) - 0.5 * (np.std(np.diff(ppi), ddof=1) ** 2))*1000
 
 

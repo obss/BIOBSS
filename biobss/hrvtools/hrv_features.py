@@ -18,10 +18,33 @@ def get_domain_function(domain:str) -> Callable:
         raise ValueError("Unknown domain:", domain)  
 
 
-def get_hrv_features(sig: ArrayLike, sampling_rate: float, input_type='ppi', peaks_locs=None, troughs_locs=None,  ppi=None, feature_types: ArrayLike=['Freq','Time','Nonlinear'], prefix: str='hrv') -> dict:
+def get_hrv_features(sampling_rate: float, input_type='ppi', peaks_locs=None, troughs_locs=None,  ppi=None, feature_types: ArrayLike=['Freq','Time','Nonlinear'], prefix: str='hrv') -> dict:
+    """Calculates hrv parameters
+
+    Args:
+        sampling_rate (float): Sampling rate of the ppg signal.
+        input_type (str, optional): Input type for the analyses. Should be 'ppi', 'peaks' or 'troughs'. Defaults to 'ppi'.
+                                    Depending on the input type, corresponding input array should be provided. 
+        peaks_locs (_type_, optional): Peak locations of the ppg signal. Defaults to None.
+        troughs_locs (_type_, optional): Onset locations of the ppg signal. Defaults to None.
+        ppi (_type_, optional): Peak-to-peak intervals of the ppg signal. Defaults to None.
+        feature_types (ArrayLike, optional): List of the type of hrv parameters to be calculated. Defaults to ['Freq','Time','Nonlinear'].
+        prefix (str, optional): Prefix for the calculated parameters. Defaults to 'hrv'.
+
+    Raises:
+        ValueError: If elements of feature_types are not 'Freq', 'Time' or 'Nonlinear'.
+        ValueError: If 'ppi' is None although the input type is 'ppi'.
+        ValueError: If 'peaks_locs' is None although the input type is 'peaks'.
+        ValueError: If 'trough_locs' is None although the input type is 'troughs'.
+        ValueError: If the input_type is not 'ppi', 'peaks' or 'troughs.
+
+    Returns:
+        dict: Dictionary of calculated hrv parameters.
+    """
 
     valid_types=['Time','Freq','Nonlinear']   
     features={}
+    
     for domain in feature_types:
         if domain not in valid_types:
             raise ValueError("invalid feature type: " + domain)
