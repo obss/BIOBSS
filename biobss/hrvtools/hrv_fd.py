@@ -30,13 +30,13 @@ def hrv_freq_features(ppi: ArrayLike, prefix: str='hrv') -> dict:
     """Calculates frequency-domain hrv parameters.
 
     hrv_ulf: The spectral power density pertaining to ultra low frequency band i.e., 0 to .0033 Hz by default.
-    hrv_vlf: The spectral power density pertaining to ultra low frequency band i.e., 0.0033 to 0.04 Hz by default.
-    hrv_lf: The spectral power density pertaining to ultra low frequency band i.e., 0.04 to 0.15 Hz by default.
-    hrv_hf: The spectral power density pertaining to ultra low frequency band i.e., 0.15 to 0.4 Hz by default.
+    hrv_vlf: The spectral power density pertaining to very low frequency band i.e., 0.0033 to 0.04 Hz by default.
+    hrv_lf: The spectral power density pertaining to low frequency band i.e., 0.04 to 0.15 Hz by default.
+    hrv_hf: The spectral power density pertaining to high frequency band i.e., 0.15 to 0.4 Hz by default.
     hrv_vhf: The variability, or signal power, in very high frequency i.e., 0.4 to 0.5 Hz by default.
     LF/HF: the ratio of LF to HF
     hrv_lfnu: The normalized low frequency, obtained by dividing the low frequency power by the total power.
-    hrv_hfnu: The normalized high frequency, obtained by dividing the low frequency power by the total power.
+    hrv_hfnu: The normalized high frequency, obtained by dividing the high frequency power by the total power.
     LnHF: The log transformed HF.
 
     Args:
