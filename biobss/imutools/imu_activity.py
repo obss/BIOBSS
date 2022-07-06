@@ -1,4 +1,4 @@
-from typing import List
+from typing import Dict, List
 import numpy as np
 from numpy.typing import ArrayLike
 
@@ -13,13 +13,13 @@ DATA_TO_METRIC = {'PIM':['FXYZ_modified','UFM_modified','UFNM','FMpost_modified'
                   'HFEN':['SpecialXYZ','SpecialM'], 
                   'AI': ['UFXYZ','FXYZ']}
     
-METRIC_FUNCTIONS = {'PIM': lambda sig, dim, sampling_rate, _0, _1: _calc_pim(sig,dim,sampling_rate),
-                      'ZCM': lambda sig, dim, _0, threshold, _1 : _calc_zcm(sig, dim, threshold),
-                      'TAT': lambda sig, dim, sampling_rate, threshold, _0: _calc_tat(sig, dim, sampling_rate, threshold),
-                      'MAD': lambda sig, dim, _0, _1, _2: _calc_mad(sig, dim),
-                      'ENMO': lambda sig, _0, _1, _2, _3: _calc_enmo(sig),
-                      'HFEN': lambda sig, dim, _0, _1, _2: _calc_hfen(sig,dim),
-                      'AI': lambda sig, _0, _1, _2, baseline_variance: _calc_ai(sig, baseline_variance)
+METRIC_FUNCTIONS = {'PIM': lambda sig, dim, sampling_rate, _0, _1, triaxial: _calc_pim(sig, dim, sampling_rate, triaxial),
+                      'ZCM': lambda sig, dim, _0, threshold, _1, triaxial: _calc_zcm(sig, dim, threshold, triaxial),
+                      'TAT': lambda sig, dim, sampling_rate, threshold, _0, triaxial: _calc_tat(sig, dim, sampling_rate, threshold, triaxial),
+                      'MAD': lambda sig, dim, _0, _1, _2, triaxial: _calc_mad(sig, dim, triaxial),
+                      'ENMO': lambda sig, _0, _1, _2, _3, _4: _calc_enmo(sig),
+                      'HFEN': lambda sig, dim, _0, _1, _2, triaxial: _calc_hfen(sig, dim, triaxial),
+                      'AI': lambda sig, _0, _1, _2, baseline_variance, _4: _calc_ai(sig, baseline_variance)
                      }
 
 DATASET_FUNCTIONS = {'UFXYZ': lambda sig_x,sig_y,sig_z,sampling_rate: generate_dataset(sig_x,sig_y,sig_z,sampling_rate,False,None,False,False,False),
@@ -36,7 +36,7 @@ DATASET_FUNCTIONS = {'UFXYZ': lambda sig_x,sig_y,sig_z,sampling_rate: generate_d
                     }
 
 
-def calc_activity_index(accx: ArrayLike, accy: ArrayLike, accz: ArrayLike, signal_length: float, sampling_rate: float, metric: str, input_types: list=None, threshold:List=None, baseline_variance:List=None) -> ArrayLike:
+def calc_activity_index(accx: ArrayLike, accy: ArrayLike, accz: ArrayLike, signal_length: float, sampling_rate: float, metric: str, input_types: list=None, threshold:List=None, baseline_variance:List=None, triaxial:bool=False) -> Dict:
     """Calculates the given activity index for the desired input types.
 
     Args:
@@ -60,19 +60,20 @@ def calc_activity_index(accx: ArrayLike, accy: ArrayLike, accz: ArrayLike, signa
         threshold (List, optional): Threshold level in g. This parameter is required for the 'ZCM' and 'TAT' metrics. Defaults to None.
         baseline_variance (List, optional): Baseline variance, corresponding to the variance of acceleration signal at rest (no movement).
                                              This parameter is required for the 'AI' metric. Defaults to None.
+        triaxial (bool, optional): Parameter to decide if triaxial metrics should be combined into a single metric or not. Defaults to False.
 
     Raises:
         ValueError: If the input type is not one of valid types for the desired metric.
 
     Returns:
-        ArrayLike: A list of calculated metric for the desired input types.
+        Dict: A dictionary of calculated metric for the desired input types.
     """
     if input_types is None:
         input_types = DATA_TO_METRIC[metric]
 
     valid_inputs = DATA_TO_METRIC[metric]
     metric_function = METRIC_FUNCTIONS[metric]
-    act_ind = []
+    act_ind = {}
     
     for input_type in input_types:
         
@@ -83,10 +84,10 @@ def calc_activity_index(accx: ArrayLike, accy: ArrayLike, accz: ArrayLike, signa
             dataset_function = DATASET_FUNCTIONS[input_type]
             sig = dataset_function(accx, accy, accz, sampling_rate)
             dim=int(np.size(sig)/(signal_length*sampling_rate))
-            act = metric_function(sig, dim, sampling_rate, threshold, baseline_variance)
-            act_ind.append(act)
+            act = metric_function(sig, dim, sampling_rate, threshold, baseline_variance, triaxial)
+            act_ind[input_type] = act
     
-    return np.asarray(act_ind)
+    return act_ind
             
 
 def generate_dataset(accx: ArrayLike, accy:ArrayLike, accz:ArrayLike, sampling_rate:float, filtering:bool=False, filtering_order:str=None, magnitude:bool=False, normalize:bool=False, modify:bool=False, filter_type:str='bandpass', N:int=2, f1:float=0.5, f2:float=2) -> ArrayLike:
@@ -193,13 +194,14 @@ def _calc_magnitude(sig_x: ArrayLike, sig_y: ArrayLike, sig_z: ArrayLike) -> Arr
     """
     return np.sqrt(np.square(sig_x) + np.square(sig_y) + np.square(sig_z)) #acc signals should be in "g"
  
-def _calc_pim(sig: ArrayLike, dim: int, sampling_rate: float) -> list:
+def _calc_pim(sig: ArrayLike, dim: int, sampling_rate: float, triaxial:bool) -> list:
     """Calculates activity index using Proportional Integration Method (PIM).
 
     Args:
         sig (ArrayLike): List of acceleration signal(s).
         dim (int): Input dimension
         sampling_rate (float): Sampling rate of the acceleration signal(s).
+        triaxial (bool): Parameter to decide if triaxial metrics should be combined into a single metric or not
 
     Raises:
         ValueError: If the dimension is invalid.
@@ -214,19 +216,24 @@ def _calc_pim(sig: ArrayLike, dim: int, sampling_rate: float) -> list:
         pim_x = np.sum(sig[0]) / sampling_rate
         pim_y = np.sum(sig[1]) / sampling_rate
         pim_z = np.sum(sig[2]) / sampling_rate
-        pim = [pim_x, pim_y, pim_z]
+        
+        if not triaxial:
+            pim= [np.sqrt(np.square(pim_x) + np.square(pim_y) + np.square(pim_z))]
+        else:
+            pim = [pim_x, pim_y, pim_z]
     else:
         raise ValueError("Invalid dimension!")
-    
+ 
     return pim
         
-def _calc_zcm(sig: ArrayLike, dim: int, threshold: float) -> list:
+def _calc_zcm(sig: ArrayLike, dim: int, threshold: float, triaxial:bool) -> list:
     """Calculates activity index using Zero Crossing Method (ZCM).
 
     Args:
         sig (ArrayLike): List of acceleration signal(s).
         dim (int): Input dimension
         threshold (float): Threshold level in "g".
+        triaxial (bool): Parameter to decide if triaxial metrics should be combined into a single metric or not
 
     Raises:
         ValueError: If the threshold level is not provided.
@@ -257,7 +264,11 @@ def _calc_zcm(sig: ArrayLike, dim: int, threshold: float) -> list:
                     zcm_y += 1            
                 if sig[2][i] < threshold[2] and sig[2][i+1] >= threshold[2]:
                     zcm_z += 1
-            zcm = [zcm_x, zcm_y, zcm_z]
+
+            if not triaxial:
+                zcm= [np.sqrt(np.square(zcm_x) + np.square(zcm_y) + np.square(zcm_z))]
+            else:
+                zcm = [zcm_x, zcm_y, zcm_z]
 
         else:
             raise ValueError("Invalid dimension!")
@@ -265,7 +276,7 @@ def _calc_zcm(sig: ArrayLike, dim: int, threshold: float) -> list:
     return zcm
 
 
-def _calc_tat(sig: ArrayLike, dim: int, sampling_rate: float, threshold: float) -> List:
+def _calc_tat(sig: ArrayLike, dim: int, sampling_rate: float, threshold: float, triaxial:bool) -> List:
     """Calculates activity index using Time Above Threshold Method (TAT).
 
     Args:
@@ -273,6 +284,7 @@ def _calc_tat(sig: ArrayLike, dim: int, sampling_rate: float, threshold: float) 
         dim (int): Input dimension
         sampling_rate (float): Sampling rate of the acceleration signal(s).
         threshold (float): Threshold level in "g".
+        triaxial (bool): Parameter to decide if triaxial metrics should be combined into a single metric or not
 
     Raises:
         ValueError: If the threshold level is not provided.
@@ -292,19 +304,24 @@ def _calc_tat(sig: ArrayLike, dim: int, sampling_rate: float, threshold: float) 
             tat_x = len(sig[0][sig[0] >= threshold[0]]) / sampling_rate
             tat_y = len(sig[1][sig[1] >= threshold[1]]) / sampling_rate
             tat_z = len(sig[2][sig[2] >= threshold[2]]) / sampling_rate
-            tat = [tat_x, tat_y, tat_z]
+        
+            if not triaxial:
+                tat= [np.sqrt(np.square(tat_x) + np.square(tat_y) + np.square(tat_z))]
+            else:
+                tat = [tat_x, tat_y, tat_z]
 
         else:
             raise ValueError("Invalid dimension!")
         
     return tat
 
-def _calc_mad(sig: ArrayLike, dim: int) -> List:
+def _calc_mad(sig: ArrayLike, dim: int, triaxial:bool) -> List:
     """Calculates activity index using Mean Amplitude Deviation Method (MAD).
 
     Args:
         sig (ArrayLike): List of acceleration signal(s).
         dim (int): Input dimension
+        triaxial (bool): Parameter to decide if triaxial metrics should be combined into a single metric or not
 
     Raises:
         ValueError: If the dimension is invalid.
@@ -320,7 +337,11 @@ def _calc_mad(sig: ArrayLike, dim: int) -> List:
         mad_x = np.sum(np.abs(sig[0] - np.mean(sig[0]))) / len(sig[0])
         mad_y = np.sum(np.abs(sig[1] - np.mean(sig[1]))) / len(sig[1])    
         mad_z = np.sum(np.abs(sig[2] - np.mean(sig[2]))) / len(sig[2])
-        mad = [mad_x, mad_y, mad_z]
+
+        if not triaxial:
+            mad= [np.sqrt(np.square(mad_x) + np.square(mad_y) + np.square(mad_z))]
+        else:
+            mad = [mad_x, mad_y, mad_z]
     else:
         raise ValueError("Invalid dimension!")
         
@@ -340,12 +361,13 @@ def _calc_enmo(sig: ArrayLike) -> List:
 
     return enmo
 
-def _calc_hfen(sig: ArrayLike, dim: int) -> List:
+def _calc_hfen(sig: ArrayLike, dim: int, triaxial:bool) -> List:
     """Calculates activity index using High-pass Filtered Euclidian Norm (HFEN).
 
     Args:
         sig (ArrayLike): List of acceleration signal(s).
         dim (int): Input dimension
+        triaxial (bool): Parameter to decide if triaxial metrics should be combined into a single metric or not
 
     Raises:
         ValueError: If the dimension is invalid. 
@@ -361,7 +383,11 @@ def _calc_hfen(sig: ArrayLike, dim: int) -> List:
         hfen_x = np.sum(sig[0]) / len(sig[0])
         hfen_y = np.sum(sig[1]) / len(sig[1])
         hfen_z = np.sum(sig[2]) / len(sig[2])
-        hfen = [hfen_x, hfen_y, hfen_z]
+
+        if not triaxial:
+            hfen= [np.sqrt(np.square(hfen_x) + np.square(hfen_y) + np.square(hfen_z))]
+        else:
+            hfen = [hfen_x, hfen_y, hfen_z]
 
     else:
         raise ValueError("Invalid dimension!")
