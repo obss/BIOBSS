@@ -1,6 +1,7 @@
 from typing import Dict, List
 import numpy as np
 from numpy.typing import ArrayLike
+import warnings
 
 from ..signaltools import filter_signal
 
@@ -74,7 +75,7 @@ def calc_activity_index(accx: ArrayLike, accy: ArrayLike, accz: ArrayLike, signa
     valid_inputs = DATA_TO_METRIC[metric]
     metric_function = METRIC_FUNCTIONS[metric]
     act_ind = {}
-    
+  
     for input_type in input_types:
         
         if input_type not in valid_inputs:
@@ -84,12 +85,16 @@ def calc_activity_index(accx: ArrayLike, accy: ArrayLike, accz: ArrayLike, signa
             dataset_function = DATASET_FUNCTIONS[input_type]
             sig = dataset_function(accx, accy, accz, sampling_rate)
             dim=int(np.size(sig)/(signal_length*sampling_rate))
+
+            if metric in ['ZCM', 'TAT'] and threshold is None:
+                warnings.warn("Threshold level is required for this activity index, but not provided. Standard deviation of the signal will be used as threshold.")
+                threshold = calc_threshold(sig, dim, input_type)
+            
             act = metric_function(sig, dim, sampling_rate, threshold, baseline_variance, triaxial)
             act_ind[input_type] = act
     
     return act_ind
             
-
 def generate_dataset(accx: ArrayLike, accy:ArrayLike, accz:ArrayLike, sampling_rate:float, filtering:bool=False, filtering_order:str=None, magnitude:bool=False, normalize:bool=False, modify:bool=False, filter_type:str='bandpass', N:int=2, f1:float=0.5, f2:float=2) -> ArrayLike:
     """Generates datasets by applying appropriate preprocessing steps to the raw acceleration signals.
 
@@ -181,6 +186,39 @@ def generate_dataset(accx: ArrayLike, accy:ArrayLike, accz:ArrayLike, sampling_r
 
     return sig
 
+def calc_threshold(sig: ArrayLike, dim: int, input_type:str) -> List:
+    """Calculates the threshold level in "g", as standard deviation of the signal (It is calculated as "SD+g" for the 'UFM' dataset.)
+
+    Args:
+        sig (ArrayLike): Preprocessed acceleration signal(s).
+        dim (int): Input dimension
+        input_type (str): Type of dataset 
+
+    Raises:
+        ValueError: If the dimension is invalid.
+
+    Returns:
+        List: List of calculated threshold level(s).
+    """
+
+    if dim == 1:
+        th = np.std(sig[0])
+        if input_type =='UFM':
+            threshold = [th+1]
+        else:
+            threshold = [th]
+        
+    elif dim == 3:
+        th_x = np.std(sig[0])
+        th_y = np.std(sig[1])
+        th_z = np.std(sig[2])
+        threshold = [th_x,th_y,th_z]
+        
+    else:
+        raise ValueError("Invalid dimension!")
+        
+    return threshold
+
 def _calc_magnitude(sig_x: ArrayLike, sig_y: ArrayLike, sig_z: ArrayLike) -> ArrayLike :
     """Calculates the magnitude signal from the axial acceleration signals.
 
@@ -193,7 +231,7 @@ def _calc_magnitude(sig_x: ArrayLike, sig_y: ArrayLike, sig_z: ArrayLike) -> Arr
         ArrayLike: Magnitude signal.
     """
     return np.sqrt(np.square(sig_x) + np.square(sig_y) + np.square(sig_z)) #acc signals should be in "g"
- 
+
 def _calc_pim(sig: ArrayLike, dim: int, sampling_rate: float, triaxial:bool) -> list:
     """Calculates activity index using Proportional Integration Method (PIM).
 
@@ -245,6 +283,7 @@ def _calc_zcm(sig: ArrayLike, dim: int, threshold: float, triaxial:bool) -> list
     
     if threshold is None:
         raise ValueError('Threshold value is required for this metric.')
+
     else:
         if dim == 1:
             zcm = 0        
