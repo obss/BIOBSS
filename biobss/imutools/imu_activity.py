@@ -91,7 +91,15 @@ def calc_activity_index(accx: ArrayLike, accy: ArrayLike, accz: ArrayLike, signa
                 threshold = calc_threshold(sig, dim, input_type)
             
             act = metric_function(sig, dim, sampling_rate, threshold, baseline_variance, triaxial)
-            act_ind[input_type] = act
+
+            if not triaxial:
+                act_ind[input_type] = act[0]
+            else:
+                act_axes={}
+                act_axes['x'] = act[0]
+                act_axes['y'] = act[1]
+                act_axes['z'] = act[2]
+                act_ind[input_type] = act_axes
     
     return act_ind
             
