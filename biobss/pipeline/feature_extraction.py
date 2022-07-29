@@ -10,7 +10,7 @@ class Feature():
 
     def __init__(self, name, function, parameters, input_signals: dict, **kwargs):
 
-        self_name = name
+        self.name = name
         self.function = function
         self.parameters = parameters
         self.input_signals = input_signals

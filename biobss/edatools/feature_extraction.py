@@ -1,6 +1,4 @@
-import numpy as np
 import pandas as pd
-from scipy.fft import fft
 from .hjorth import *
 from .eda_decompose import *
 from .signal_features import *

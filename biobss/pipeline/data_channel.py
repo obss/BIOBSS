@@ -6,10 +6,23 @@ from numpy.typing import ArrayLike
 class Data_Channel():
     """ Signal object with add and iterate process objects"""
 
-    def __init__(self, signal: ArrayLike, sampling_rate: float, timestamp=None, timestamp_start=0, name="Generic", modality="Generic"):
+    def __init__(self, signal: ArrayLike, sampling_rate: float, timestamp=None, timestamp_resolution='ms', timestamp_start=0, name="Generic", modality="Generic"):
 
         regularity_parameter = 0.01
+        if(timestamp_resolution == 'ns'):
+            regularity_parameter = 1e-9
+        elif(timestamp_resolution == 'ms'):
+            regularity_parameter = 0.001
+        elif(timestamp_resolution == 's'):
+            regularity_parameter = 1
+        elif(timestamp_resolution == 'min'):
+            regularity_parameter = 60
+        else:
+            raise ValueError('timestamp_resolution must be "ns","ms","s","min"')
+            
+            
         self.channel = np.array(signal)
+        
         if(sampling_rate < 0):
             raise ValueError('Sampling rate must be greater than 0')
 
@@ -25,10 +38,21 @@ class Data_Channel():
                 raise ValueError('Timestamp must be regularly spaced')
             self.timestamp = timestamp
             self.timestamp_start = timestamp[0]
+            print("Input is set with timestamp resolution of " + str(timestamp_resolution))
         else:
             if(timestamp_start < 0):
                 raise ValueError('Timestamp start must be greater than 0')
-            timestamp = np.arange(len(signal))/sampling_rate
+            timestamp_factor=1
+            if(timestamp_resolution == 'ns'):
+                timestamp_factor = 1/1e-9
+            elif(timestamp_resolution == 'ms'):
+                timestamp_factor = 1/0.001
+            elif(timestamp_resolution == 's'):
+                timestamp_factor = 1
+            elif(timestamp_resolution == 'min'):
+                timestamp_factor = 60
+                
+            timestamp = (np.arange(len(signal))/sampling_rate)*timestamp_factor
             self.timestamp = timestamp+timestamp_start
 
         self.timestamp_start = timestamp_start

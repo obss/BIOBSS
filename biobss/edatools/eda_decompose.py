@@ -1,6 +1,5 @@
 import numpy as np
 import cvxopt as cv
-import cvxopt.solvers
 from pyparsing import srange
 import neurokit2 as nk
 import pandas as pd
