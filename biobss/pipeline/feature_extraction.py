@@ -1,3 +1,4 @@
+from distutils.log import warn
 import re
 from sqlite3 import Timestamp
 from .bio_data import Bio_Data
@@ -45,10 +46,22 @@ class Feature():
             feature_set = []
             self.parameters['prefix'] = prefix
             data = self.data[channel_name].channel
-            for i, c in enumerate(data):
-                feature_set.append(self.function(c, **self.parameters))
-            calculated_features = pd.DataFrame(feature_set, index=timestamps)
-            return calculated_features
+            
+            if(len(data.shape) < 2):
+                window_number = 1
+            else:
+                window_number = data.shape[0]       
+            if(window_number == 1):
+                feature_set.append(self.function(data, **self.parameters))
+                calculated_features = pd.DataFrame.from_dict(feature_set)
+                return calculated_features
+            else:         
+                for i in range(window_number):
+                    feature_set.append(self.function(data[i], **self.parameters))
+                calculated_features = pd.DataFrame(feature_set, index=timestamps)
+                return calculated_features
+            
+            raise ValueError("Feature extraction failed unexpectedly!")
         elif(isinstance(channel_name, list)):
             ts = []
             for c in channel_name:
@@ -69,9 +82,16 @@ class Feature():
             for c in channel_name:
                 data_.append(self.data[c].channel)
             data_ = np.array(data_)
-            for i in range(window_number):
+            if(window_number!=1):
+                for i in range(window_number):
+                    feature_set.append(self.function(
+                        data_[:, i], **self.parameters))
+                calculated_features = pd.DataFrame(feature_set,index=timestamps)    
+            else:
+                timestamps=[timestamps[-1]]
                 feature_set.append(self.function(
-                    data_[:, i], **self.parameters))
+                        data_[:,], **self.parameters))
 
-            calculated_features = pd.DataFrame(feature_set, index=timestamps)
+                calculated_features = pd.DataFrame.from_dict(feature_set)
+                
             return calculated_features
