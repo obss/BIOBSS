@@ -80,7 +80,6 @@ def calc_activity_index(accx: ArrayLike, accy: ArrayLike, accz: ArrayLike, signa
         
         if input_type not in valid_inputs:
             raise ValueError("Invalid input type for the metric to be calculated!")
-
         else:  
             dataset_function = DATASET_FUNCTIONS[input_type]
             sig = dataset_function(accx, accy, accz, sampling_rate)
@@ -89,9 +88,8 @@ def calc_activity_index(accx: ArrayLike, accy: ArrayLike, accz: ArrayLike, signa
             if metric in ['ZCM', 'TAT'] and threshold is None:
                 warnings.warn("Threshold level is required for this activity index, but not provided. Standard deviation of the signal will be used as threshold.")
                 threshold = calc_threshold(sig, dim, input_type)
-            
-            act = metric_function(sig, dim, sampling_rate, threshold, baseline_variance, triaxial)
 
+            act = metric_function(sig, dim, sampling_rate, threshold, baseline_variance, triaxial)
             if not triaxial:
                 act_ind[input_type] = act[0]
             else:
@@ -144,7 +142,6 @@ def generate_dataset(accx: ArrayLike, accy:ArrayLike, accz:ArrayLike, sampling_r
     """
 
     if filtering:
-        
         if filtering_order is None:
             raise ValueError("Required parameter filtered_order.")
 
@@ -152,7 +149,6 @@ def generate_dataset(accx: ArrayLike, accy:ArrayLike, accz:ArrayLike, sampling_r
             f_x = filter_signal(accx, filter_type=filter_type, N=N, fs=sampling_rate, f1=f1, f2=f2)
             f_y = filter_signal(accy, filter_type=filter_type, N=N, fs=sampling_rate, f1=f1, f2=f2)
             f_z = filter_signal(accz, filter_type=filter_type, N=N, fs=sampling_rate, f1=f1, f2=f2)
-
             if magnitude:
                 mag = _calc_magnitude(f_x, f_y, f_z) #FMpre
                 sig = [mag]
@@ -166,29 +162,22 @@ def generate_dataset(accx: ArrayLike, accy:ArrayLike, accz:ArrayLike, sampling_r
             mag = _calc_magnitude(accx, accy, accz)
             f_mag = filter_signal(mag, filter_type=filter_type, N=N, fs=sampling_rate, f1=f1, f2=f2) #FMpost
             sig = [f_mag]
-
             if modify:
                 sig = [np.abs(f_mag)] #FMpost_modified       
             
         else:
             raise ValueError("Invalid value for filtering order.")
-    
     else:
         if not magnitude:
             sig = [accx, accy, accz] #UFXYZ
-            
         else:
             mag = _calc_magnitude(accx, accy, accz) #UFM
-            
             if not modify and normalize:     
                 sig = [mag-1] #UFNM
-                 
             elif modify and not normalize:  
                 sig = [np.abs(mag - len(mag))] #UFM_modified
-                
             elif modify and normalize:
                 raise ValueError("Both normalization and modify cannot be True!")
-
             else:
                 sig = [mag]
 
@@ -215,7 +204,7 @@ def calc_threshold(sig: ArrayLike, dim: int, input_type:str) -> List:
             threshold = [th+1]
         else:
             threshold = [th]
-        
+
     elif dim == 3:
         th_x = np.std(sig[0])
         th_y = np.std(sig[1])
@@ -299,7 +288,6 @@ def _calc_zcm(sig: ArrayLike, dim: int, threshold: float, triaxial:bool) -> list
                 if sig[0][i] < threshold[0] and sig[0][i+1] >= threshold[0]:
                     zcm += 1
             zcm=[zcm]
-
         elif dim == 3:
             zcm_x = 0
             zcm_y = 0
@@ -311,17 +299,14 @@ def _calc_zcm(sig: ArrayLike, dim: int, threshold: float, triaxial:bool) -> list
                     zcm_y += 1            
                 if sig[2][i] < threshold[2] and sig[2][i+1] >= threshold[2]:
                     zcm_z += 1
-
             if not triaxial:
                 zcm= [np.sqrt(np.square(zcm_x) + np.square(zcm_y) + np.square(zcm_z))]
             else:
                 zcm = [zcm_x, zcm_y, zcm_z]
-
         else:
             raise ValueError("Invalid dimension!")
         
     return zcm
-
 
 def _calc_tat(sig: ArrayLike, dim: int, sampling_rate: float, threshold: float, triaxial:bool) -> List:
     """Calculates activity index using Time Above Threshold Method (TAT).
@@ -351,7 +336,6 @@ def _calc_tat(sig: ArrayLike, dim: int, sampling_rate: float, threshold: float, 
             tat_x = len(sig[0][sig[0] >= threshold[0]]) / sampling_rate
             tat_y = len(sig[1][sig[1] >= threshold[1]]) / sampling_rate
             tat_z = len(sig[2][sig[2] >= threshold[2]]) / sampling_rate
-        
             if not triaxial:
                 tat= [np.sqrt(np.square(tat_x) + np.square(tat_y) + np.square(tat_z))]
             else:
@@ -379,12 +363,10 @@ def _calc_mad(sig: ArrayLike, dim: int, triaxial:bool) -> List:
 
     if dim == 1:
         mad = [np.sum(np.abs(sig[0] - np.mean(sig[0]))) / len(sig[0])]
-
     elif dim == 3:
         mad_x = np.sum(np.abs(sig[0] - np.mean(sig[0]))) / len(sig[0])
         mad_y = np.sum(np.abs(sig[1] - np.mean(sig[1]))) / len(sig[1])    
         mad_z = np.sum(np.abs(sig[2] - np.mean(sig[2]))) / len(sig[2])
-
         if not triaxial:
             mad= [np.sqrt(np.square(mad_x) + np.square(mad_y) + np.square(mad_z))]
         else:
@@ -425,17 +407,14 @@ def _calc_hfen(sig: ArrayLike, dim: int, triaxial:bool) -> List:
 
     if dim == 1:    
         hfen = [np.sum(sig[0]) / len(sig[0])]
-
     elif dim == 3:
         hfen_x = np.sum(sig[0]) / len(sig[0])
         hfen_y = np.sum(sig[1]) / len(sig[1])
         hfen_z = np.sum(sig[2]) / len(sig[2])
-
         if not triaxial:
             hfen= [np.sqrt(np.square(hfen_x) + np.square(hfen_y) + np.square(hfen_z))]
         else:
             hfen = [hfen_x, hfen_y, hfen_z]
-
     else:
         raise ValueError("Invalid dimension!")
         
