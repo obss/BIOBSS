@@ -166,7 +166,7 @@ def generate_dataset(accx: ArrayLike, accy:ArrayLike, accz:ArrayLike, sampling_r
                 sig = [np.abs(f_mag)] #FMpost_modified       
             
         else:
-            raise ValueError("Invalid value for filtering order.")
+            raise ValueError(f"Invalid 'filtering_order' value for `generate_dataset`: {filtering_order}. Should be one of ['pre', 'post']")
     else:
         if not magnitude:
             sig = [accx, accy, accz] #UFXYZ
