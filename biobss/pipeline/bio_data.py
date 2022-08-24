@@ -51,9 +51,9 @@ class Bio_Data:
                 )
             channel = Data_Channel(
                 signal,
-                sampling_rate,
-                timestamp,
-                timestamp_start,
+                sampling_rate=sampling_rate,
+                timestamp=timestamp,
+                timestamp_start=timestamp_start,
                 name=channel_name,
                 modality=modality,
             )
@@ -97,11 +97,11 @@ class Bio_Data:
             else:
                 self.data[channel_name] = Data_Channel(
                     signal,
-                    sampling_rate,
-                    timestamp,
-                    timestamp_start,
-                    channel_name,
-                    modality,
+                    sampling_rate=sampling_rate,
+                    timestamp=timestamp,
+                    timestamp_start=timestamp_start,
+                    name=channel_name,
+                    modality=modality,
                 )
 
     def get_channel_names(self):

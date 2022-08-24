@@ -8,12 +8,13 @@ import warnings
 
 
 class Bio_Process:
-    def __init__(self, process_method, modality, sigtype, **kwargs) -> None:
+    def __init__(self, process_method, modality, sigtype,returnindex=None, **kwargs) -> None:
 
         self.process_method = process_method
         self.modality = modality
         self.sigtype = sigtype
         self.kwargs = kwargs
+        self.returnindex = returnindex
 
     def check_modality(self, modality):
         if self.modality == modality:
@@ -29,7 +30,12 @@ class Bio_Process:
 
     def process(self, signal: Data_Channel) -> Data_Channel:
         signal = signal.copy()
-        if self.process_method.__annotations__["return"] == Data_Channel:
+        has_return=False
+        if("return" in self.process_method.__annotations__):
+            if self.process_method.__annotations__["return"] == Data_Channel:
+                has_return = True
+                
+        if(has_return):
             result = self.process_method(signal, **self.kwargs)
         else:
             self.kwargs.update({"sampling_rate": signal.sampling_rate})
@@ -85,6 +91,17 @@ class Bio_Process:
                     result = list(zip(*result))
                 # if otput is list of pandas dataframes, convert to single pandas dataframe
 
+        result=self._process_result(signal, result)
+        return result
+                   
+            
+    def _process_result(self,signal, result):
+        if isinstance(result, tuple):
+            if(self.returnindex is not None):
+                result = result[self.returnindex]
+            else:
+                raise ValueError("If process method returns a tuple, returnindex must be specified!")
+        
         if isinstance(result, Data_Channel):
             return result
         elif isinstance(result, Bio_Data):
@@ -130,10 +147,23 @@ class Bio_Process:
                 modality=signal.signal_modality,
             )
             return result
+        elif isinstance(result, dict):
+            output = Bio_Data()
+            for k in result.keys():
+                output.add_channel(
+                    result[k],
+                    channel_name=k,
+                    sampling_rate=signal.sampling_rate,
+                    timestamp=signal.timestamp,
+                    timestamp_start=signal.timestamp_start,
+                    modality=signal.signal_modality,
+                )
+            return output
         else:
             raise ValueError(
                 "Result must be a Data_Channel, pd.DataFrame, pd.Series, np.ndarray or list"
             )
+        
 
     def __str__(self) -> str:
         return self.process_method.__name__

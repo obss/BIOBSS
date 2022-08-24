@@ -1,5 +1,4 @@
 import numpy as np
-import neurokit2 as nk
 from copy import copy
 from numpy.typing import ArrayLike
 

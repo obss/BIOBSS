@@ -53,6 +53,7 @@ class Bio_Pipeline:
         modality="Generic",
         timestamp=None,
         timestamp_start=0,
+        timestamp_resolution='ms',
     ):
 
         if isinstance(signal, Bio_Data):
@@ -76,6 +77,7 @@ class Bio_Pipeline:
                         timestamp=timestamp,
                         timestamp_start=timestamp_start,
                         modality=modality,
+                        timestamp_resolution=timestamp_resolution,
                     )
                 )
             elif isinstance(signal, pd.DataFrame):
@@ -88,6 +90,7 @@ class Bio_Pipeline:
                             timestamp=timestamp,
                             timestamp_start=timestamp_start,
                             modality=modality,
+                            timestamp_resolution=timestamp_resolution,
                         )
                     )
             else:
