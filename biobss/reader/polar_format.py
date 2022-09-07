@@ -20,13 +20,12 @@ TYPE_TO_COLUMN_NAMES={
     }
 
 
-def txt_to_csv(txt_dir:str, file_types=['HR','PPI','ACC','PPG','MAGN','GYRO'], record_id: str=None):
+def txt_to_csv(txt_dir: str, file_types: list=['HR','PPI','ACC','PPG','MAGN','GYRO']):
     """Reads txt files and saves as csv files.
 
     Args:
         txt_dir (str): Directory of the text files.
         file_types (list, optional): File types. Defaults to ['HR','PPI','ACC','PPG','MAGN','GYRO'].
-        record_id (str, optional): Record id of the file. It is used to rename the file. Defaults to None.
     """
     for root, _, files in os.walk(txt_dir):
 
@@ -42,25 +41,18 @@ def txt_to_csv(txt_dir:str, file_types=['HR','PPI','ACC','PPG','MAGN','GYRO'], r
                     marker_file=marker_files[0]
 
                     txt_path=os.path.join(root,marker_file)
-                    if record_id is None:
-                        csv_path=os.path.join(csv_dir, Path(txt_path).stem +'.csv') 
-                    else:
-                        csv_path=os.path.join(csv_dir,record_id+"_marker"+'.csv')
-                        
+                    csv_path=os.path.join(csv_dir, Path(txt_path).stem +'.csv') 
+    
                     content_df=pd.read_csv(txt_path, delimiter=';')
                     content_df.to_csv(csv_path,index=None)
 
                 for file_type in file_types:
-
                     filenames=glob.glob("*_{}.txt*".format(file_type))
                     if filenames:
                         filename=filenames[0]
 
                         txt_path=os.path.join(root, filename)
-                        if record_id is None:
-                            csv_path=os.path.join(csv_dir, Path(txt_path).stem +'.csv')
-                        else:
-                            csv_path=os.path.join(csv_dir, record_id+"_"+file_type+'.csv')
+                        csv_path=os.path.join(csv_dir, Path(txt_path).stem +'.csv')
 
                         if file_type == 'PPG':
                             ppg_header=pd.read_csv(txt_path, delimiter=';',nrows=1).columns.tolist()
@@ -78,8 +70,8 @@ def txt_to_csv(txt_dir:str, file_types=['HR','PPI','ACC','PPG','MAGN','GYRO'], r
                 warnings.warn(f'{csv_dir} already present, skipping txt to csv conversion.')
 
 
-def rename_csv(csv_dir:str, file_types=['HR','PPI','ACC','PPG','MAGN','GYRO']):
-    """Renames the csv files 
+def rename_csv(csv_dir: str, file_types: list=['HR','PPI','ACC','PPG','MAGN','GYRO']):
+    """Renames the csv files using the record id (name of the subdirectory) given by the user.
 
     Args:
         csv_dir (str): Directory of the csv files
@@ -114,39 +106,34 @@ def rename_csv(csv_dir:str, file_types=['HR','PPI','ACC','PPG','MAGN','GYRO']):
                         os.rename(filename,new_name)
 
 
-def timestamp_to_msec(timestamp_df:pd.DataFrame, start_time:datetime.datetime=None) -> ArrayLike:
+def timestamp_to_msec(timestamp_df: pd.DataFrame, start_time: datetime.datetime=None) -> ArrayLike:
     """Converts timestamp to time in milliseconds. 
 
     Args:
-        timestamp_df (pd.DataFrame): Timestamps
+        timestamp_df (pd.DataFrame): Timestamps to be converted.
         start_time (datetime.datetime, optional): Reference starting time. Defaults to None. If a specific value is given, all time points are calculated referenced to it.
 
     Returns:
         ArrayLike: Array of timepoints in msec.
     """
+    timestamps=timestamp_df.values.tolist()
+    tses = [datetime.datetime.fromisoformat(x) for x in timestamps]
 
     if start_time is None:
-
-        timestamps=timestamp_df.values.tolist()
-        tses = [datetime.datetime.fromisoformat(x) for x in timestamps]
         timediff=[y-x for x,y in zip(tses,tses[1:])]
         timediff_usec=[t.days/86400*1000000+t.seconds*1000000+t.microseconds for t in timediff]
         timediff_usec.insert(0,0)
         timediff_usec= np.cumsum(np.asarray(timediff_usec))
 
     else:
-
-        timestamps=timestamp_df.values.tolist()
-        tses = [datetime.datetime.fromisoformat(x) for x in timestamps]
         timediff=[y-start_time for y in tses]
         timediff_usec=[t.days/86400*1000000+t.seconds*1000000+t.microseconds for t in timediff]
-
 
     return np.asarray(timediff_usec)/1000
 
 
-def get_start_time(csv_dir:str, file_types:list=['HR','PPI','ACC','PPG','MAGN','GYRO'],marker:bool=False) ->datetime.datetime:
-    """Returns the earliest timestamp for selected filetypes.
+def get_start_time(csv_dir: str, file_types: list=['HR','PPI','ACC','PPG','MAGN','GYRO'], marker: bool=False) ->datetime.datetime:
+    """Returns the earliest timestamp in selected file types which is required for synchronization. 
 
     Args:
         csv_dir (str): Directory of the csv files for a specific record.
@@ -164,7 +151,6 @@ def get_start_time(csv_dir:str, file_types:list=['HR','PPI','ACC','PPG','MAGN','
         sig_stop=[]
         
         if marker:
-
             marker_files=glob.glob("*MARKER*.csv*")
             if marker_files:
                 csv_files.append(marker_files[0])
@@ -174,7 +160,6 @@ def get_start_time(csv_dir:str, file_types:list=['HR','PPI','ACC','PPG','MAGN','
             if filenames:
                 csv_files.append(filenames[0])
    
-        
         for filename in csv_files:
 
             filepath=os.path.join(csv_dir, filename)   
@@ -191,8 +176,8 @@ def get_start_time(csv_dir:str, file_types:list=['HR','PPI','ACC','PPG','MAGN','
     return t_start
 
 
-def add_record_time(csv_dir:str, file_types:list=['HR','PPI','ACC','PPG','MAGN','GYRO'],marker:bool=False,start_time=None):
-    """Adds a column to the selected csv files for relative time in milliseconds. The timepoints are calculated referenced to the start_time.
+def add_record_time(csv_dir: str, file_types: list=['HR','PPI','ACC','PPG','MAGN','GYRO'], marker: bool=False, start_time: datetime.datetime=None):
+    """Adds a column to the selected csv files representing relative time in milliseconds. The timepoints are calculated referenced to the start_time.
 
     Args:
         csv_dir (str): Directory of the csv files for a specific record.
@@ -233,12 +218,12 @@ def add_record_time(csv_dir:str, file_types:list=['HR','PPI','ACC','PPG','MAGN',
             df.to_csv(filepath,index=None)
 
 
-def calculate_sync_time(csv_dir:str, time_step:float,file_types=['HR','PPI','ACC','PPG','MAGN','GYRO'], save_file:bool=False, marker=False) -> pd.DataFrame:
-    """Generates a time list for synchronization.
+def calculate_sync_time(csv_dir: str, time_step: float=1, file_types: list=['HR','PPI','ACC','PPG','MAGN','GYRO'], save_file: bool=False, marker: bool=False) -> pd.DataFrame:
+    """Generates an array of time points for synchronization.
 
     Args:
         csv_dir (str): Directory of the csv files for a specific record.
-        time_step (float): Time step in milliseconds.
+        time_step (float): Time step in milliseconds. Defaults to 1.
         file_types (list, optional): File types to be included. Defaults to ['HR','PPI','ACC','PPG','MAGN','GYRO'].
         save_file (bool, optional): If True, the generated time list is saved as a txt file. Defaults to False.
         marker (bool, optional): True if marker file exists. Defaults to False.
@@ -296,15 +281,15 @@ def calculate_sync_time(csv_dir:str, time_step:float,file_types=['HR','PPI','ACC
     return timelist_df
 
 
-def synchronize_signals(csv_dir:str, time_list=None, interp_method:str='linear', sampling_rate:int=1000, resampling_rate:int=1000, file_types:list=['ACC','PPG','MAGN','GYRO'],save_files:bool=False) -> pd.DataFrame:
-    """Synchronizes the signals by interpolating for the time_list.
+def synchronize_signals(csv_dir: str, time_step: float=1, time_list: pd.DataFrame=None, interp_method: str='linear', resampling_rate: int=None, file_types: list=['ACC','PPG','MAGN','GYRO'], save_files: bool=False) -> pd.DataFrame:
+    """Synchronizes the signals by interpolating for the time_list. 
 
     Args:
         csv_dir (str): Directory of the csv files.
-        time_list (_type_, optional): Time list. If it is not given, it is read from the file. Defaults to None.
+        time_step (float): Time step in milliseconds. Defaults to 1.
+        time_list (pd.DataFrame, optional): Time array to be used for synchronization. If it is not given, it is read from the file. Defaults to None.
         interp_method (str, optional): Interpolation method. Defaults to 'Linear'.
-        sampling_rate (int, optional): Sampling rate. Defaults to 1000.
-        resampling_rate (int, optional): Resampling rate. Defaults to 1000.
+        resampling_rate (int, optional): Resampling rate. Defaults to None.
         file_types (list, optional): Signal types to be synchronized. Defaults to ['ACC','PPG','MAGN','GYRO'].
         save_files (bool, optional): If True, the synchronized signals are saved as a csv file. Defaults to False.
 
@@ -318,10 +303,13 @@ def synchronize_signals(csv_dir:str, time_list=None, interp_method:str='linear',
     os.chdir(csv_dir)
     data=pd.DataFrame()
     out_file="sync"
+    sampling_rate = 1000 / time_step
 
     if time_list is None:
         time_list=pd.read_csv('times.txt',header=None).values.tolist()
 
+    if resampling_rate is None:
+        resampling_rate = sampling_rate
 
     for file_type in file_types:
 
@@ -357,7 +345,7 @@ def synchronize_signals(csv_dir:str, time_list=None, interp_method:str='linear',
     return data
 
 
-def marker_to_events(filepath:str, markerpath:str,events:list,out_path:str,save_file:bool=False) -> pd.DataFrame:
+def marker_to_events(filepath: str, markerpath: str, events: list, out_path: str, save_file: bool=False) -> pd.DataFrame:
     """Segments signals for events using the marker file.
 
     Args:
@@ -391,7 +379,6 @@ def marker_to_events(filepath:str, markerpath:str,events:list,out_path:str,save_
     if save_file:
         pd.DataFrame(event_list).to_csv(out_path,header=None)
 
-    
     data['Events']=event_list
     return data
 
@@ -417,7 +404,6 @@ def add_events(csv_dir:str):
     else:
         raise ValueError("No event list file found in the directory'")
 
-
     data=pd.read_csv(syncfile)
     event_data=pd.read_csv(eventfile, header=None,index_col=False)
     data['Events']=event_data[1]
@@ -425,7 +411,7 @@ def add_events(csv_dir:str):
     data.to_csv(syncfile,index=None)
 
 
-def csv_to_pkl(csv_dir:str,file_types:list=['HR','PPI','ACC','PPG','MAGN','GYRO'], record_id: str=None):
+def csv_to_pkl(csv_dir: str, file_types: list=['HR','PPI','ACC','PPG','MAGN','GYRO']):
     """Reads csv files and saves as pkl files.
 
     Args:
@@ -440,23 +426,15 @@ def csv_to_pkl(csv_dir:str,file_types:list=['HR','PPI','ACC','PPG','MAGN','GYRO'
             pkl_dir=root.replace("csv_files","pkl_files")
             os.chdir(root)
 
-
             if not os.path.exists(pkl_dir):
 
                 os.makedirs(pkl_dir)
-
                 marker_files=glob.glob("*MARKER*.csv*") 
-
                 if marker_files:
                     marker_file=marker_files[0]
                     csv_path=os.path.join(root, marker_file)
-
-                    if record_id is None:
-                        pkl_path=os.path.join(pkl_dir, Path(csv_path).stem +'.pkl')
+                    pkl_path=os.path.join(pkl_dir, Path(csv_path).stem +'.pkl')
                         
-                    else:
-                        pkl_path=os.path.join(pkl_dir, record_id+"_marker"+'.pkl')
-
                     info=polar_reader.polar_csv_reader(csv_path,signal_type='MARKER')
 
                     os.chdir(pkl_dir)
@@ -469,11 +447,7 @@ def csv_to_pkl(csv_dir:str,file_types:list=['HR','PPI','ACC','PPG','MAGN','GYRO'
                     if filenames:
                         filename=filenames[0]
                         csv_path=os.path.join(root, filename)
-
-                        if record_id is None:
-                            pkl_path=os.path.join(pkl_dir, Path(csv_path).stem +'.pkl')
-                        else:
-                            pkl_path=os.path.join(pkl_dir, record_id+"_"+file_type+'.pkl')
+                        pkl_path=os.path.join(pkl_dir, Path(csv_path).stem +'.pkl')
 
                         info=polar_reader.polar_csv_reader(csv_path,signal_type=file_type)
                         pd.to_pickle(info,pkl_path) 

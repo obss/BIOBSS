@@ -1,23 +1,41 @@
 import os
 import yaml
 
+def add_record(yml_dir: str, yml_filename: str, record_id: str, file_types: list, marker: bool, events: list, bp: bool, fs_hr: int=None, fs_ppg: int=None):
+    """Adds a new record to a yml file.
 
-def add_record(yml_dir,yml_filename,record_id,file_types,marker,events):
-    
+    Args:
+        yml_dir (str): Directory of the yml file.
+        yml_filename (str): Name of the yml file.
+        record_id (str): Record id.
+        file_types (list): File types included in the record.
+        marker (bool): True if marker file exists.
+        events (list): Event list of the record.
+        bp (bool): True if blood pressure measurement exists.
+        fs_ppg (int, optional): Sampling rate of the PPG signal. Defaults to None.
+        fs_hr (int, optional): Sampling rate of the HR signal. Defaults to None.
+    """
     os.chdir(yml_dir)   
     info=_load_yaml(yml_filename)
         
     records=info['records']
-    records[record_id]={'file_types':file_types,'marker':marker,'events':events}
+    records[record_id]={'file_types':file_types,'marker':marker,'events':events,'bp':bp,'fs_ppg':fs_ppg,'fs_hr':fs_hr}
     info['records']=records
  
     _save_yaml(yml_filename,info)
 
 
-def update_excluded(yml_dir,yml_filename,record_id,add=False,remove=False):
-    
+def update_excluded(yml_dir: str, yml_filename: str, record_id: str, add: bool=False, remove: bool=False):
+    """Updates the list of excluded records in the yml file.
+
+    Args:
+        yml_dir (str): Directory of the yml file.
+        yml_filename (str): Name of the yml file.
+        record_id (str): Record id.
+        add (bool, optional): True to add a record to the list. Defaults to False.
+        remove (bool, optional): True to remove a record from the list. Defaults to False.
+    """
     os.chdir(yml_dir)
-    
     info=_load_yaml(yml_filename)
         
     excluded=info['excluded_records']
@@ -32,19 +50,6 @@ def update_excluded(yml_dir,yml_filename,record_id,add=False,remove=False):
     
     _save_yaml(yml_filename,info)
 
-
-def set_parameters(yml_dir,yml_filename,record_id,parameters):
-    
-    os.chdir(yml_dir)
-    
-    info=_load_yaml(yml_filename)
-    
-    par=info['parameters']
-    par[record_id]=parameters
-    info['parameters']=par
-    
-    _save_yaml(yml_filename,info)        
-    
 
 def _load_yaml(yml_filename):
 

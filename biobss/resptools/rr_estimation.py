@@ -7,22 +7,20 @@ from ..signaltools import peakdetection
 from ..edatools import hjorth
 
 # These constants are defined considering the respiration range (6-60 breaths/min)
-# seconds. Period of respiration cycle for upper limit of respiration range.
-LAG_MIN = 1.33
-# seconds. Period of respiration cycle for lower limit of respiration range.
-LAG_MAX = 10
+LAG_MIN = 1.33 # Period of respiration cycle for upper limit of respiration range (seconds).
+LAG_MAX = 10 # Period of respiration cycle for lower limit of respiration range (seconds).
 
 
-def extract_resp_sig(peaks_locs: ArrayLike, peaks_amp: ArrayLike, troughs_amp: ArrayLike, sampling_rate: float, mod_type: str = ['AM', 'FM', 'BW'], resampling_rate: float = 10) -> dict:
-    """Extracts the respiratory signal using the modulations resulted from respiratory activity.
+def extract_resp_sig(peaks_locs: ArrayLike, peaks_amp: ArrayLike, troughs_amp: ArrayLike, sampling_rate: float, mod_type: str=['AM','FM','BW'], resampling_rate: float=10) -> dict:
+    """Extracts the respiratory signal(s) using the modulations resulted from respiratory activity and returns a dictionary of the respiratory signal(s).
 
     Args:
-        peaks_locs (ArrayLike): PPG signal peak locations
-        peaks_amp (ArrayLike): PPG signal peak amplitudes
+        peaks_locs (ArrayLike): PPG signal peak locations.
+        peaks_amp (ArrayLike): PPG signal peak amplitudes.
         troughs_amp (ArrayLike): PPG signal trough amplitudes
-        sampling_rate (float): Sampling rate of the original PPG signal
+        sampling_rate (float): Sampling rate of the PPG signal (Hz).
         mod_type (Array, optional): Modulation type: 'AM' for amplitude modulation, 'FM' for frequency modulation, 'BW' for baseline wander. Defaults to ['AM','FM','BW'].
-        resampling_rate (float, optional): Sampling rate of the extracted respiratory signal. Defaults to 10.
+        resampling_rate (float, optional): Sampling rate of the extracted respiratory signal. Defaults to 10 (Hz).
 
     Returns:
         dict: Dictionary of extracted respiratory signals.
@@ -32,7 +30,7 @@ def extract_resp_sig(peaks_locs: ArrayLike, peaks_amp: ArrayLike, troughs_amp: A
     rs_ratio = int(sampling_rate/resampling_rate)
 
     if 'AM' in mod_type:
-        # Amplitude modulation
+        # Extracts the respiratory signal using amplitude modulation
         am = peaks_amp-troughs_amp[:-1]
         am_x = peaks_locs
         am_respsignal, am_xrs = _interpolate_and_resample(
@@ -42,7 +40,7 @@ def extract_resp_sig(peaks_locs: ArrayLike, peaks_amp: ArrayLike, troughs_amp: A
         info['am_x'] = am_xrs
 
     if 'FM' in mod_type:
-        # Frequency modulation
+        # Extracts the respiratory signal using frequency modulation
         fm = np.diff(peaks_locs)/sampling_rate
         fm_x = peaks_locs[:-1]
         fm_respsignal, fm_xrs = _interpolate_and_resample(
@@ -52,7 +50,7 @@ def extract_resp_sig(peaks_locs: ArrayLike, peaks_amp: ArrayLike, troughs_amp: A
         info['fm_x'] = fm_xrs
 
     if 'BW' in mod_type:
-        # Baseline wander
+        # Extracts the respiratory signal using baseline wander
         bw = (peaks_amp+troughs_amp[:-1])/2
         bw_x = peaks_locs
         bw_respsignal, bw_xrs = _interpolate_and_resample(
@@ -77,26 +75,25 @@ def _interpolate_and_resample(sig, sig_x, peaks_locs, rs_ratio, offset):
     return respsig, resp_x
 
 
-def filter_resp_sig(resampling_rate: float = 10, rsp_clean_method: str = 'khodadad2018', **kwargs) -> dict:
-    """Filters extracted respiratory signal.
+def filter_resp_sig(resampling_rate: float=10, rsp_clean_method: str='khodadad2018', **kwargs) -> dict:
+    """Filters extracted respiratory signal(s) and returns a dictionary of cleaned signal(s). Uses 'rsp_clean' function from the Neurokit2 library.
 
     Args:
         resampling_rate (float, optional): Resampling rate. Defaults to 10.
+        rsp_clean_method (str, optional): Method to clean the respiratory signal. Defaults to 'khodadad2018'.
 
     kwargs:
         am_sig (Array, optional):Respiratory signal calculated from amplitude modulation. Defaults to None.
         am_x (Array, optional):x-axis values of amplitude modulation signal. Defaults to None.
-
         fm_sig (Array, optional):Respiratory signal calculated from frequency modulation. Defaults to None.
         fm_x (Array, optional):x-axis values of frequency modulation signal. Defaults to None.
-
         bw_sig (Array, optional):Respiratory signal calculated from baseline wander. Defaults to None.
         bw_x (Array, optional):x-axis values of baseline wander signal. Defaults to None.
 
     Returns:
-        dict: Dictionary of filtered respiratory signals.
+        dict: Dictionary of filtered respiratory signals and x-axis values for each signal.
     """
-
+  
     filtered_resp = {}
 
     if 'am_sig' in kwargs.keys():
@@ -120,17 +117,18 @@ def filter_resp_sig(resampling_rate: float = 10, rsp_clean_method: str = 'khodad
     return filtered_resp
 
 
-def estimate_rr(resp_sig: ArrayLike, sampling_rate: float, method: str = 'peakdet', delta: float = 0.001) -> float:
+def estimate_rr(resp_sig: ArrayLike, sampling_rate: float=10, method: str='peakdet', delta: float=0.001) -> float:
     """Estimates respiratory rate from the respiratory signal.
 
     Args:
         resp_sig (Array): Respiratory signal.
-        sampling_rate (float): Sampling rate (resampled)
-        method (str): Method for rr estimation: 'peakdet' or 'xcorr'. Defaults to 'peakdet'.
+        sampling_rate (float): Sampling rate of the respiratory signal (resampling rate, Hz). Defaults to 10.
+        method (str): Method used for respiratory rate estimation. Can be one of 'peakdet' or 'xcorr'. Defaults to 'peakdet'. 
+                      Uses 'rsp_rate' function from the Neurokit2 library if the method is 'xcorr'.
         delta (float, optional): Parameter of 'peakdet' method. Defaults to 0.001.
 
     Returns:
-        float: Estimated respiratory rate
+        float: Estimated respiratory rate (breaths/minutes).
     """
 
     if (method == 'peakdet'):
@@ -151,17 +149,17 @@ def estimate_rr(resp_sig: ArrayLike, sampling_rate: float, method: str = 'peakde
         mean_rr = rr_inst.mean()
 
     else:
-        raise ValueError("The method should be 'peakdet' or 'xcorr'")
+        raise ValueError("The method should be one of 'peakdet' or 'xcorr'.")
 
     return mean_rr
 
 
-def calc_rqi(resp_sig: ArrayLike, resampling_rate: float = 10, rqi_method: ArrayLike = ['autocorr', 'hjorth']) -> dict:
-    """Calculates respiratory quality index for the given respiratory signal. 
+def calc_rqi(resp_sig: ArrayLike, resampling_rate: float=10, rqi_method: ArrayLike = ['autocorr', 'hjorth']) -> dict:
+    """Calculates respiratory quality index for the respiratory signal. 
 
     Args:
-        resp_sig (Array): Respiratory signal
-        resampling_rate (float, optional): Sampling rate (after resampling) of the respiratory signal. Defaults to 10.
+        resp_sig (Array): Respiratory signal.
+        resampling_rate (float, optional): Sampling rate (after resampling, Hz) of the respiratory signal. Defaults to 10.
         rqi_method (list, optional): Method for calculating respiratory quality index. Defaults to ['autocorr','hjorth'].
 
     Returns:
@@ -189,20 +187,20 @@ def calc_rqi(resp_sig: ArrayLike, resampling_rate: float = 10, rqi_method: Array
     return rqindices
 
 
-def fuse_rr(fusion_method: str = 'SmartFusion', rqi: ArrayLike = None, **kwargs) -> float:
+def fuse_rr(fusion_method: str='SmartFusion', rqi: ArrayLike=None, **kwargs) -> float:
     """Fuses respiratory rates calculated from different modulation types.
 
     Args:
-        fusion_method (str, optional): Fusion method. 'SmartFusion' of 'QualityFusion'. Defaults to 'SmartFusion'.
+        fusion_method (str, optional): Fusion method. Can be one of 'SmartFusion' of 'QualityFusion'. Defaults to 'SmartFusion'.
         rqi (Array, optional): Respiratory quality indices. Defaults to None.
         rr_am (float, optional): Respiratory rate calculated from amplitude modulation. Defaults to None.
         rr_fm (float, optional): Respiratory rate calculated from frequency modulation. Defaults to None.
         rr_bw (float, optional): Respiratory rate calculated from baseline wander. Defaults to None.
 
     Raises:
-        ValueError: _description_
-        ValueError: _description_
-        ValueError: _description_
+        ValueError: If method is 'QualityFusion' and RQI values are not provided.
+        ValueError: If method is not one of 'SmartFusion' and 'QualityFusion'.
+        ValueError: If none of kwargs is provided.
 
     Returns:
         float: Fused respiratory rate
@@ -227,11 +225,11 @@ def fuse_rr(fusion_method: str = 'SmartFusion', rqi: ArrayLike = None, **kwargs)
                 rr_fused = np.sum(np.asarray(
                     rqi)*np.asarray(rr_est))/np.sum(rqi)
             else:
-                raise ValueError("RQI values are required.'")
+                raise ValueError("RQI values are required for the 'QualityFusion' method.'")
 
         else:
             raise ValueError(
-                "The method should be 'SmartFusion' or 'QualityFusion'.")
+                "The method should be one of 'SmartFusion' and 'QualityFusion'.")
 
     else:
         raise ValueError("At least one respiratory rate value is required.'")

@@ -5,57 +5,48 @@ import sys
 from numpy.typing import ArrayLike
 
 
-def peak_detection(sig: ArrayLike, fs: float, method: str = 'peakdet', delta: float = None) -> dict:
-    """Detects peaks and troughs of a signal using one of two methods.
+def peak_detection(sig: ArrayLike, sampling_rate: float, method: str='peakdet', delta: float=None) -> dict:
+    """Detects peaks and troughs of a signal returns a dictionary.
 
     Args:
-        sig (array): Signal to be analyzed
-        fs (float): Sampling rate
-        delta (float): Parameter of the peakdet method
-        method (str, optional): 'peakdet' or 'heartpy'. Defaults to 'peakdet'.
+        sig (ArrayLike): Signal to be analyzed.
+        sampling_rate (float): Sampling rate of the signal (Hz).
+        method (str, optional): Peak detection method. Should be one of 'peakdet' and 'heartpy'. Defaults to 'peakdet'. 
+                                See https://gist.github.com/endolith/250860 to get information about 'peakdet' method.
+        delta (float, optional): Required parameter of the peakdet method.
 
     Raises:
-        ValueError: _description_
+        ValueError: If method is not one of 'peakdet' and 'heartpy'.
 
     Returns:
-        (dict): Dictionary of peak locations, peak amplitudes, trough locations and trough amplitudes.
+        dict: Dictionary of peak locations, peak amplitudes, trough locations and trough amplitudes.
     """
+
     info = {}
 
     if method == 'peakdet':
 
         maxtab, mintab = _peakdetection_peakdet(sig, delta)
-
-        locs_p = maxtab[:, 0].astype(int)
-        peaks = maxtab[:, 1]
-        locs_t = mintab[:, 0].astype(int)
-        troughs = mintab[:, 1]
-
-        info["Peak_locs"] = locs_p
-        info["Peaks"] = peaks
-        info["Trough_locs"] = locs_t
-        info["Troughs"] = troughs
+        info["Peak_locs"] = maxtab[:, 0].astype(int)
+        info["Peaks"] = maxtab[:, 1]
+        info["Trough_locs"] = mintab[:, 0].astype(int)
+        info["Troughs"] = mintab[:, 1]
 
     elif method == 'heartpy':
 
-        wd_p = _peakdetection_heartpy(sig, fs)
-
+        wd_p = _peakdetection_heartpy(sig, sampling_rate)
         info["Peak_locs"] = wd_p['peaklist']
         info["Peaks"] = sig[wd_p['peaklist']]
 
         sig_t = max(sig)-sig
-
-        wd_t = _peakdetection_heartpy(sig_t, fs)
-
+        wd_t = _peakdetection_heartpy(sig_t, sampling_rate)
         info["Trough_locs"] = wd_t['peaklist']
         info["Troughs"] = sig[wd_t['peaklist']]
 
     else:
-
-        raise ValueError("Method should be 'peakdet' or 'heartpy'.")
+        raise ValueError("Method should be one of 'peakdet' and 'heartpy'.")
 
     return info
-
 
 def _peakdetection_peakdet(v: ArrayLike, delta: float, x: ArrayLike = None) -> ArrayLike:
     """
@@ -129,9 +120,8 @@ def _peakdetection_peakdet(v: ArrayLike, delta: float, x: ArrayLike = None) -> A
 
     return np.array(maxtab), np.array(mintab)
 
+def _peakdetection_heartpy(sig: ArrayLike, sampling_rate: float) -> Any:
 
-def _peakdetection_heartpy(sig: ArrayLike, fs: float) -> Any:
-
-    wd, m = hp.process(sig, sample_rate=fs)
+    wd, m = hp.process(sig, sample_rate=sampling_rate)
 
     return wd, m
