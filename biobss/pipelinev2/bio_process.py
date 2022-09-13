@@ -1,48 +1,50 @@
 from .bio_data import Bio_Data
-from .data_channel import Data_Channel
+from .bio_channel import Bio_Channel
 import pandas as pd
 import numpy as np
 import warnings
 
 """generic signal process object"""
 
-
 class Bio_Process:
-    def __init__(self, process_method, modality,sigtype,input_signal=None,output_signal=None,returnindex=None, **kwargs) -> None:
+    def __init__(self,process_method,input_signal='all',output_signal='self',use_prefix=False,returnindex=None,**kwargs) -> None:
 
         self.process_method = process_method
-        self.modality = modality
-        self.sigtype = sigtype
         self.kwargs = kwargs
         self.returnindex = returnindex
-
-    def check_modality(self, modality):
-        if self.modality == modality:
+        self.input_signal = input_signal
+        self.output_signal = output_signal
+        self.use_prefix = use_prefix
+        
+        
+    def check_input(self, channel_name: str) -> bool:
+        if(channel_name in self.input_signal):
+            return True
+        elif(self.input_signal=='all'):
             return True
         else:
             return False
 
-    def check_sigtype(self, sigtype):
-        if self.sigtype == sigtype:
-            return True
-        else:
-            return False
-
-    def process(self, signal: Data_Channel) -> Data_Channel:
-        signal = signal.copy()
+    def process(self, signal: Bio_Channel) -> Bio_Channel:
+        #copy signal to prevent changing original signal
+        signal = signal.copy()        
         has_return=False
+        #check if process method has Bio_Channel as return type
         if("return" in self.process_method.__annotations__):
-            if self.process_method.__annotations__["return"] == Data_Channel:
+            if self.process_method.__annotations__["return"] == Bio_Channel:
                 has_return = True
-                
+        
+        # if process method has Bio_Channel as return type, return the result directly   
         if(has_return):
             result = self.process_method(signal, **self.kwargs)
         else:
+            # if process method has no return type, return the result as a Bio_Channel
             self.kwargs.update({"sampling_rate": signal.sampling_rate})
             self.kwargs.update({"timestamp_start": signal.timestamp_start})
             self.kwargs.update({"timestamp": signal.timestamp})
             self.kwargs.update({"name": signal.signal_name})
             redundant = []
+            # remove redundant  or unused arguments
             for k in self.kwargs:
                 if k not in self.process_method.__code__.co_varnames:
                     redundant.append(k)
@@ -66,7 +68,7 @@ class Bio_Process:
                             signal.channel[i], **self.kwargs))
 
                 # If vectorized method fails, try scalar method
-                if isinstance(result[0], Data_Channel):
+                if isinstance(result[0], Bio_Channel):
                     pass
                 elif isinstance(result[0], pd.DataFrame):
                     result_ = {}
@@ -102,12 +104,41 @@ class Bio_Process:
             else:
                 raise ValueError("If process method returns a tuple, returnindex must be specified!")
         
-        if isinstance(result, Data_Channel):
+        if isinstance(result, Bio_Channel):
+            if(not self.output_signal=='self'):
+                if(self.use_prefix):
+                    result.signal_name = self.output_signal+'_'+result.signal_name
+                else:
+                    result.signal_name = self.output_signal
             return result
         elif isinstance(result, Bio_Data):
+            if(not self.output_signal=='self'):
+                if(self.use_prefix):
+                    for c in result.channels:
+                        c.signal_name = self.output_signal+'_'+c.signal_name
+                else:
+                    for c in result.channels:
+                        c.signal_name = self.output_signal
             return result
         elif isinstance(result, pd.DataFrame):
             output = Bio_Data()
+            if(not self.output_signal=='self'):
+                if(self.use_prefix):
+                    for c in result.columns:
+                        output.add_channel(result[c],
+                                           channel_name=self.output_signal+'_'+c,
+                                           sampling_rate=signal.sampling_rate,
+                                           timestamp=signal.timestamp,
+                                           timestamp_start=signal.timestamp_start,
+                                           modality=signal.signal_modality)
+                else:
+                    for c in result.columns:
+                        output.add_channel(result[c],
+                                           channel_name=self.output_signal,
+                                           sampling_rate=signal.sampling_rate,
+                                           timestamp=signal.timestamp,
+                                           timestamp_start=signal.timestamp_start,
+                                           modality=signal.signal_modality)
             for column in result.columns:
                 output.add_channel(
                     result[column],
@@ -119,7 +150,7 @@ class Bio_Process:
                 )
             return output
         elif isinstance(result, pd.Series):
-            return Data_Channel(
+            output = Bio_Channel(
                 result.values,
                 name=result.name,
                 sampling_rate=signal.sampling_rate,
@@ -127,8 +158,14 @@ class Bio_Process:
                 timestamp_start=signal.timestamp_start,
                 modality=signal.signal_modality,
             )
+            if(not self.output_signal=='self'):
+                if(self.use_prefix):
+                    output.signal_name = self.output_signal+'_'+output.signal_name
+                else:
+                    output.signal_name = self.output_signal
+            return output
         elif isinstance(result, np.ndarray):
-            result = Data_Channel(
+            output = Bio_Channel(
                 result,
                 sampling_rate=signal.sampling_rate,
                 name=signal.signal_name,
@@ -136,9 +173,14 @@ class Bio_Process:
                 timestamp_start=signal.timestamp_start,
                 modality=signal.signal_modality,
             )
-            return result
+            if(not self.output_signal=='self'):
+                if(self.use_prefix):
+                    output.signal_name = self.output_signal+'_'+output.signal_name
+                else:
+                    output.signal_name = self.output_signal
+            return output
         elif isinstance(result, list):
-            result = Data_Channel(
+            result = Bio_Channel(
                 result,
                 sampling_rate=signal.sampling_rate,
                 name=signal.signal_name,
@@ -146,6 +188,11 @@ class Bio_Process:
                 timestamp_start=signal.timestamp_start,
                 modality=signal.signal_modality,
             )
+            if(not self.output_signal=='self'):
+                if(self.use_prefix):
+                    output.signal_name = self.output_signal+'_'+output.signal_name
+                else:
+                    output.signal_name = self.output_signal            
             return result
         elif isinstance(result, dict):
             output = Bio_Data()
@@ -158,6 +205,11 @@ class Bio_Process:
                     timestamp_start=signal.timestamp_start,
                     modality=signal.signal_modality,
                 )
+            if(not self.output_signal=='self'):
+                if(self.use_prefix):
+                    output.signal_name = self.output_signal+'_'+output.signal_name
+                else:
+                    output.signal_name = self.output_signal
             return output
         else:
             raise ValueError(
