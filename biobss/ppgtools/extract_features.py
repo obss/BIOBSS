@@ -18,17 +18,16 @@ def get_domain_function(domain:str) -> Callable:
         raise ValueError("Unknown domain:", domain)   
 
     
-
 def from_cycles(sig: ArrayLike, peaks_locs: ArrayLike, peaks_amp: ArrayLike, troughs_locs: ArrayLike ,troughs_amp: ArrayLike ,sampling_rate: float, feature_types: ArrayLike=['Time','Stat'], prefix: str='signal') -> dict:
-    """Calculates cycle-based features.
+    """Calculates cycle-based PPG features and returns a dictionary of features.
 
     Args:
-        sig (ArrayLike): Signal segment to be analyzed
-        peaks_locs (ArrayLike): Peak locations
-        peaks_amp (ArrayLike): Peak amplitudes
-        troughs_locs (ArrayLike): Trough locations
-        troughs_amp (ArrayLike): Trough amplitudes
-        sampling_rate (float): Sampling rate
+        sig (ArrayLike): PPG signal segment to be analyzed
+        peaks_locs (ArrayLike): PPG peak locations
+        peaks_amp (ArrayLike): PPG peak amplitudes
+        troughs_locs (ArrayLike): PPG trough locations
+        troughs_amp (ArrayLike): PPG trough amplitudes
+        sampling_rate (float): Sampling rate of the PPG signal.
         feature_types (ArrayLike, optional): Types of features to be calculated. Defaults to ['Time','Stat'].
         prefix (str, optional): Prefix for signal type. Defaults to 'signal'.
 
@@ -52,11 +51,11 @@ def from_cycles(sig: ArrayLike, peaks_locs: ArrayLike, peaks_amp: ArrayLike, tro
 
 
 def from_segment(sig: ArrayLike,sampling_rate: float, feature_types: ArrayLike=['Stat','Freq','Time'], prefix: str='signal') -> dict:
-    """Calculates segment-based features.
+    """Calculates segment-based PPG features and returns a dictionary of features.
 
     Args:
-        sig (ArrayLike): Signal segment to be analyzed
-        sampling_rate (float): Sampling rate
+        sig (ArrayLike): PPG signal segment to be analyzed
+        sampling_rate (float): Sampling rate of the PPG signal.
         feature_types (ArrayLike, optional): Types of features to be calculated. Defaults to ['Stat','Freq','Time'].
         prefix (str, optional): Prefix for signal type. Defaults to 'signal'.
 

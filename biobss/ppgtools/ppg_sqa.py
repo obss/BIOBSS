@@ -3,6 +3,7 @@ import math
 from numpy.typing import ArrayLike
 from typing import Tuple
 
+#Constants to check for physiological viability and morphological features. 
 HR_MIN = 40
 HR_MAX = 180
 PP_MAX = 3
@@ -16,12 +17,12 @@ MAX_VAR_DUR = 300
 MAX_VAR_AMP = 400
 CORR_TH = 0.9
 
-def detect_flatline_clipping(ppg_sig: ArrayLike, threshold: float, clipping:bool=True, flatline:bool=False, **kwargs) -> dict:
+def detect_flatline_clipping(ppg_sig: ArrayLike, threshold: float, clipping: bool=True, flatline: bool=False, **kwargs) -> dict:
     """Detects flatlines and clipped parts of the signal.
 
     Args:
         ppg_sig (ArrayLike): PPG signal to be analyzed.
-        threshold (float): Threshold value for clipping/flatline.
+        threshold (float): Threshold value for clipping/flatline detection.
         clipping (bool, optional): True for clipping detection. Defaults to True.
         flatline (bool, optional): True for flatline detection. Defaults to False.
         **kwargs (dict): Keyword arguments
@@ -63,7 +64,7 @@ def detect_flatline_clipping(ppg_sig: ArrayLike, threshold: float, clipping:bool
     return info
 
 
-def _detect_flat_segments(binary_array):
+def _detect_flat_segments(binary_array: ArrayLike) -> list:
 
     #Copied from HeartPy
     edges = np.where(np.diff(binary_array) > 1)[1]
@@ -84,7 +85,7 @@ def _detect_flat_segments(binary_array):
     return segments
 
 
-def check_phys(peaks_locs: ArrayLike, sampling_rate:float) -> dict:
+def check_phys(peaks_locs: ArrayLike, sampling_rate: float) -> dict:
     """Checks for physiological viability.
 
     Rule 1: Average HR should be between 40-180 bpm (up to 300 bpm in the case of exercise)
@@ -93,7 +94,7 @@ def check_phys(peaks_locs: ArrayLike, sampling_rate:float) -> dict:
             For 10 seconds signal, it is 1.1; allowing for a single missing beat, it is 2.2 
 
     Args:
-        peaks_locs (Array): Peak locations
+        peaks_locs (ArrayLike): Peak locations
         sampling_rate (float): Sampling rate of the PPG signal
 
     Returns:
@@ -127,7 +128,7 @@ def check_phys(peaks_locs: ArrayLike, sampling_rate:float) -> dict:
     return info
 
 
-def check_morph(peaks_locs: ArrayLike ,peaks_amps: ArrayLike, troughs_locs: ArrayLike, troughs_amps: ArrayLike,sampling_rate:float) -> dict:
+def check_morph(peaks_locs: ArrayLike, peaks_amps: ArrayLike, troughs_locs: ArrayLike, troughs_amps: ArrayLike, sampling_rate: float) -> dict:
     """Checks for ranges of morphological features.
 
     Rule 1: Systolic phase duration(rise time): 0.08 to 0.49 s
@@ -195,7 +196,7 @@ def check_morph(peaks_locs: ArrayLike ,peaks_amps: ArrayLike, troughs_locs: Arra
     return info
 
 
-def template_matching(ppg_sig: ArrayLike, peaks_locs:ArrayLike, corr_th:float=CORR_TH) -> Tuple[float,bool]:
+def template_matching(ppg_sig: ArrayLike, peaks_locs: ArrayLike, corr_th: float=CORR_TH) -> Tuple[float,bool]:
     """Applies template matching method for signal quality assessment
 
     Args:

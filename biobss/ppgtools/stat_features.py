@@ -17,10 +17,10 @@ FEATURES_STAT_SEGMENT = {
 'mad': lambda sig: np.sum(sig-np.mean(sig))/len(sig),
 'skewness': stats.skew,
 'kurtosis': stats.kurtosis,
-'entropy': lambda sig:calculate_shannon_entropy(sig),
+'entropy': lambda sig: calculate_shannon_entropy(sig),
 }
 
-def get_stat_features(sig: ArrayLike,fs: float,type: str, prefix: str='signal', **kwargs) -> dict:
+def get_stat_features(sig: ArrayLike, sampling_rate: float,type: str, prefix: str='signal', **kwargs) -> dict:
     """Calculates statistical features.
 
     Cycle-based features: 
@@ -39,7 +39,7 @@ def get_stat_features(sig: ArrayLike,fs: float,type: str, prefix: str='signal', 
 
     Args:
         sig (ArrayLike): Signal to be analyzed.
-        fs (float): Sampling rate
+        sampling_rate (float): Sampling rate
         type (str): Type of feature calculation, should be 'segment' or 'cycle'. Defaults to None.
         prefix (str, optional): Prefix for signal type. Defaults to 'signal'.
 
@@ -53,7 +53,7 @@ def get_stat_features(sig: ArrayLike,fs: float,type: str, prefix: str='signal', 
     if type=='cycle':
         features_stat={}
         for key,func in FEATURES_STAT_CYCLE.items():
-            features_stat["_".join([prefix, key])]=func(sig,kwargs['peaks_amp'],kwargs['peaks_locs'],kwargs['troughs_locs'],fs)
+            features_stat["_".join([prefix, key])]=func(sig,kwargs['peaks_amp'],kwargs['peaks_locs'],kwargs['troughs_locs'], sampling_rate)
     
     elif type=='segment':
         features_stat={}
@@ -66,11 +66,12 @@ def get_stat_features(sig: ArrayLike,fs: float,type: str, prefix: str='signal', 
     return features_stat
 
 
-def calculate_shannon_entropy(sig: ArrayLike) -> float:
+def calculate_shannon_entropy(sig: ArrayLike, base: int=2) -> float:
     """Calculates shannon entropy of the signal.
 
     Args:
         sig (ArrayLike): Signal to be analyzed.
+        base (int): The logarithmic base to use, defaults to 2.
 
     Returns:
         float: Shannon entropy of the signal.
@@ -81,6 +82,6 @@ def calculate_shannon_entropy(sig: ArrayLike) -> float:
     dist = [x/sum(bases.values()) for x in bases.values()]
  
     # use scipy to calculate entropy
-    entropy_value = stats.entropy(dist, base=2)
+    entropy_value = stats.entropy(dist, base=base)
  
     return entropy_value

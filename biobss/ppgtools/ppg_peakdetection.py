@@ -3,13 +3,15 @@ from numpy.typing import ArrayLike
 
 
 def peak_control(locs_peaks: ArrayLike, peaks: ArrayLike, locs_troughs: ArrayLike, troughs: ArrayLike) -> dict:
-    """Applies rules to check relative peak and onset locations
+    """Applies rules to check relative peak and onset locations. 
+       First, trims the PPG segment as it starts and ends with a trough.
+       Then, checks for missing or duplicate peaks taking the trough lcoations as reference. There must be one peak between successive troughs.
 
     Args:
-        locs_peaks (array): Peak locations
-        peaks (array): Peak amplitudes
-        locs_troughs (array): Trough locations
-        troughs (array): Trough amplitudes
+        locs_peaks (array): PPG peak locations
+        peaks (array): PPG peak amplitudes
+        locs_troughs (array): PPG trough locations
+        troughs (array): PPG trough amplitudes
 
     Returns:
         info(dict): Dictionary of peak locations, peak amplitudes, trough locations and trough amplitudes.

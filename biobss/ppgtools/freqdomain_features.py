@@ -1,23 +1,22 @@
 import numpy as np
 from scipy import fft 
 from scipy import signal
-import math
 from numpy.typing import ArrayLike
 
 #Frequency domain features
 FUNCTIONS_FREQ_SEGMENT= {
-'p_1': lambda sigfft,freq,_0,_1: fft_peakdet(sigfft,freq,1),
-'f_1': lambda sigfft,freq,_0,_1: fft_peakdet(sigfft,freq,1,True),
-'p_2': lambda sigfft,freq,_0,_1: fft_peakdet(sigfft,freq,2),
-'f_2': lambda sigfft,freq,_0,_1: fft_peakdet(sigfft,freq,2,True),
-'p_3': lambda sigfft,freq,_0,_1: fft_peakdet(sigfft,freq,3),
-'f_3': lambda sigfft,freq,_0,_1: fft_peakdet(sigfft,freq,3,True),
-'pow': lambda _0,_1,pxx,f: fft_pow(pxx,f,0,2),
-'rpow': lambda _0,_1,pxx,f: fft_relpow(pxx,f,[0,2.25],[0,5]),
+'p_1': lambda sigfft,freq,_0,_1: fft_peaks(sigfft,freq,1),
+'f_1': lambda sigfft,freq,_0,_1: fft_peaks(sigfft,freq,1,loc=True),
+'p_2': lambda sigfft,freq,_0,_1: fft_peaks(sigfft,freq,2),
+'f_2': lambda sigfft,freq,_0,_1: fft_peaks(sigfft,freq,2,loc=True),
+'p_3': lambda sigfft,freq,_0,_1: fft_peaks(sigfft,freq,3),
+'f_3': lambda sigfft,freq,_0,_1: fft_peaks(sigfft,freq,3,loc=True),
+'pow': lambda _0,_1,pxx,fxx: sig_power(pxx,fxx,[0,2]),
+'rpow': lambda _0,_1,pxx,fxx: sig_power(pxx,fxx,[0,2.25]) / sig_power(pxx,fxx,[0,5]),
 }  
 
 
-def get_freq_features(sig: ArrayLike, fs: float, type: str, prefix: str='signal') -> dict:
+def get_freq_features(sig: ArrayLike, sampling_rate: float, type: str, prefix: str='signal') -> dict:
     """Calculates frequency-domain features
 
     Segment-based features:
@@ -32,7 +31,7 @@ def get_freq_features(sig: ArrayLike, fs: float, type: str, prefix: str='signal'
 
     Args:
         sig (ArrayLike): Signal
-        fs (float): Sampling rate
+        sampling_rate (float): Sampling rate
         type (str): Type of feature calculation, should be 'segment'. Defaults to None.
         prefix (str, optional): Prefix for signal type. Defaults to 'signal'.
 
@@ -44,10 +43,10 @@ def get_freq_features(sig: ArrayLike, fs: float, type: str, prefix: str='signal'
     """
 
     if type=='segment':
-        #nfft=2**math.ceil(math.log2(abs(len(sig))))
+    
         nfft=len(sig) 
          
-        freq=fft.fftfreq(nfft,1/fs)
+        freq=fft.fftfreq(nfft,1/sampling_rate)
         sigfft=np.abs(fft.fft(sig,nfft)/len(sig))
         P1=sigfft[0:int(nfft/2)]
         P1[1:-1] = 2 * P1[1:-1]
@@ -55,7 +54,7 @@ def get_freq_features(sig: ArrayLike, fs: float, type: str, prefix: str='signal'
         freq=freq[0 : int(len(sig)/ 2)]
 
         sig_=sig-np.mean(sig)
-        f,pxx=signal.welch(sig_, fs=fs, nfft=nfft)
+        f,pxx=signal.welch(sig_, fs=sampling_rate, nfft=nfft)
         
         features_freq={}
         for key,func in FUNCTIONS_FREQ_SEGMENT.items():
@@ -67,7 +66,27 @@ def get_freq_features(sig: ArrayLike, fs: float, type: str, prefix: str='signal'
     return features_freq
 
 
-def fft_peakdet(sigfft: ArrayLike, freq:ArrayLike, peakno: int, loc:bool=False) -> float:
+def sig_fft(sig: ArrayLike, sampling_rate: int) -> tuple:
+    """Calculates Fast Fourier Transform (FFT) of a signal.
+
+    Args:
+        sig (ArrayLike): The signal to be analyzed.
+        sampling_rate (int): Sampling frequency of the signal (Hz).
+
+    Returns:
+        tuple: fft frequencies, fft amplitudes
+    """
+    nfft=len(sig)  
+    freq=fft.fftfreq(nfft,1/sampling_rate)
+    sigfft=np.abs(fft.fft(sig,nfft)/len(sig))
+    P1=sigfft[0:int(nfft/2)]
+    P1[1:-1] = 2 * P1[1:-1]
+    sigfft=P1
+    freq=freq[0 : int(len(sig)/ 2)]
+
+    return freq, sigfft
+
+def fft_peaks(sigfft: ArrayLike, freq:ArrayLike, peakno: int, loc:bool=False) -> float:
     """Detects peaks from the fft of the signal. Returns peak amplitudes or peak locations (frequencies).
 
     Args:
@@ -93,38 +112,60 @@ def fft_peakdet(sigfft: ArrayLike, freq:ArrayLike, peakno: int, loc:bool=False) 
     else:
         return sorted_freq[peakno-1]
 
+def sig_psd(sig: ArrayLike, sampling_rate: int, method: str='welch') -> tuple:
+    """Calculate Power Spectral Density (PSD) of a signal using 'fft' or 'welch' method.
 
-def fft_pow(pxx:ArrayLike, f:ArrayLike, f1:float, f2:float) -> float:
+    Args:
+        sig (ArrayLike): The signal to be analyzed.
+        sampling_rate (int): Sampling frequency of the signal. 
+        method (str, optional): Method to calculate PSD. It can be 'welch' or 'fft'. Defaults to 'welch'.
+
+    Raises:
+        ValueError: If 'method' is not one of 'fft' and 'welch'.
+
+    Returns:
+        tuple: psd frequencies, psd amplitudes
+    """
+
+    if method == 'welch':
+        fxx, pxx = _sig_psd_welch(sig, sampling_rate=sampling_rate)
+
+    elif method =='fft':
+        fxx, pxx = _sig_psd_fft(sig, sampling_rate=sampling_rate)
+
+    else:
+        raise ValueError("Method should be 'fft' or 'welch'. ")
+
+    return fxx, pxx
+
+def sig_power(pxx:ArrayLike, fxx:ArrayLike, freq_range:list) -> float:
     """Calculates power of the signal for a given frequency range.
 
     Args:
         pxx (ArrayLike): Array of power spectral density values.
-        f (ArrayLike): frequencies of the pxx array.
-        f1 (float): Lower limit of the frequency range.
-        f2 (float): Upper limit of the frequency range.
+        fxx (ArrayLike): frequencies of the pxx array.
+        freq_range (list): Frequency range to calculate signal power.
 
     Returns:
         float: Power of the signal for the given frequency range.
     """
-
-    pow=np.trapz(pxx[np.logical_and(f>=f1,f<=f2)],f[np.logical_and(f>=f1,f<=f2)])
+    f1 = freq_range[0]
+    f2=freq_range[1]
+    pow=np.trapz(pxx[np.logical_and(fxx>=f1,fxx<f2)],fxx[np.logical_and(fxx>=f1,fxx<f2)])
 
     return pow
 
-def fft_relpow(pxx:ArrayLike,f:ArrayLike,F1:list,F2:list) -> float:
-    """Calculates power of the signal for the given frequency ranges.
+def _sig_psd_fft(sig, sampling_rate):
 
-    Args:
-        pxx (ArrayLike): Array of power spectral density values.
-        f (ArrayLike): frequencies of the pxx array.
-        F1 (list): Lower limit of the frequency range.
-        F2 (list): Upper limit of the frequency range.
+    freq, sigfft = sig_fft(sig, sampling_rate=sampling_rate)
+    psd = (np.abs(sigfft) ** 2) / np.diff(freq)[0]
 
-    Returns:
-        float: Relative power of the signal for the given frequency ranges.
-    """
+    return freq, psd
 
-    powerF1 = np.trapz(pxx[np.logical_and(f>=F1[0],f<=F1[1])],f[np.logical_and(f>=F1[0],f<=F1[1])])
-    powerF2 = np.trapz(pxx[np.logical_and(f>=F2[0],f<=F2[1])],f[np.logical_and(f>=F2[0],f<=F2[1])])   
+def _sig_psd_welch(sig, sampling_rate):
+    nfft=len(sig)
+    sig_ = sig - np.mean(sig)
+    freq, psd = signal.welch(sig_, fs=sampling_rate, window='hann', nfft=nfft)
 
-    return powerF1/powerF2
+    return freq, psd
+
