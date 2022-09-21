@@ -1,7 +1,7 @@
 import numpy as np
 from scipy import signal as sg
 from numpy.typing import ArrayLike
-from ..pipeline.data_channel import Data_Channel
+from ..pipelinev2.bio_channel import Bio_Channel
 
 
 def resample_signal(signal: ArrayLike, sample_rate: float, target_sample_rate: float, return_time=False, t=None) -> ArrayLike:
@@ -31,7 +31,7 @@ def resample_signal(signal: ArrayLike, sample_rate: float, target_sample_rate: f
     return resampled
 
 
-def resample_signal_object(signal: Data_Channel, target_sample_rate: float) -> Data_Channel:
+def resample_signal_object(signal: Bio_Channel, target_sample_rate: float) -> Bio_Channel:
     """_summary_
 
     Args:
@@ -41,7 +41,7 @@ def resample_signal_object(signal: Data_Channel, target_sample_rate: float) -> D
     Returns:
         Signal: resampled signal
     """
-    if(not isinstance(signal, Data_Channel)):
+    if(not isinstance(signal, Bio_Channel)):
         raise ValueError("Expecting a Signal object")
 
     if(len(signal.channel.shape) < 2):

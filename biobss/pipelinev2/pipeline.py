@@ -77,7 +77,7 @@ class Bio_Pipeline:
                             signal[column],
                             sampling_rate=sampling_rate,
                             name=column,
-                            timestamp=timestamp,
+                            timestamp=signal.index,
                             timestamp_start=timestamp_start,
                             timestamp_resolution=timestamp_resolution,
                         )
@@ -136,7 +136,6 @@ class Bio_Pipeline:
 
     def __repr__(self) -> str:
         representation = "Bio_Pipeline:\n"
-        representation += "\tSignal Type: " + self.sigtype + "\n"
         representation += "\tPreprocessors: " + \
             str(self.preprocess_queue) + "\n"
         representation += "\tProcessors: " + str(self.process_queue) + "\n"
