@@ -11,7 +11,7 @@ LAG_MIN = 1.33 # Period of respiration cycle for upper limit of respiration rang
 LAG_MAX = 10 # Period of respiration cycle for lower limit of respiration range (seconds).
 
 
-def extract_resp_sig(peaks_locs: ArrayLike, peaks_amp: ArrayLike, troughs_amp: ArrayLike, sampling_rate: float, mod_type: str=['AM','FM','BW'], resampling_rate: float=10) -> dict:
+def extract_resp_sig(peaks_locs: ArrayLike, peaks_amp: ArrayLike, troughs_amp: ArrayLike, sampling_rate: float, mod_type: list=['AM','FM','BW'], resampling_rate: float=10) -> dict:
     """Extracts the respiratory signal(s) using the modulations resulted from respiratory activity and returns a dictionary of the respiratory signal(s).
 
     Args:
@@ -19,12 +19,22 @@ def extract_resp_sig(peaks_locs: ArrayLike, peaks_amp: ArrayLike, troughs_amp: A
         peaks_amp (ArrayLike): PPG signal peak amplitudes.
         troughs_amp (ArrayLike): PPG signal trough amplitudes
         sampling_rate (float): Sampling rate of the PPG signal (Hz).
-        mod_type (Array, optional): Modulation type: 'AM' for amplitude modulation, 'FM' for frequency modulation, 'BW' for baseline wander. Defaults to ['AM','FM','BW'].
+        mod_type (list, optional): Modulation type: 'AM' for amplitude modulation, 'FM' for frequency modulation, 'BW' for baseline wander. Defaults to ['AM','FM','BW'].
         resampling_rate (float, optional): Sampling rate of the extracted respiratory signal. Defaults to 10 (Hz).
 
     Returns:
         dict: Dictionary of extracted respiratory signals.
     """
+    if sampling_rate <= 0:
+        raise ValueError("Sampling rate must be greater than 0.")
+
+    if resampling_rate <= 0:
+        raise ValueError("Resampling rate must be greater than 0.")
+
+    if (len(peaks_locs) != len(peaks_amp)) or (len(peaks_amp) != len(troughs_amp)-1):
+        raise ValueError("Lengths of input arrays do not match!")
+
+    mod_type = [x.upper() for x in mod_type]
 
     info = {}
     rs_ratio = int(sampling_rate/resampling_rate)
@@ -93,7 +103,11 @@ def filter_resp_sig(resampling_rate: float=10, rsp_clean_method: str='khodadad20
     Returns:
         dict: Dictionary of filtered respiratory signals and x-axis values for each signal.
     """
-  
+    if resampling_rate <= 0:
+        raise ValueError("Resampling rate must be greater than 0.")
+    
+    rsp_clean_method = rsp_clean_method.lower()
+
     filtered_resp = {}
 
     if 'am_sig' in kwargs.keys():
@@ -130,6 +144,10 @@ def estimate_rr(resp_sig: ArrayLike, sampling_rate: float=10, method: str='peakd
     Returns:
         float: Estimated respiratory rate (breaths/minutes).
     """
+    if sampling_rate <= 0:
+        raise ValueError("Sampling rate must be greater than 0.")
+
+    method = method.lower()
 
     if (method == 'peakdet'):
         maxtab, mintab = peakdetection._peakdetection_peakdet(resp_sig, delta)
@@ -154,17 +172,21 @@ def estimate_rr(resp_sig: ArrayLike, sampling_rate: float=10, method: str='peakd
     return mean_rr
 
 
-def calc_rqi(resp_sig: ArrayLike, resampling_rate: float=10, rqi_method: ArrayLike = ['autocorr', 'hjorth']) -> dict:
+def calc_rqi(resp_sig: ArrayLike, resampling_rate: float=10, rqi_method: list = ['autocorr', 'hjorth']) -> dict:
     """Calculates respiratory quality index for the respiratory signal. 
 
     Args:
-        resp_sig (Array): Respiratory signal.
+        resp_sig (ArrayLike): Respiratory signal.
         resampling_rate (float, optional): Sampling rate (after resampling, Hz) of the respiratory signal. Defaults to 10.
         rqi_method (list, optional): Method for calculating respiratory quality index. Defaults to ['autocorr','hjorth'].
 
     Returns:
         dict: Dictionary of calculated RQIs.
     """
+    if resampling_rate <= 0:
+        raise ValueError("Resampling rate must be greater than 0.")
+
+    rqi_method = [x.lower() for x in rqi_method]
 
     rqindices = {}
 
@@ -187,7 +209,7 @@ def calc_rqi(resp_sig: ArrayLike, resampling_rate: float=10, rqi_method: ArrayLi
     return rqindices
 
 
-def fuse_rr(fusion_method: str='SmartFusion', rqi: ArrayLike=None, **kwargs) -> float:
+def fuse_rr(fusion_method: str='smartfusion', rqi: ArrayLike=None, **kwargs) -> float:
     """Fuses respiratory rates calculated from different modulation types.
 
     Args:
@@ -205,14 +227,15 @@ def fuse_rr(fusion_method: str='SmartFusion', rqi: ArrayLike=None, **kwargs) -> 
     Returns:
         float: Fused respiratory rate
     """
-
+    fusion_method = fusion_method.lower()
+    
     if kwargs:
         rr_est = []
 
         for mod_type in kwargs.keys():
             rr_est.append(kwargs[mod_type])
 
-        if fusion_method == 'SmartFusion':
+        if fusion_method == 'smartfusion':
             rr_std = np.std(rr_est)
 
             if (rr_std <= 4):
@@ -220,7 +243,7 @@ def fuse_rr(fusion_method: str='SmartFusion', rqi: ArrayLike=None, **kwargs) -> 
             else:
                 rr_fused = ['invalid signal']
 
-        elif fusion_method == 'QualityFusion':
+        elif fusion_method == 'qualityfusion':
             if rqi is not None:
                 rr_fused = np.sum(np.asarray(
                     rqi)*np.asarray(rr_est))/np.sum(rqi)

@@ -13,12 +13,15 @@ def elim_vlf(ppg_sig: ArrayLike, sampling_rate: float) -> ArrayLike:
     Returns:
         Array: Filtered PPG signal.
     """
+    if sampling_rate <= 0:
+        raise ValueError("Sampling rate must be greater than 0.")
+
     N = 5
     filter_type = 'highpass'
     f1 = 0.0665  # 4 bpm
 
     filtered_signal = filtering.filter_signal(
-        ppg_sig, filter_type, N, sampling_rate, f1, [])
+        sig=ppg_sig, filter_type=filter_type, N=N, sampling_rate=sampling_rate, f_lower=f1)
 
     return filtered_signal
 
@@ -33,11 +36,14 @@ def elim_vhf(ppg_sig: ArrayLike, sampling_rate: float) -> ArrayLike:
     Returns:
         Array: Filtered PPG signal.
     """
+    if sampling_rate <= 0:
+        raise ValueError("Sampling rate must be greater than 0.")
+
     N = 5
     filter_type = 'lowpass'
-    f2 = 30
+    f2 = 0.5833 # 35 bpm
 
     filtered_signal = filtering.filter_signal(
-        ppg_sig, filter_type, N, sampling_rate, [], f2)
+        sig=ppg_sig, filter_type=filter_type, N=N, sampling_rate=sampling_rate, f_upper=f2)
 
     return filtered_signal
