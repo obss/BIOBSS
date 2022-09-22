@@ -1,6 +1,7 @@
 from typing import Any
 import numpy as np
 import heartpy as hp
+from scipy import signal
 import sys
 from numpy.typing import ArrayLike
 
@@ -11,20 +12,27 @@ def peak_detection(sig: ArrayLike, sampling_rate: float, method: str='peakdet', 
     Args:
         sig (ArrayLike): Signal to be analyzed.
         sampling_rate (float): Sampling rate of the signal (Hz).
-        method (str, optional): Peak detection method. Should be one of 'peakdet' and 'heartpy'. Defaults to 'peakdet'. 
+        method (str, optional): Peak detection method. Should be one of 'peakdet', 'heartpy' and 'scipy'. Defaults to 'peakdet'. 
                                 See https://gist.github.com/endolith/250860 to get information about 'peakdet' method.
         delta (float, optional): Required parameter of the peakdet method.
 
     Raises:
-        ValueError: If method is not one of 'peakdet' and 'heartpy'.
+        ValueError: If method is not one of 'peakdet', 'heartpy' and 'scipy'.
 
     Returns:
         dict: Dictionary of peak locations, peak amplitudes, trough locations and trough amplitudes.
     """
+    method = method.lower()
+
+    if sampling_rate <= 0:
+        raise ValueError("Sampling rate must be greater than 0.")
 
     info = {}
 
     if method == 'peakdet':
+
+        if delta is None:
+            raise ValueError("Delta is required for 'peakdet' method.")
 
         maxtab, mintab = _peakdetection_peakdet(sig, delta)
         info["Peak_locs"] = maxtab[:, 0].astype(int)
@@ -43,8 +51,19 @@ def peak_detection(sig: ArrayLike, sampling_rate: float, method: str='peakdet', 
         info["Trough_locs"] = wd_t['peaklist']
         info["Troughs"] = sig[wd_t['peaklist']]
 
+    elif method == 'scipy':
+
+        peaks_locs = _peakdetection_scipy(sig)
+        info["Peak_locs"] = peaks_locs
+        info["Peaks"] = sig[peaks_locs]
+
+        sig_t = max(sig)-sig
+        troughs_locs = _peakdetection_scipy(sig_t)
+        info["Trough_locs"] = troughs_locs
+        info["Troughs"] = sig[troughs_locs]
+
     else:
-        raise ValueError("Method should be one of 'peakdet' and 'heartpy'.")
+        raise ValueError("Method should be one of 'peakdet' ,'heartpy' and 'scipy'.")
 
     return info
 
@@ -125,3 +144,12 @@ def _peakdetection_heartpy(sig: ArrayLike, sampling_rate: float) -> Any:
     wd, m = hp.process(sig, sample_rate=sampling_rate)
 
     return wd, m
+
+def _peakdetection_scipy(sig: ArrayLike) -> Any:
+
+    peaks_locs, _ =signal.find_peaks(sig)
+
+    return peaks_locs
+
+
+
