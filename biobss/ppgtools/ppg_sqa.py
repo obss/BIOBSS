@@ -46,6 +46,9 @@ def detect_flatline_clipping(ppg_sig: ArrayLike, threshold: float, clipping: boo
 
     if flatline:
         if 'duration' in kwargs:
+            if kwargs['duration'] <= 0:
+                raise ValueError("Duration must be greater than 0.")
+
             sig_dif=np.diff(ppg_sig)
             flat_binary = np.where(abs(sig_dif) < threshold)
             flat_segments=_detect_flat_segments(flat_binary)
@@ -100,6 +103,8 @@ def check_phys(peaks_locs: ArrayLike, sampling_rate: float) -> dict:
     Returns:
         dict: Dictionary of decisions.
     """
+    if sampling_rate <= 0:
+        raise ValueError("Sampling rate must be greater than 0.")
 
     info={}
 
@@ -147,7 +152,18 @@ def check_morph(peaks_locs: ArrayLike, peaks_amps: ArrayLike, troughs_locs: Arra
     Returns:
         dict: Dictionary of decisions
     """
-    
+    if sampling_rate <= 0:
+        raise ValueError("Sampling rate must be greater than 0.")
+
+    if len(peaks_locs) != len(peaks_amps):
+        raise ValueError("Lengths of peak location and peak amplitude arrays do not match!")
+
+    if len(troughs_locs) != len(troughs_amps):
+        raise ValueError("Lengths of trough location and peak amplitude arrays do not match!")
+
+    if len(peaks_locs) != len(troughs_locs) - 1:
+        raise ValueError("Number of peaks and troughs are not compatible!")
+
     info={}
 
     #Rule 1
@@ -207,7 +223,9 @@ def template_matching(ppg_sig: ArrayLike, peaks_locs: ArrayLike, corr_th: float=
     Returns:
         Tuple[float,bool]: Correlation coefficient and the decision
     """
- 
+    if corr_th <= 0:
+        raise ValueError("Threshold for the correlation coefficient must be greater than 0.")
+        
     wl=np.median(np.diff(peaks_locs))
     waves=np.empty((0,2*math.floor(wl/2)+1))
     nofwaves=np.size(peaks_locs)

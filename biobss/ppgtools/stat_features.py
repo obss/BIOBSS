@@ -49,6 +49,10 @@ def get_stat_features(sig: ArrayLike, sampling_rate: float,type: str, prefix: st
     Returns:
         dict: Dictionary of calculated features.
     """
+    if sampling_rate <= 0:
+        raise ValueError("Sampling rate must be greater than 0.")
+
+    type = type.lower()
 
     if type=='cycle':
         features_stat={}

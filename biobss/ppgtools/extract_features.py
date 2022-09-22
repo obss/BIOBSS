@@ -37,6 +37,13 @@ def from_cycles(sig: ArrayLike, peaks_locs: ArrayLike, peaks_amp: ArrayLike, tro
     Returns:
         dict: Dictionary of calculated features.
     """
+    if sampling_rate <= 0:
+        raise ValueError("Sampling rate must be greater than 0.")
+
+    if (len(peaks_locs) != len(troughs_locs)-1):
+        raise ValueError("Lengths of peak and trough arrays do not match!")
+
+    feature_types = [x.capitalize() for x in feature_types]
 
     valid_types=['Time','Stat'] 
     features={}
@@ -65,6 +72,10 @@ def from_segment(sig: ArrayLike,sampling_rate: float, feature_types: ArrayLike=[
     Returns:
         dict: Dictionary of calculated features.
     """
+    if sampling_rate <= 0:
+        raise ValueError("Sampling rate must be greater than 0.")
+
+    feature_types = [x.capitalize() for x in feature_types]
 
     valid_types=['Time','Stat','Freq']   
     features={}

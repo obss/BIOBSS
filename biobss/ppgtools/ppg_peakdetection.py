@@ -2,35 +2,38 @@ import numpy as np
 from numpy.typing import ArrayLike
 
 
-def peak_control(locs_peaks: ArrayLike, peaks: ArrayLike, locs_troughs: ArrayLike, troughs: ArrayLike) -> dict:
+def peak_control(peaks_locs: ArrayLike, peaks_amp: ArrayLike, troughs_locs: ArrayLike, troughs_amp: ArrayLike) -> dict:
     """Applies rules to check relative peak and onset locations. 
        First, trims the PPG segment as it starts and ends with a trough.
        Then, checks for missing or duplicate peaks taking the trough lcoations as reference. There must be one peak between successive troughs.
 
     Args:
-        locs_peaks (array): PPG peak locations
-        peaks (array): PPG peak amplitudes
-        locs_troughs (array): PPG trough locations
-        troughs (array): PPG trough amplitudes
+        peaks_locs (array): PPG peak locations
+        peaks_amp (array): PPG peak amplitudes
+        troughs_locs (array): PPG trough locations
+        troughs_amp (array): PPG trough amplitudes
 
     Returns:
         info(dict): Dictionary of peak locations, peak amplitudes, trough locations and trough amplitudes.
     """
+    if (len(peaks_locs) != len(peaks_amp)):
+        raise ValueError("Lengths of peak location and peak amplitude arrays do not match!")
+    if (len(troughs_locs) != len(troughs_amp)):
+        raise ValueError("Lengths of trough location and trough amplitude arrays do not match!")
 
     # Trim the arrays as the signal starts and ends with a trough
+    if peaks_locs[0] < troughs_locs[0]:
+        peaks_locs = peaks_locs[1:]
+        peaks_amp = peaks_amp[1:]
 
-    if locs_peaks[0] < locs_troughs[0]:
-        locs_peaks = locs_peaks[1:]
-        peaks = peaks[1:]
-
-    if locs_peaks[-1] > locs_troughs[-1]:
-        locs_peaks = locs_peaks[:-1]
-        peaks = peaks[:-1]
+    if peaks_locs[-1] > troughs_locs[-1]:
+        peaks_locs = peaks_locs[:-1]
+        peaks_amp = peaks_amp[:-1]
 
     # Apply rules to check if there are missing or duplicate peaks
     info = {}
 
-    search_S = locs_troughs
+    search_S = troughs_locs
     loc_S = []
     peak_S = []
     j = 0
@@ -38,32 +41,31 @@ def peak_control(locs_peaks: ArrayLike, peaks: ArrayLike, locs_troughs: ArrayLik
     for i in range(len(search_S)-1):
 
         ind_S = np.asarray(
-            np.where((search_S[i] < locs_peaks) & (locs_peaks < search_S[i+1])))
+            np.where((search_S[i] < peaks_locs) & (peaks_locs < search_S[i+1])))
 
         if np.size(ind_S) == 0:
-
             peak_S.insert(i, np.NaN)
             loc_S.insert(i, np.NaN)
             j = j+1
+
         elif np.size(ind_S) == 1:
-
-            peak_S.insert(i, peaks[j])
-            loc_S.insert(i, locs_peaks[j])
+            peak_S.insert(i, peaks_amp[j])
+            loc_S.insert(i, peaks_locs[j])
             j = j+1
+
         else:
-
-            peak_mx = np.max(peaks[ind_S])
-            ind_mx = np.argmax(peaks[ind_S])
+            peak_mx = np.max(peaks_amp[ind_S])
+            ind_mx = np.argmax(peaks_amp[ind_S])
             peak_S.insert(i, peak_mx)
-            loc_S.insert(i, locs_peaks[ind_S[ind_mx][0]])
+            loc_S.insert(i, peaks_locs[ind_S[ind_mx][0]])
             j = j+1
 
-    locs_peaks = loc_S
-    peaks = peak_S
+    peaks_locs = loc_S
+    peaks_amp = peak_S
 
-    info['Peak_locs'] = locs_peaks
-    info['Peaks'] = peaks
-    info['Trough_locs'] = locs_troughs
-    info['Troughs'] = troughs
+    info['Peak_locs'] = peaks_locs
+    info['Peaks'] = peaks_amp
+    info['Trough_locs'] = troughs_locs
+    info['Troughs'] = troughs_amp
 
     return info
