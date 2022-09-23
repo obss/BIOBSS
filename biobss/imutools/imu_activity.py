@@ -69,6 +69,15 @@ def calc_activity_index(accx: ArrayLike, accy: ArrayLike, accz: ArrayLike, signa
     Returns:
         Dict: A dictionary of calculated metric for the desired input types.
     """
+    if not (len(accx) == len(accy) == len(accz)):
+        raise ValueError("Length of input arrays (accx,accy,accz) must match!")
+    if signal_length <= 0:
+        raise ValueError("Signal length must be greater than 0.")
+    if sampling_rate <= 0:
+        raise ValueError("Sampling rate must be greater than 0.")
+
+    metric = metric.upper()
+
     if input_types is None:
         input_types = DATA_TO_METRIC[metric]
 
@@ -87,7 +96,7 @@ def calc_activity_index(accx: ArrayLike, accy: ArrayLike, accz: ArrayLike, signa
 
             if metric in ['ZCM', 'TAT'] and threshold is None:
                 warnings.warn("Threshold level is required for this activity index, but not provided. Standard deviation of the signal will be used as threshold.")
-                threshold = calc_threshold(sig, dim, input_type)
+                threshold = _calc_threshold(sig, dim, input_type)
 
             act = metric_function(sig, dim, sampling_rate, threshold, baseline_variance, triaxial)
             if not triaxial:
@@ -101,7 +110,7 @@ def calc_activity_index(accx: ArrayLike, accy: ArrayLike, accz: ArrayLike, signa
     
     return act_ind
             
-def generate_dataset(accx: ArrayLike, accy:ArrayLike, accz:ArrayLike, sampling_rate:float, filtering:bool=False, filtering_order:str=None, magnitude:bool=False, normalize:bool=False, modify:bool=False, filter_type:str='bandpass', N:int=2, f1:float=0.5, f2:float=2) -> ArrayLike:
+def generate_dataset(accx: ArrayLike, accy:ArrayLike, accz:ArrayLike, sampling_rate:float, filtering:bool=False, filtering_order:str=None, magnitude:bool=False, normalize:bool=False, modify:bool=False, filter_type:str='bandpass', N:int=2, f_lower:float=0.5, f_upper:float=2) -> ArrayLike:
     """Generates datasets by applying appropriate preprocessing steps to the raw acceleration signals.
 
         The datasets are:
@@ -129,8 +138,8 @@ def generate_dataset(accx: ArrayLike, accy:ArrayLike, accz:ArrayLike, sampling_r
                                  some extra modifications are required following standard preprocessing steps. These are represented as "_modified". Defaults to False.
         filter_type (str, optional): Type of the filter. Defaults to 'bandpass'.
         N (int, optional): Order of the filter. Defaults to 2.
-        f1 (float, optional): Lower cutoff frequency of the filter. Defaults to 0.5.
-        f2 (float, optional): Higher cutoff frequency of the filter. Defaults to 2.
+        f_lower (float, optional): Lower cutoff frequency of the filter. Defaults to 0.5.
+        f_upper (float, optional): Higher cutoff frequency of the filter. Defaults to 2.
 
     Raises:
         ValueError: If filtering_order is not given when filtering=True.
@@ -140,15 +149,19 @@ def generate_dataset(accx: ArrayLike, accy:ArrayLike, accz:ArrayLike, sampling_r
     Returns:
         ArrayLike: The resulting preprocessed signal(s). The dimension can be either 1 or 3 depending on the type of dataset.
     """
+    if not (len(accx) == len(accy) == len(accz)):
+        raise ValueError("Length of input arrays (accx,accy,accz) must match!")
+    if sampling_rate <= 0:
+        raise ValueError("Sampling rate must be greater than 0.")
 
     if filtering:
         if filtering_order is None:
             raise ValueError("Required parameter filtered_order.")
 
         elif filtering_order =='pre':
-            f_x = filter_signal(accx, filter_type=filter_type, N=N, fs=sampling_rate, f1=f1, f2=f2)
-            f_y = filter_signal(accy, filter_type=filter_type, N=N, fs=sampling_rate, f1=f1, f2=f2)
-            f_z = filter_signal(accz, filter_type=filter_type, N=N, fs=sampling_rate, f1=f1, f2=f2)
+            f_x = filter_signal(accx, filter_type=filter_type, N=N, sampling_rate=sampling_rate, f_lower=f_lower, f_upper=f_upper)
+            f_y = filter_signal(accy, filter_type=filter_type, N=N, sampling_rate=sampling_rate, f_lower=f_lower, f_upper=f_upper)
+            f_z = filter_signal(accz, filter_type=filter_type, N=N, sampling_rate=sampling_rate, f_lower=f_lower, f_upper=f_upper)
             if magnitude:
                 mag = _calc_magnitude(f_x, f_y, f_z) #FMpre
                 sig = [mag]
@@ -160,7 +173,7 @@ def generate_dataset(accx: ArrayLike, accy:ArrayLike, accz:ArrayLike, sampling_r
 
         elif filtering_order == 'post':
             mag = _calc_magnitude(accx, accy, accz)
-            f_mag = filter_signal(mag, filter_type=filter_type, N=N, fs=sampling_rate, f1=f1, f2=f2) #FMpost
+            f_mag = filter_signal(mag, filter_type=filter_type, N=N, sampling_rate=sampling_rate, f_lower=f_lower, f_upper=f_upper) #FMpost
             sig = [f_mag]
             if modify:
                 sig = [np.abs(f_mag)] #FMpost_modified       
@@ -177,13 +190,13 @@ def generate_dataset(accx: ArrayLike, accy:ArrayLike, accz:ArrayLike, sampling_r
             elif modify and not normalize:  
                 sig = [np.abs(mag - len(mag))] #UFM_modified
             elif modify and normalize:
-                raise ValueError("Both normalization and modify cannot be True!")
+                raise ValueError("Both 'normalization' and 'modify' cannot be True!")
             else:
                 sig = [mag]
 
     return sig
 
-def calc_threshold(sig: ArrayLike, dim: int, input_type:str) -> List:
+def _calc_threshold(sig: ArrayLike, dim: int, input_type:str) -> List:
     """Calculates the threshold level in "g", as standard deviation of the signal (It is calculated as "SD+g" for the 'UFM' dataset.)
 
     Args:
@@ -197,7 +210,7 @@ def calc_threshold(sig: ArrayLike, dim: int, input_type:str) -> List:
     Returns:
         List: List of calculated threshold level(s).
     """
-
+    
     if dim == 1:
         th = np.std(sig[0])
         if input_type =='UFM':
