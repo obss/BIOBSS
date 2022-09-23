@@ -194,6 +194,6 @@ def polar_csv_reader(filepath: str, signal_type: str) -> dict:
         info = READER_FUNCTIONS[signal_type](filepath)
     
     else:
-        raise ValueError("Signal type should be provided as one of ", valid_types)
+        raise ValueError(f"Signal type should be provided as one of {valid_types}.")
 
     return info

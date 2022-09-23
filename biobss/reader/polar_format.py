@@ -68,6 +68,8 @@ def txt_to_csv(txt_dir: str, file_types: list=['HR','PPI','ACC','PPG','MAGN','GY
 
             else:
                 warnings.warn(f'{csv_dir} already present, skipping txt to csv conversion.')
+        else:
+            warnings.warn(f'No files found in {txt_dir}.')
 
 
 def rename_csv(csv_dir: str, file_types: list=['HR','PPI','ACC','PPG','MAGN','GYRO']):
@@ -104,6 +106,8 @@ def rename_csv(csv_dir: str, file_types: list=['HR','PPI','ACC','PPG','MAGN','GY
 
                     if not os.path.exists(new_name):
                         os.rename(filename,new_name)
+        else:
+            warnings.warn(f'No files found in {csv_dir}.')
 
 
 def timestamp_to_msec(timestamp_df: pd.DataFrame, start_time: datetime.datetime=None) -> ArrayLike:
@@ -145,6 +149,7 @@ def get_start_time(csv_dir: str, file_types: list=['HR','PPI','ACC','PPG','MAGN'
     """
     files=os.listdir(csv_dir)
     os.chdir(csv_dir)
+
     if len(files)!=0:
         csv_files=[]
         sig_start=[]
@@ -172,6 +177,9 @@ def get_start_time(csv_dir: str, file_types: list=['HR','PPI','ACC','PPG','MAGN'
 
         sorted_start=sorted(sig_start)
         t_start=sorted_start[0]
+
+    else:
+        warnings.warn(f'No files found in {csv_dir}.')
 
     return t_start
 
@@ -216,7 +224,9 @@ def add_record_time(csv_dir: str, file_types: list=['HR','PPI','ACC','PPG','MAGN
             timediff_usec=timestamp_to_msec(df['Phone timestamp'],start_time)
             df['Time_record (ms)']=timediff_usec
             df.to_csv(filepath,index=None)
-
+    
+    else:
+        warnings.warn(f'No files found in {csv_dir}.')
 
 def calculate_sync_time(csv_dir: str, time_step: float=1, file_types: list=['HR','PPI','ACC','PPG','MAGN','GYRO'], save_file: bool=False, marker: bool=False) -> pd.DataFrame:
     """Generates an array of time points for synchronization.
@@ -239,7 +249,7 @@ def calculate_sync_time(csv_dir: str, time_step: float=1, file_types: list=['HR'
     files = os.listdir(csv_dir)
 
     if len(files)==0:
-        raise ValueError("Empty directory")
+        raise ValueError(f'No files found in {csv_dir}.')    
 
     else:
         csv_files=[]
@@ -251,11 +261,15 @@ def calculate_sync_time(csv_dir: str, time_step: float=1, file_types: list=['HR'
             marker_files=glob.glob("*MARKER*.csv*")
             if marker_files:
                 csv_files.append(marker_files[0])
+            else:
+                raise ValueError(f"No marker file found in {csv_dir}")
                 
         for file_type in file_types:
             filenames=glob.glob("*_{}.csv*".format(file_type))
             if filenames:
-                csv_files.append(filenames[0]) 
+                csv_files.append(filenames[0])
+            else:
+                warnings.warn(f"{file_type} file not found in {csv_dir}") 
                 
         for filename in csv_files:
 
@@ -299,7 +313,9 @@ def synchronize_signals(csv_dir: str, time_step: float=1, time_list: pd.DataFram
     Returns:
         pd.DataFrame: DataFrame including synchronized signals and time points.
     """
-    
+    if time_step <= 0:
+        raise ValueError("Time_step must be greater than 0.")
+
     os.chdir(csv_dir)
     data=pd.DataFrame()
     out_file="sync"
@@ -310,6 +326,9 @@ def synchronize_signals(csv_dir: str, time_step: float=1, time_list: pd.DataFram
 
     if resampling_rate is None:
         resampling_rate = sampling_rate
+    else:
+        if resampling_rate <= 0:
+            raise ValueError("Resampling rate must be greater than 0.")
 
     for file_type in file_types:
 
@@ -335,7 +354,7 @@ def synchronize_signals(csv_dir: str, time_step: float=1, time_list: pd.DataFram
                 data[column_name]=pd.Series(np.squeeze(resampled_sig))
             
         else:
-            raise ValueError("No file for filetype:", file_type)
+            raise ValueError(f"No file for filetype: {file_type}")
 
     data.insert(0,'Time_record (ms)',pd.Series(resampled_t))
 
@@ -396,13 +415,13 @@ def add_events(csv_dir:str):
     if syncfiles:
         syncfile=syncfiles[0]
     else:
-        raise ValueError("No sync file found in the directory'")
+        raise ValueError(f"No sync file found in {csv_dir}.")
 
     eventfiles=glob.glob("*event_list*.txt*")
     if eventfiles:
         eventfile=eventfiles[0]
     else:
-        raise ValueError("No event list file found in the directory'")
+        raise ValueError(f"No event list file found {csv_dir}.")
 
     data=pd.read_csv(syncfile)
     event_data=pd.read_csv(eventfile, header=None,index_col=False)
@@ -455,6 +474,8 @@ def csv_to_pkl(csv_dir: str, file_types: list=['HR','PPI','ACC','PPG','MAGN','GY
             else:
                 warnings.warn(f'{pkl_dir} already present, skipping csv to pkl conversion.')
 
+        else:
+            warnings.warn(f'No files found in {csv_dir}.')
 
 
 

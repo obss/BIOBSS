@@ -34,6 +34,12 @@ def csv_to_df(csv_filepath: str, numrow: int, first_row: int, columns: list) -> 
     Returns:
         pd.DataFrame: A dataframe of the blood pressure measurements.
     """
+    if numrow <= 0:
+        raise ValueError("Numrow must be greater than 0.")
+
+    if first_row < 0:
+        raise ValueError("First_row must be greater than 0.")
+
     data=[]
     with open(csv_filepath, newline='') as csvfile:
         reader=csv.reader(csvfile, delimiter=';')
