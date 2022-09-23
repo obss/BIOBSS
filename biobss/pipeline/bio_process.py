@@ -8,7 +8,7 @@ import warnings
 
 
 class Bio_Process:
-    def __init__(self, process_method, modality,sigtype,input_signal=None,output_signal=None,returnindex=None, **kwargs) -> None:
+    def __init__(self, process_method, modality, sigtype,returnindex=None, **kwargs) -> None:
 
         self.process_method = process_method
         self.modality = modality
