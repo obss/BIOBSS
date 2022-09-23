@@ -1,58 +1,62 @@
 import numpy as np
 import copy as copy
 from numpy.typing import ArrayLike
-from ..timetools import timestamp_tools
 
 
 class Bio_Channel():
     """ Signal object with add and iterate process objects"""
 
-    def __init__(self, signal: ArrayLike, name: str, sampling_rate: float, timestamp=None, timestamp_resolution=None, timestamp_start=0, verbose=False):
+    def __init__(self, signal: ArrayLike,name:str, sampling_rate: float, timestamp=None, timestamp_resolution='ms', timestamp_start=0):
 
-        # initialize channel data
+        regularity_parameter = 0.01
+        if(timestamp_resolution == 'ns'):
+            regularity_parameter = 1e-9
+        elif(timestamp_resolution == 'ms'):
+            regularity_parameter = 0.001
+        elif(timestamp_resolution == 's'):
+            regularity_parameter = 1
+        elif(timestamp_resolution == 'min'):
+            regularity_parameter = 60
+        else:
+            raise ValueError('timestamp_resolution must be "ns","ms","s","min"')
+            
+            
         self.channel = np.array(signal)
-        self.timestamp_resolution = timestamp_resolution
-        # initialize sampling rate
-
+        
         if(sampling_rate < 0):
             raise ValueError('Sampling rate must be greater than 0')
+
         self.sampling_rate = sampling_rate
-
-        # initialize timestamp
-
         if(timestamp is not None):
             timestamp = np.array(timestamp)
-            if(timestamp_resolution is None):
-                raise ValueError('Timestamp resolution must be provided if timestamp is provided')
             if(timestamp.shape != signal.shape):
                 raise ValueError(timestamp.shape, signal.shape,
                                  'Timestamp must match signal dimensions')
-            if(timestamp_tools.check_timestamp(timestamp, timestamp_resolution)):
-                self.timestamp = timestamp
-                if(verbose):
-                    print("Input is set with timestamp resolution of " +
-                          str(timestamp_resolution))
-            else:
-                raise ValueError('Timestamp is not valid')
+            if(np.any(np.diff(timestamp) < 0)):
+                raise ValueError('Timestamp must be monotonic')
+            if(np.diff(timestamp).std() > regularity_parameter):  # TODO: optimize this parameter
+                raise ValueError('Timestamp must be regularly spaced')
+            self.timestamp = timestamp
+            self.timestamp_start = timestamp[0]
+            print("Input is set with timestamp resolution of " + str(timestamp_resolution))
         else:
-            if(timestamp_resolution is None):
-                timestamp_resolution = "ms"
-                self.timestamp_resolution = timestamp_resolution
-            if(signal.ndim > 1):
-                raise ValueError(
-                    'Timestamp must be provided for multi-channel signals')
-            self.timestamp = timestamp_tools.create_timestamp_signal(
-                timestamp_resolution, len(signal), timestamp_start, sampling_rate)
-            self.timestamp_start = timestamp_start
-            if(verbose):
-                print("Input is set with timestamp resolution of " +
-                      str(timestamp_resolution))
+            if(timestamp_start < 0):
+                raise ValueError('Timestamp start must be greater than 0')
+            timestamp_factor=1
+            if(timestamp_resolution == 'ns'):
+                timestamp_factor = 1/1e-9
+            elif(timestamp_resolution == 'ms'):
+                timestamp_factor = 1/0.001
+            elif(timestamp_resolution == 's'):
+                timestamp_factor = 1
+            elif(timestamp_resolution == 'min'):
+                timestamp_factor = 60
+                
+            timestamp = (np.arange(len(signal))/sampling_rate)*timestamp_factor
+            self.timestamp = timestamp+timestamp_start
+
         self.timestamp_start = timestamp_start
-
-        # initialize signal name
         self.signal_name = name
-
-        # initialize signal duration and windows
         if(len(signal.shape) < 2):
             self.signal_duration = len(signal)/sampling_rate,
             self.windows = 1
@@ -70,18 +74,16 @@ class Bio_Channel():
             self.timestamp[:, 0] = self.timestamp[:, 0]+offset
 
     def change_channel_data(self, signal: ArrayLike):
-        if(signal.shape != self.channel.shape):
-            raise ValueError('New signal must match channel dimensions')
         self.channel = np.array(signal)
 
     def get_timestamp(self, ts_point="start") -> np.ndarray:
 
+        if(not ts_point in ["start", "end", "mid"]):
+            raise ValueError('ts_point must be "start","end","mid"')
+
         if(len(self.timestamp.shape) == 1):
             out = np.array(self.timestamp)
         else:
-            if(not ts_point in ["start", "end", "mid"]):
-                raise ValueError(
-                    'ts_point must be "start","end","mid", Please specify a valid timestamp point')
             if(ts_point == "start"):
                 out = np.array(self.timestamp[:, 0])
             elif(ts_point == "end"):
@@ -94,30 +96,10 @@ class Bio_Channel():
 
     def __str__(self) -> str:
         return str(self.channel)
-    
-    
-    def get_attribute(self, __name: str):
-        if(__name == "channel"):
-            return np.array(self.channel)
-        elif(__name == "timestamp"):
-            return np.array(self.timestamp)
-        elif(__name == "sampling_rate"):
-            return self.sampling_rate
-        elif(__name == "signal_name"):
-            return self.signal_name
-        elif(__name == "signal_duration"):
-            return self.signal_duration
-        elif(__name == "windows"):
-            return self.windows
-        elif(__name == "timestamp_start"):
-            return self.timestamp_start
-        elif(__name == "timestamp_resolution"):
-            return self.timestamp_resolution
-        else:
-            raise KeyError("Attribute not found")
 
     def __repr__(self) -> str:
         representation = self.signal_name
+        representation += " (" + self.signal_modality + ")"
         representation += " (" + str(self.sampling_rate) + "Hz)"
         representation += " (" + str(self.signal_duration) + "s)"
         representation += " (" + str(self.windows) + " windows)"

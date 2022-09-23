@@ -26,12 +26,13 @@ class Process_List():
         for process in self.process_list:
             c_info = bio_data.get_channel_names()
             for c_name in c_info:
-                process_result = process.process(bio_data[c_name])
-                if(isinstance(process_result, Bio_Data)):
+                if process.check_input(bio_data[c_name]):
+                    process_result = process.process(bio_data[c_name])
+                    if(isinstance(process_result, Bio_Data)):
                         bio_data.join(process_result)
-                elif(isinstance(process_result, Bio_Channel)):
+                    elif(isinstance(process_result, Bio_Channel)):
                         bio_data.add_channel(
-                            process_result, c_name, modify_existed=True)
+                            process_result, c_name, modify_existed=True, modality=bio_data[c_name].signal_modality)
                 else:
                     pass
 
