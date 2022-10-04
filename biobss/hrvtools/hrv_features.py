@@ -18,16 +18,17 @@ def get_domain_function(domain:str) -> Callable:
         raise ValueError("Unknown domain:", domain)  
 
 
-def get_hrv_features(sampling_rate: float, input_type: str='ppi', peaks_locs: ArrayLike=None, troughs_locs: ArrayLike=None, ppi: ArrayLike=None, feature_types: ArrayLike=['Freq','Time','Nonlinear'], prefix: str='hrv') -> dict:
+def get_hrv_features(sampling_rate: float, signal_type: str='PPG',  input_type: str='ppi', peaks_locs: ArrayLike=None, troughs_locs: ArrayLike=None, ppi: ArrayLike=None, feature_types: ArrayLike=['Freq','Time','Nonlinear'], prefix: str='hrv') -> dict:
     """Calculates HRV parameters
 
     Args:
-        sampling_rate (float): Sampling rate of the ppg signal.
+        sampling_rate (float): Sampling rate of the ppg/ecg signal.
+        signal_type (str, optional): Signal type to calculate hrv parameters. Should be 'ppg' or 'ecg'. Defaults to 'ppg'.
         input_type (str, optional): Input type for the analyses. Should be 'ppi', 'peaks' or 'troughs'. Defaults to 'ppi'.
                                     Depending on the input type, corresponding input array should be provided.
-        peaks_locs (ArrayLike, optional): Peak locations of the ppg signal. Defaults to None.
+        peaks_locs (ArrayLike, optional): Peak locations of the ppg/ecg signal. Defaults to None.
         troughs_locs (ArrayLike, optional): Onset locations of the ppg signal. Defaults to None.
-        ppi (ArrayLike, optional): Peak-to-peak intervals of the ppg signal (miliseconds). Defaults to None.
+        ppi (ArrayLike, optional): Peak-to-peak intervals of the ppg/ecg signal (miliseconds). Defaults to None.
         feature_types (ArrayLike, optional): List of the type of hrv parameters to be calculated. Defaults to ['Freq','Time','Nonlinear'].
         prefix (str, optional): Prefix for the calculated parameters. Defaults to 'hrv'.
 
@@ -45,7 +46,11 @@ def get_hrv_features(sampling_rate: float, input_type: str='ppi', peaks_locs: Ar
         raise ValueError("Sampling rate must be greater than 0.")
     
     input_type = input_type.lower()
+    signal_type = signal_type.lower()
     feature_types = [x.capitalize() for x in feature_types]
+
+    if signal_type == 'ecg' and input_type =='troughs':
+        raise ValueError(f"Input type {input_type} is not defined for {signal_type} signal.")
 
     valid_types=['Time','Freq','Nonlinear']   
     features={}
