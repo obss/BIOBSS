@@ -1,6 +1,7 @@
 from distutils.log import warn
 import re
 from sqlite3 import Timestamp
+from symbol import parameters
 from .bio_data import Bio_Data
 import pandas as pd
 import numpy as np
@@ -9,16 +10,18 @@ from typing import Union
 
 class Feature():
 
-    def __init__(self, name, function, parameters, input_signals: dict, **kwargs):
+    def __init__(self, name, function, input_signals: dict,parameters={}, **kwargs):
 
         self.name = name
         self.function = function
         self.parameters = parameters
         self.input_signals = input_signals
+        self.kwargs=kwargs
         self.feature_output = pd.DataFrame()
 
     def run(self, data: Bio_Data) -> pd.DataFrame:
 
+        self.parameters.update(self.kwargs)
         redundant = []
         for k in self.parameters:
             if k not in self.function.__code__.co_varnames:
