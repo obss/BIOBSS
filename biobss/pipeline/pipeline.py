@@ -1,14 +1,13 @@
+import time
 from .. import signaltools
-from .process_list import Process_List
+from .bioprocess_queue import Process_List
 from .bio_data import Bio_Data
-from .data_channel import Data_Channel
+from .bio_channel import Bio_Channel
 from typing import Union
 import numpy as np
 import pandas as pd
 from numpy.typing import ArrayLike
 from .feature_extraction import Feature
-
-from biobss.pipeline import data_channel
 
 """a biological signal processing object with preprocessing and postprocessing steps"""
 
@@ -17,8 +16,6 @@ class Bio_Pipeline:
 
     def __init__(
         self,
-        modality="Generic",
-        sigtype="Generic",
         windowed_process=False,
         window_size=None,
         step_size=None,
@@ -35,13 +32,9 @@ class Bio_Pipeline:
             self.step_size = "Not Windowed"
             self.windowed = False
 
-        self.modality = modality
-        self.sigtype = sigtype
-        self.preprocess_queue = Process_List(
-            modality=modality, sigtype=sigtype)
-        self.process_queue = Process_List(modality=modality, sigtype=sigtype)
-        self.postprocess_queue = Process_List(
-            modality=modality, sigtype=sigtype)
+        self.preprocess_queue = Process_List(name="Preprocess_Queue")
+        self.process_queue = Process_List(name="Process_Queue")
+        self.postprocess_queue = Process_List(name="Postprocess_Queue")
         self.features = pd.DataFrame()
         self.feature_list = features_list
 
@@ -50,7 +43,6 @@ class Bio_Pipeline:
         signal: Union[Bio_Data, ArrayLike],
         sampling_rate=None,
         name=None,
-        modality="Generic",
         timestamp=None,
         timestamp_start=0,
         timestamp_resolution='ms',
@@ -70,26 +62,24 @@ class Bio_Pipeline:
             self.input = Bio_Data()
             if isinstance(signal, (np.ndarray, pd.Series, list)):
                 self.input.add_channel(
-                    Data_Channel(
+                    Bio_Channel(
                         np.array(signal),
                         sampling_rate=sampling_rate,
                         name=name,
                         timestamp=timestamp,
                         timestamp_start=timestamp_start,
-                        modality=modality,
                         timestamp_resolution=timestamp_resolution,
                     )
                 )
             elif isinstance(signal, pd.DataFrame):
                 for column in signal.columns:
                     self.input.add_channel(
-                        Data_Channel(
+                        Bio_Channel(
                             signal[column],
                             sampling_rate=sampling_rate,
                             name=column,
-                            timestamp=timestamp,
+                            timestamp=signal.index,
                             timestamp_start=timestamp_start,
-                            modality=modality,
                             timestamp_resolution=timestamp_resolution,
                         )
                     )
@@ -120,9 +110,9 @@ class Bio_Pipeline:
             self.input.modify_signal(
                 windowed,
                 channel_name=channel.signal_name,
-                modality=channel.signal_modality,
                 timestamp=timestamps,
                 sampling_rate=channel.sampling_rate,
+                timestamp_resolution=channel.timestamp_resolution
             )
 
         self.segmented = True
@@ -148,8 +138,6 @@ class Bio_Pipeline:
 
     def __repr__(self) -> str:
         representation = "Bio_Pipeline:\n"
-        representation += "\tModality: " + self.modality + "\n"
-        representation += "\tSignal Type: " + self.sigtype + "\n"
         representation += "\tPreprocessors: " + \
             str(self.preprocess_queue) + "\n"
         representation += "\tProcessors: " + str(self.process_queue) + "\n"

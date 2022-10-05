@@ -2,6 +2,7 @@ from .eda_decompose import eda_decompose
 from .feature_extraction import *
 from .hjorth import *
 from .signal_features import *
+from .eda_clean import *
 
 
 __all__ = [
