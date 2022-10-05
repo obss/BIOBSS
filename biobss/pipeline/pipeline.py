@@ -1,3 +1,4 @@
+import time
 from .. import signaltools
 from .bioprocess_queue import Process_List
 from .bio_data import Bio_Data
@@ -111,6 +112,7 @@ class Bio_Pipeline:
                 channel_name=channel.signal_name,
                 timestamp=timestamps,
                 sampling_rate=channel.sampling_rate,
+                timestamp_resolution=channel.timestamp_resolution
             )
 
         self.segmented = True
