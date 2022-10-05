@@ -1,7 +1,6 @@
 import numpy as np
 from numpy.typing import ArrayLike
 from collections.abc import Iterable
-from ..pipeline.data_channel import Data_Channel
 
 
 def segment_signal(signal: ArrayLike, window_size: float, step_size=1., sampling_rate=20.) -> ArrayLike:

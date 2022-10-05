@@ -1,5 +1,5 @@
 from numpy.typing import ArrayLike
-from ..pipeline.data_channel import Data_Channel
+from ..pipeline.bio_channel import Bio_Channel
 
 
 def normalize_signal(signal: ArrayLike, method='zscore') -> ArrayLike:
