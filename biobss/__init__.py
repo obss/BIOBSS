@@ -6,6 +6,5 @@ from . import resptools
 from . import hrvtools
 from . import imutools
 from . import pipeline
+from . import timetools
 from . import reader
-
-

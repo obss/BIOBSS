@@ -1,7 +1,8 @@
 import numpy as np
-from scipy import signal 
+from scipy import signal as sg
 from numpy.typing import ArrayLike
-from ..pipeline.data_channel import Data_Channel
+from ..pipeline.bio_channel import Bio_Channel
+
 
 def resample_signal(signal: ArrayLike, sampling_rate: float, target_sampling_rate: float, return_time: bool=False, t: ArrayLike=None) -> ArrayLike:
     """Resamples the given signal.
@@ -16,11 +17,12 @@ def resample_signal(signal: ArrayLike, sampling_rate: float, target_sampling_rat
     Returns:
         ArrayLike: Resampled signal.
     """
+
     if sampling_rate <= 0:
         raise ValueError("Sampling rate must be greater than 0.")
         
     if target_sampling_rate <= 0:
-        raise ValueError("Target sampling rate must be greater than 0.")        
+        raise ValueError("Target sampling rate must be greater than 0.")
 
     signal = np.array(signal)
     ratio = (target_sampling_rate/sampling_rate)
@@ -30,14 +32,15 @@ def resample_signal(signal: ArrayLike, sampling_rate: float, target_sampling_rat
         if(t is None):
             t = np.arange(len(signal))/sampling_rate
 
-        resampled_x, resampled_t = signal.resample(signal, target_length, t=t)
+        resampled_x, resampled_t = sg.resample(signal, target_length, t=t)
         resampled = [resampled_x, resampled_t]
     else:
-        resampled = signal.resample(signal, target_length)
+        resampled = sg.resample(signal, target_length)
 
     return resampled
 
-def resample_signal_object(signal: Data_Channel, target_sample_rate: float) -> Data_Channel:
+
+def resample_signal_object(signal: Bio_Channel, target_sample_rate: float) -> Bio_Channel:
     """_summary_
 
     Args:
@@ -47,7 +50,7 @@ def resample_signal_object(signal: Data_Channel, target_sample_rate: float) -> D
     Returns:
         Signal: resampled signal
     """
-    if(not isinstance(signal, Data_Channel)):
+    if(not isinstance(signal, Bio_Channel)):
         raise ValueError("Expecting a Signal object")
 
     if(len(signal.channel.shape) < 2):
