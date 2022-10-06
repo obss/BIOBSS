@@ -4,24 +4,33 @@ from numpy.typing import ArrayLike
 from ..pipeline.bio_channel import Bio_Channel
 
 
-def resample_signal(signal: ArrayLike, sample_rate: float, target_sample_rate: float, return_time=False, t=None) -> ArrayLike:
-    """_summary_
+def resample_signal(signal: ArrayLike, sampling_rate: float, target_sampling_rate: float, return_time: bool=False, t: ArrayLike=None) -> ArrayLike:
+    """Resamples the given signal.
 
     Args:
-        signal (1-D array): input signal
-        sample_rate (float): Sample rate of input signal
-        target_sample_rate (float): Expected sample rate after resampling
+        signal (ArrayLike): Signal to be analyzed.
+        sample_rate (float): Sampling rate of the signal.
+        target_sample_rate (float): Expected sample rate after resampling.
+        return_time (bool, optional): If True, time array is returned. Defaults to False.
+        t (ArrayLike, optional): Time array. Defaults to None.
 
     Returns:
-        1-D array: resampled signal
+        ArrayLike: Resampled signal.
     """
+
+    if sampling_rate <= 0:
+        raise ValueError("Sampling rate must be greater than 0.")
+        
+    if target_sampling_rate <= 0:
+        raise ValueError("Target sampling rate must be greater than 0.")
+
     signal = np.array(signal)
-    ratio = (target_sample_rate/sample_rate)
+    ratio = (target_sampling_rate/sampling_rate)
     target_length = round(len(signal) * ratio)
 
     if return_time:
         if(t is None):
-            t = np.arange(len(signal))/sample_rate
+            t = np.arange(len(signal))/sampling_rate
 
         resampled_x, resampled_t = sg.resample(signal, target_length, t=t)
         resampled = [resampled_x, resampled_t]

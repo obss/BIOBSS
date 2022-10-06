@@ -2,12 +2,18 @@ import pandas as pd
 
 from biobss.reader import polar_format
 
-def _read_hr_file(filepath):
 
+def _read_hr_file(filepath: str) -> pd.DataFrame:
+    """Reads HR file and returns a dataframe.
+
+    Args:
+        filepath (str): Full path of the HR file (csv).
+
+    Returns:
+        pd.DataFrame: Dataframe of the signals in the file.
+    """
     data={}
-
     df = pd.read_csv(filepath)
-
     time_msec=polar_format.timestamp_to_msec(df['Phone timestamp'])
 
     data['Timestamp']=df['Phone timestamp'].values.tolist()
@@ -18,12 +24,17 @@ def _read_hr_file(filepath):
     return data
 
 
-def _read_ppi_file(filepath):
+def _read_ppi_file(filepath: str) -> pd.DataFrame:
+    """Reads PPI file and returns a dataframe.
 
+    Args:
+        filepath (str): Full path of the PPI file (csv).
+
+    Returns:
+        pd.DataFrame: Dataframe of the signals in the file.
+    """
     data={}
-
     df = pd.read_csv(filepath)
-
     time_msec=polar_format.timestamp_to_msec(df['Phone timestamp'])
 
     data['Timestamp']=df['Phone timestamp'].values.tolist()
@@ -39,12 +50,17 @@ def _read_ppi_file(filepath):
     return data
 
 
-def _read_ppg_file(filepath):
+def _read_ppg_file(filepath: str) -> pd.DataFrame:
+    """Reads PPG file and returns a dataframe.
 
+    Args:
+        filepath (str): Full path of the PPG file (csv).
+
+    Returns:
+        pd.DataFrame: Dataframe of the signals in the file.
+    """
     data={}
-
     df = pd.read_csv(filepath)
-
     time_msec=polar_format.timestamp_to_msec(df['Phone timestamp'])
 
     data['Timestamp']=df['Phone timestamp'].values.tolist()
@@ -58,13 +74,17 @@ def _read_ppg_file(filepath):
     return data
 
 
+def _read_acc_file(filepath: str) -> pd.DataFrame:
+    """Reads ACC file and returns a dataframe.
 
-def _read_acc_file(filepath):
+    Args:
+        filepath (str): Full path of the ACC file (csv).
 
+    Returns:
+        pd.DataFrame: Dataframe of the signals in the file.
+    """
     data={}
-
     df = pd.read_csv(filepath)
-
     time_msec=polar_format.timestamp_to_msec(df['Phone timestamp'])
 
     data['Timestamp']=df['Phone timestamp'].values.tolist()
@@ -74,16 +94,20 @@ def _read_acc_file(filepath):
     data['Acc_y']=df['Y [mg]'].values.tolist()   
     data['Acc_z']=df['Z [mg]'].values.tolist()
 
-
     return data
 
 
-def _read_magn_file(filepath):
+def _read_magn_file(filepath: str) -> pd.DataFrame:
+    """Reads MAGN file and returns a dataframe.
 
+    Args:
+        filepath (str): Full path of the MAGN file (csv).
+
+    Returns:
+        pd.DataFrame: Dataframe of the signals in the file.
+    """
     data={}
-
     df = pd.read_csv(filepath)
-
     time_msec=polar_format.timestamp_to_msec(df['Phone timestamp'])
 
     data['Timestamp']=df['Phone timestamp'].values.tolist()
@@ -93,17 +117,20 @@ def _read_magn_file(filepath):
     data['Magn_y']=df['Y [G]'].values.tolist()   
     data['Magn_z']=df['Z [G]'].values.tolist()
 
-
     return data
 
 
+def _read_gyro_file(filepath: str) -> pd.DataFrame:
+    """Reads GYRO file and returns a dataframe.
 
-def _read_gyro_file(filepath):
+    Args:
+        filepath (str): Full path of the GYRO file (csv).
 
+    Returns:
+        pd.DataFrame: Dataframe of the signals in the file.
+    """
     data={}
-
     df = pd.read_csv(filepath)
-
     time_msec=polar_format.timestamp_to_msec(df['Phone timestamp'])
 
     data['Timestamp']=df['Phone timestamp'].values.tolist()
@@ -115,12 +142,18 @@ def _read_gyro_file(filepath):
 
     return data
 
-def _read_marker_file(filepath):
 
+def _read_marker_file(filepath: str) -> pd.DataFrame:
+    """Reads MARKER file and returns a dataframe.
+
+    Args:
+        filepath (str): Full path of the MARKER file (csv).
+
+    Returns:
+        pd.DataFrame: Dataframe of the signals in the file.
+    """
     data={}
-
     df = pd.read_csv(filepath)
-
     time_msec=polar_format.timestamp_to_msec(df['Phone timestamp'])
 
     data['Timestamp']=df['Phone timestamp'].values.tolist()
@@ -128,7 +161,6 @@ def _read_marker_file(filepath):
     data['Time_record (ms)']=df['Time_record (ms)'].values.tolist()
     data['Start/Stop']=df['Marker start/stop'].values.tolist()
    
-
     return data
 
 
@@ -142,16 +174,15 @@ READER_FUNCTIONS= {
     'MARKER' : _read_marker_file,
     }
 
-
-def polar_csv_reader(filepath: str,signal_type: list=None) -> dict:
-    """Reads csv files and returns a dictionary of signals.
+def polar_csv_reader(filepath: str, signal_type: str) -> dict:
+    """Reads a csv file and returns a dictionary.
 
     Args:
-        filepath (_type_): Path of the csv files.
-        signal_type (_type_, optional): Signal types to be processed. Defaults to None.
+        filepath (str): Directory of the csv file.
+        signal_type (str): Signal type to be processed. 
 
     Raises:
-        ValueError: If signal_type is not in the "valid_types" list.
+        ValueError: If signal_type is not one of "valid_types".
 
     Returns:
         dict: Dictionary of signals.
@@ -160,12 +191,9 @@ def polar_csv_reader(filepath: str,signal_type: list=None) -> dict:
     valid_types=['HR','PPI','ACC','PPG','MAGN','GYRO','MARKER']
 
     if signal_type in valid_types:
-
         info = READER_FUNCTIONS[signal_type](filepath)
     
     else:
-
-        raise ValueError("Signal type should be provided as one of ", valid_types)
-
+        raise ValueError(f"Signal type should be provided as one of {valid_types}.")
 
     return info
