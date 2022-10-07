@@ -2,6 +2,11 @@ from scipy import signal
 from numpy.typing import ArrayLike
 import warnings
 
+from biobss.ppgtools.ppg_filter import *
+from biobss.ecgtools.ecg_filter import *
+from biobss.imutools.acc_filter import *
+
+
 def filter_signal(sig: ArrayLike, sampling_rate: float, filter_type: str, N: int, f_lower: float=None, f_upper: float=None, axis: int=0, signal_type: str=None, method: str=None) -> ArrayLike:
     """Filters a signal using a N-th order Butterworth filter unless signal_type is specified. If signal_type is specified, predefined filter parameters are used.
 
@@ -79,13 +84,13 @@ def filter_signal(sig: ArrayLike, sampling_rate: float, filter_type: str, N: int
             method = method.lower()
         
         if signal_type == 'ECG':
-            filtered_sig = _filter_ecg(method=method) 
+            filtered_sig = filter_ecg(method=method) 
 
         elif signal_type == 'PPG':
-            filtered_sig = _filter_ppg(method=method)
+            filtered_sig = filter_ppg(method=method)
 
         elif signal_type == 'ACC':
-            filtered_sig = _filter_acc(method=method)
+            filtered_sig = filter_acc(method=method)
 
         elif signal_type == 'EDA':
             filtered_sig = _filter_eda(method=method)
@@ -95,16 +100,6 @@ def filter_signal(sig: ArrayLike, sampling_rate: float, filter_type: str, N: int
 
     return filtered_sig
 
-
-def _filter_ppg(method):
-
-    if method is None:
-        N = 2
-        filter_type = 'bandpass'
-        f_lower = 0.5
-        f_upper = 5
-        warnings.warn(f"Default parameters will be used for filtering. {N}th order {method} {filter_type} filter with f1={f_lower} and f2={f_upper}.")
-
 def _filter_eda(method):
 
     if method is None:
@@ -113,21 +108,3 @@ def _filter_eda(method):
         f_lower = 0.5
         f_upper = 5
         warnings.warn(f"Default parameters will be used for filtering. {N}th order {method} {filter_type} filter with f1={f_lower} and f2={f_upper}.")
-
-def _filter_ecg(method):
-
-    if method is None:  
-        N = 2
-        filter_type = 'bandpass'
-        f_lower = 0.5
-        f_upper = 5
-        warnings.warn(f"Default parameters will be used for filtering. {N}th order {method} {filter_type} filter with f1={f_lower} and f2={f_upper}.")
-
-
-def _filter_acc(method):
-
-    if method is None:      
-        N = 2
-        filter_type = 'lowpass'
-        f_upper = 10
-        warnings.warn(f"Default parameters will be used for filtering. {N}th order {method} {filter_type} filter with f2={f_upper}.")
