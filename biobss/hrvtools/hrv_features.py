@@ -2,9 +2,9 @@ from numpy.typing import ArrayLike
 from typing import Callable
 import numpy as np
 
-from biobss.hrvtools.hrv_fd import hrv_freq_features
-from biobss.hrvtools.hrv_td import hrv_time_features
-from biobss.hrvtools.hrv_nl import hrv_nl_features
+from biobss.hrvtools.hrv_freqdomain import hrv_freq_features
+from biobss.hrvtools.hrv_timedomain import hrv_time_features
+from biobss.hrvtools.hrv_nonlinear import hrv_nl_features
 
 def get_domain_function(domain:str) -> Callable:
 
