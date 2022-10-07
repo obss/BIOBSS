@@ -1,14 +1,13 @@
 import pandas as pd
-from .hjorth import *
-from .eda_decompose import *
-from .signal_features import *
 import multiprocessing
 from functools import partial
-from ..common.stat_features import *
-from .hjorth import *
-from .signal_features import *
-from ..common.freq_features import *
 from numpy.typing import ArrayLike
+
+from .eda_hjorth import *
+from .eda_decompose import *
+from .eda_signalfeatures import *
+from .eda_statistical import *
+from .eda_freqdomain import *
 
 
 def from_decomposed(signal_phasic: ArrayLike, signal_tonic: ArrayLike, sampling_rate: float) -> dict:

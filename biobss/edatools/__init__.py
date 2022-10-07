@@ -1,8 +1,11 @@
-from .eda_decompose import eda_decompose
-from .feature_extraction import *
-from .hjorth import *
-from .signal_features import *
 from .eda_clean import *
+from .eda_decompose import eda_decompose
+from .eda_features import *
+from .eda_freqdomain import *
+from .eda_hjorth import *
+from .eda_peaks import *
+from .eda_signalfeatures import *
+from .eda_statistical import *
 
 
 __all__ = [
