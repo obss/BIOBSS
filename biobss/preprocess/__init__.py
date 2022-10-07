@@ -1,6 +1,9 @@
-from .normalize import normalize_signal
-from .resample import resample_signal
-from .segment_data import segment_signal
+from .signal_detectpeaks import *
+from .signal_differentiate import *
+from .signal_filter import *
+from .signal_normalize import *
+from .signal_resample import *
+from .signal_segment import *
 
 
 __all__ = [
@@ -8,10 +11,3 @@ __all__ = [
 "resample_signal",
 "normalize_signal",
 ]
-
-from .filtering import *
-from .peakdetection import *
-from .derivation import *
-#from .dataloader import *
-#from .e4_format import *
-#from .empatica import *
