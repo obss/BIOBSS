@@ -29,8 +29,8 @@ FEATURES_TIME_CYCLE = {
 }
 
 FEATURES_TIME_SEGMENT = {
-'zcr': lambda sig,_0: calculate_zcr(sig),
-'snr': lambda sig,_0: calculate_snr(sig),
+'zcr': lambda sig,_0: _calculate_zcr(sig),
+'snr': lambda sig,_0: _calculate_snr(sig),
 }
 
 def get_time_features(sig: ArrayLike, sampling_rate: float, type: str, prefix: str='signal', **kwargs) -> dict:

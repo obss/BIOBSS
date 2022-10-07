@@ -3,8 +3,9 @@ import scipy as sp
 import pandas as pd
 import neurokit2 as nk
 from numpy.typing import ArrayLike
-from ..signaltools import peakdetection
-from ..edatools import hjorth
+
+from biobss.preprocess import signal_detectpeaks
+from biobss.common import signal_hjorth
 
 # These constants are defined considering the respiration range (6-60 breaths/min)
 LAG_MIN = 1.33 # Period of respiration cycle for upper limit of respiration range (seconds).
@@ -150,7 +151,7 @@ def estimate_rr(resp_sig: ArrayLike, sampling_rate: float=10, method: str='peakd
     method = method.lower()
 
     if (method == 'peakdet'):
-        maxtab, mintab = peakdetection._peakdetection_peakdet(resp_sig, delta)
+        maxtab, mintab = signal_detectpeaks._peakdetection_peakdet(resp_sig, delta)
 
         if (maxtab.size == 0) or (mintab.size == 0):
             raise ValueError(
@@ -203,8 +204,7 @@ def calc_rqi(resp_sig: ArrayLike, resampling_rate: float=10, rqi_method: list = 
         rqindices['autocorr'] = max(corr_coeff)
 
     if 'hjorth' in rqi_method:
-        hjorth_par = hjorth.get_hjorth_features(resp_sig)
-        rqindices['hjorth'] = hjorth_par['signal_complexity']
+        rqindices['hjorth'] = signal_hjorth.calculate_complexity(resp_sig)
 
     return rqindices
 

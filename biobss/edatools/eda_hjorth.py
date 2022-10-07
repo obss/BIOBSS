@@ -2,6 +2,7 @@ from typing import Tuple
 import numpy as np
 from numpy.typing import ArrayLike
 
+from biobss.common.signal_hjorth import *
 
 def get_hjorth_features(signal: ArrayLike, prefix="signal"):
     """This method returns Hjörth parameters for the given signal.
