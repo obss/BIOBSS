@@ -2,7 +2,8 @@ import numpy as np
 from scipy import stats, signal, fft
 from numpy.typing import ArrayLike
 
-from biobss.ppgtools.freqdomain_features import sig_power, fft_peaks
+from biobss.common.signal_power import *
+from biobss.common.signal_fft import *
 
 FREQ_FEATURES = {
     "fft_mean": lambda sigfft, _0, _1, _2: np.mean(sigfft), 
@@ -32,7 +33,17 @@ def get_freq_features(sig: ArrayLike, sampling_rate, prefix) -> dict:
 
     From https://towardsdatascience.com/feature-engineering-on-time-series-data-transforming-signal-data-of-a-smartphone-accelerometer-for-72cbe34b8a60
 
+    In regards to frequency aspects, the signal is transformed into the frequency domain by
+    using a nonparametric FFT algorithm. Then, the spectral power in bandwidths 0.1 to 0.2 (F1SC), 0.2 to
+    0.3 (F2SC) and 0.3 to 0.4 (F3SC) Hz are estimated.
 
+    Entropy and Energy are also calculated.
+    Energy : sum of the power in the signal
+    Entropy : The entropy of the signal is the sum of the power in the signal times the log of the power in the signal.
+    Max Frequency : The frequency with the highest power in the signal.
+
+    Zangróniz, R., Martínez-Rodrigo, A., Pastor, J.M., López, M.T. and Fernández-Caballero, A., 2017. 
+    Electrodermal activity sensor for classification of calm/distress condition. Sensors, 17(10), p.2324.
 
     Args:
         sig (ArrayLike): Input signal

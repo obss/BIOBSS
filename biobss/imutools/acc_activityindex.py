@@ -3,7 +3,7 @@ import numpy as np
 from numpy.typing import ArrayLike
 import warnings
 
-from ..signaltools import filter_signal
+from ..preprocess import filter_signal
 
 
 DATA_TO_METRIC = {'PIM':['FXYZ_modified','UFM_modified','UFNM','FMpost_modified','FMpre'], 

@@ -2,9 +2,9 @@ import numpy as np
 from numpy.typing import ArrayLike
 from typing import Callable
 
-from biobss.common.freq_features import get_freq_features
-from biobss.common.stat_features import get_stat_features
-from biobss.common.correlation_features import get_corr_features
+from biobss.imutools.acc_freqdomain import get_freq_features
+from biobss.imutools.acc_statistical import get_stat_features
+from biobss.imutools.acc_correlation import get_corr_features
 
 def get_domain_function(domain:str) -> Callable:
 

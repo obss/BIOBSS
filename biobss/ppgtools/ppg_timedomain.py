@@ -7,30 +7,30 @@ FEATURES_TIME_CYCLE = {
 't_S': lambda _0,_1,peaks_locs,troughs_locs,sampling_rate: np.mean((peaks_locs-troughs_locs[:-1])/sampling_rate),
 't_C': lambda _0,_1,_2,troughs_locs,sampling_rate: np.mean(np.diff(troughs_locs)/sampling_rate),
 'DW': lambda _0,_1,peaks_locs,troughs_locs,sampling_rate: np.mean((troughs_locs[1:]-peaks_locs)/sampling_rate),
-'SW_10': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: calculate_SW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.1),
-'SW_25': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: calculate_SW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.25),
-'SW_33': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: calculate_SW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.33),
-'SW_50': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: calculate_SW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.5),
-'SW_66': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: calculate_SW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.66),
-'SW_75': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: calculate_SW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.75),
-'DW_10': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: calculate_DW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.1),
-'DW_25': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: calculate_DW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.25),
-'DW_33': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: calculate_DW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.33),
-'DW_50': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: calculate_DW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.5),
-'DW_66': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: calculate_DW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.66),
-'DW_75': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: calculate_DW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.75),
-'DW_SW_10': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: calculate_DW_SW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.1),
-'DW_SW_25': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: calculate_DW_SW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.25),
-'DW_SW_33': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: calculate_DW_SW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.33),
-'DW_SW_50': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: calculate_DW_SW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.50),
-'DW_SW_66': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: calculate_DW_SW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.66),
-'DW_SW_75': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: calculate_DW_SW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.75),
+'SW_10': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: _calculate_SW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.1),
+'SW_25': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: _calculate_SW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.25),
+'SW_33': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: _calculate_SW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.33),
+'SW_50': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: _calculate_SW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.5),
+'SW_66': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: _calculate_SW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.66),
+'SW_75': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: _calculate_SW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.75),
+'DW_10': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: _calculate_DW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.1),
+'DW_25': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: _calculate_DW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.25),
+'DW_33': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: _calculate_DW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.33),
+'DW_50': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: _calculate_DW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.5),
+'DW_66': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: _calculate_DW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.66),
+'DW_75': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: _calculate_DW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.75),
+'DW_SW_10': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: _calculate_DW_SW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.1),
+'DW_SW_25': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: _calculate_DW_SW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.25),
+'DW_SW_33': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: _calculate_DW_SW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.33),
+'DW_SW_50': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: _calculate_DW_SW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.50),
+'DW_SW_66': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: _calculate_DW_SW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.66),
+'DW_SW_75': lambda sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate: _calculate_DW_SW(sig,peaks_amp,peaks_locs,troughs_locs,sampling_rate,0.75),
 'PR_mean' : lambda _0,_1,peaks_locs,_2,sampling_rate: 60/np.mean(np.diff(peaks_locs)/sampling_rate),
 }
 
 FEATURES_TIME_SEGMENT = {
-'zcr': lambda sig,_0: calculate_zcr(sig),
-'snr': lambda sig,_0: calculate_snr(sig),
+'zcr': lambda sig,_0: _calculate_zcr(sig),
+'snr': lambda sig,_0: _calculate_snr(sig),
 }
 
 def get_time_features(sig: ArrayLike, sampling_rate: float, type: str, prefix: str='signal', **kwargs) -> dict:
@@ -98,7 +98,7 @@ def get_time_features(sig: ArrayLike, sampling_rate: float, type: str, prefix: s
     return features_time
 
 
-def calculate_SW(sig: ArrayLike, peaks_amp: ArrayLike, peaks_locs: ArrayLike, troughs_locs: ArrayLike, sampling_rate: float, ratio: float) -> float:
+def _calculate_SW(sig: ArrayLike, peaks_amp: ArrayLike, peaks_locs: ArrayLike, troughs_locs: ArrayLike, sampling_rate: float, ratio: float) -> float:
     """Calculates systolic phase duration of the PPG waveform.
 
     Args:
@@ -121,7 +121,7 @@ def calculate_SW(sig: ArrayLike, peaks_amp: ArrayLike, peaks_locs: ArrayLike, tr
     return np.mean(SWs)
 
 
-def calculate_DW(sig: ArrayLike, peaks_amp: ArrayLike, peaks_locs: ArrayLike, troughs_locs: ArrayLike, sampling_rate: float, ratio: float) -> float:
+def _calculate_DW(sig: ArrayLike, peaks_amp: ArrayLike, peaks_locs: ArrayLike, troughs_locs: ArrayLike, sampling_rate: float, ratio: float) -> float:
     """Calculates diastolic phase duration of the waveform.
 
     Args:
@@ -143,7 +143,7 @@ def calculate_DW(sig: ArrayLike, peaks_amp: ArrayLike, peaks_locs: ArrayLike, tr
 
     return np.mean(DWs)
 
-def calculate_DW_SW(sig: ArrayLike, peaks_amp: ArrayLike, peaks_locs: ArrayLike, troughs_locs: ArrayLike, sampling_rate: float, ratio: float) -> float:
+def _calculate_DW_SW(sig: ArrayLike, peaks_amp: ArrayLike, peaks_locs: ArrayLike, troughs_locs: ArrayLike, sampling_rate: float, ratio: float) -> float:
     """Calculates the ratio of diastolic phase duration of the waveform to systolic phase duration of the waveform.
 
     Args:
@@ -158,12 +158,12 @@ def calculate_DW_SW(sig: ArrayLike, peaks_amp: ArrayLike, peaks_locs: ArrayLike,
         float: Ratio of mean diastolic phase duration to mean systolic phase duration.
     """
 
-    dw = calculate_DW(sig, peaks_amp, peaks_locs, troughs_locs, sampling_rate, ratio)
-    sw = calculate_SW(sig, peaks_amp, peaks_locs, troughs_locs, sampling_rate, ratio)
+    dw = _calculate_DW(sig, peaks_amp, peaks_locs, troughs_locs, sampling_rate, ratio)
+    sw = _calculate_SW(sig, peaks_amp, peaks_locs, troughs_locs, sampling_rate, ratio)
 
     return dw / sw 
 
-def calculate_zcr(sig: ArrayLike) -> float:
+def _calculate_zcr(sig: ArrayLike) -> float:
     """Calculates zero crossing rate, defined as number of zero-crossings to signal length
 
     Args:
@@ -179,7 +179,7 @@ def calculate_zcr(sig: ArrayLike) -> float:
     return numZeroCrossing/len(sig_)
 
 
-def calculate_snr(sig: ArrayLike) -> float:
+def _calculate_snr(sig: ArrayLike) -> float:
     """Calculates signal to noise ratio.
 
     Args:

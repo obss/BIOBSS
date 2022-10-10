@@ -1,9 +1,9 @@
 from numpy.typing import ArrayLike
 from typing import Callable
 
-from biobss.ppgtools.freqdomain_features import get_freq_features
-from biobss.ppgtools.stat_features import get_stat_features
-from biobss.ppgtools.timedomain_features import get_time_features
+from biobss.ppgtools.ppg_freqdomain import *
+from biobss.ppgtools.ppg_statistical import *
+from biobss.ppgtools.ppg_timedomain import *
 
 
 def get_domain_function(domain:str) -> Callable:
