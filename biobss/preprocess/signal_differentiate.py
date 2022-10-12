@@ -2,7 +2,7 @@ import numpy as np
 from numpy.typing import ArrayLike
 
 
-def ppg_derivation(sig: ArrayLike, second: bool=True, axis: int=None, edge_order: int=1) -> dict:
+def differentiate_signal(sig: ArrayLike, second: bool=True, axis: int=None, edge_order: int=1) -> dict:
     """Computes first and second derivatives of a PPG signal.
 
     Args:

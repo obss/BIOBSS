@@ -17,13 +17,13 @@ MAX_VAR_DUR = 300
 MAX_VAR_AMP = 400
 CORR_TH = 0.9
 
-def detect_flatline_clipping(ppg_sig: ArrayLike, threshold: float, clipping: bool=True, flatline: bool=False, **kwargs) -> dict:
+def detect_flatline_clipping(ppg_sig: ArrayLike, threshold: float, clipping: bool=False, flatline: bool=False, **kwargs) -> dict:
     """Detects flatlines and clipped parts of the signal.
 
     Args:
         ppg_sig (ArrayLike): PPG signal to be analyzed.
         threshold (float): Threshold value for clipping/flatline detection.
-        clipping (bool, optional): True for clipping detection. Defaults to True.
+        clipping (bool, optional): True for clipping detection. Defaults to False.
         flatline (bool, optional): True for flatline detection. Defaults to False.
         **kwargs (dict): Keyword arguments
 
@@ -39,12 +39,12 @@ def detect_flatline_clipping(ppg_sig: ArrayLike, threshold: float, clipping: boo
     
     info={}
 
-    if clipping:
+    if clipping and not flatline:
         clip_binary = np.where(ppg_sig > threshold)
         clipped_segments=_detect_flat_segments(clip_binary)
         info['Clipped segments']=clipped_segments
 
-    if flatline:
+    elif not clipping and flatline:
         if 'duration' in kwargs:
             if kwargs['duration'] <= 0:
                 raise ValueError("Duration must be greater than 0.")
@@ -63,7 +63,13 @@ def detect_flatline_clipping(ppg_sig: ArrayLike, threshold: float, clipping: boo
         
         else:
             raise ValueError('Flatline detection requires a keyword argument: duration')
-        
+    
+    elif not clipping and not flatline:
+        raise ValueError("Either clipping or flatline must be True.")
+
+    else:
+        raise ValueError("Both clipping and flatline cannot be True.")
+
     return info
 
 
@@ -212,12 +218,12 @@ def check_morph(peaks_locs: ArrayLike, peaks_amps: ArrayLike, troughs_locs: Arra
     return info
 
 
-def template_matching(ppg_sig: ArrayLike, peaks_locs: ArrayLike, corr_th: float=CORR_TH) -> Tuple[float,bool]:
+def template_matching(sig: ArrayLike, peaks_locs: ArrayLike, corr_th: float=CORR_TH) -> Tuple[float,bool]:
     """Applies template matching method for signal quality assessment
 
     Args:
         ppg_sig (ArrayLike): Signal to be analyzed.
-        peaks_locs (ArrayLike): Peak locations
+        peaks_locs (ArrayLike): Peak locations (Systolic peaks for PPG signal, R peaks for ECG signal).
         corr_th (float, optional): Threshold for the correlation coefficient above which the signal is considered to be valid. Defaults to CORR_TH.
 
     Returns:
@@ -236,17 +242,17 @@ def template_matching(ppg_sig: ArrayLike, peaks_locs: ArrayLike, corr_th: float=
         wave=[]
     
         if (wave_st < 0):
-            wave = ppg_sig[:wave_end]
+            wave = sig[:wave_end]
             for _ in range(-wave_st+1):
                 wave=np.insert(wave,0,wave[0])
 
-        elif (wave_end > len(ppg_sig)-1):
-            wave = ppg_sig[wave_st-1:]
-            for _ in range(wave_end-len(ppg_sig)):
+        elif (wave_end > len(sig)-1):
+            wave = sig[wave_st-1:]
+            for _ in range(wave_end-len(sig)):
                 wave=np.append(wave,wave[-1])      
             
         else:
-            wave = ppg_sig[wave_st:wave_end+1]
+            wave = sig[wave_st:wave_end+1]
     
         waves=np.vstack([waves,wave])
         

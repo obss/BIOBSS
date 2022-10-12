@@ -65,11 +65,11 @@ def from_Rpeaks(sig: ArrayLike, peaks_locs: ArrayLike, sampling_rate: float, pre
         raise ValueError("Sampling rate must be greater than 0.")
 
     features_rpeaks={}
-    for m in len(peaks_locs):
+    for m in range(len(peaks_locs)):
         features={}
         for key,func in FEATURES_RPEAKS.items():
             features["_".join([prefix, key])]=func(sig, sampling_rate, peaks_locs=peaks_locs, beatno=m)
-        features_rpeaks['m'] = features
+        features_rpeaks[m] = features
         
     return features_rpeaks
 
@@ -97,10 +97,10 @@ def from_waves(sig: ArrayLike, R_peaks: ArrayLike, fiducials: dict, sampling_rat
     S_peaks = fiducials['ECG_S_Peaks']
     T_peaks = fiducials['ECG_T_Peaks']
     P_onsets = fiducials['ECG_P_Onsets']
-    T_offsets = fiducials['ECG_P_Offsets']
+    T_offsets = fiducials['ECG_T_Offsets']
 
     features_waves={}
-    for m in len(R_peaks):
+    for m in range(len(R_peaks)):
         features={}
         for key,func in FEATURES_WAVES.items():
             features["_".join([prefix, key])]=func(sig, sampling_rate, P_peaks, Q_peaks, R_peaks, S_peaks, T_peaks, beatno=m)
@@ -117,7 +117,7 @@ def _get_RR_interval(peaks_locs, sampling_rate, beatno, interval=0):
 
 def _get_mean_RR(peaks_locs, sampling_rate, beatno):
 
-    rr_m = np.mean(_get_RR_interval(peaks_locs, sampling_rate, beatno, -1), _get_RR_interval(peaks_locs, sampling_rate, beatno, 0), _get_RR_interval(peaks_locs, sampling_rate, beatno, 1))
+    rr_m = np.mean([_get_RR_interval(peaks_locs, sampling_rate, beatno, -1), _get_RR_interval(peaks_locs, sampling_rate, beatno, 0), _get_RR_interval(peaks_locs, sampling_rate, beatno, 1)])
     return rr_m
 
 def _get_diff(sig, loc_array1, loc_array2, sampling_rate, beatno, amplitude=False):

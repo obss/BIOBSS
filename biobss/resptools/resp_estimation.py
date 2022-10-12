@@ -204,7 +204,7 @@ def calc_rqi(resp_sig: ArrayLike, resampling_rate: float=10, rqi_method: list = 
         rqindices['autocorr'] = max(corr_coeff)
 
     if 'hjorth' in rqi_method:
-        rqindices['hjorth'] = signal_hjorth.calculate_complexity(resp_sig)
+        rqindices['hjorth'] = signal_hjorth.calculate_complexity(resp_sig)[0]
 
     return rqindices
 
