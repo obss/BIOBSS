@@ -1,5 +1,5 @@
 import time
-from .. import signaltools
+from .. import preprocess
 from .bioprocess_queue import Process_List
 from .bio_data import Bio_Data
 from .bio_channel import Bio_Channel
@@ -95,13 +95,13 @@ class Bio_Pipeline:
     def convert_windows(self):
         for ch in self.input.get_channel_names():
             channel = self.input[ch]
-            windowed = signaltools.segment_signal(
+            windowed = preprocess.segment_signal(
                 channel.channel,
                 self.window_size,
                 self.step_size,
                 sampling_rate=channel.sampling_rate,
             )
-            timestamps = signaltools.segment_signal(
+            timestamps = preprocess.segment_signal(
                 channel.timestamp,
                 self.window_size,
                 self.step_size,
