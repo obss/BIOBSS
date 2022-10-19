@@ -86,10 +86,10 @@ def filter_signal(sig: ArrayLike, sampling_rate: float, filter_type: str=None, N
             filtered_sig = filter_ecg(sig, sampling_rate, method=method, **kwargs) 
 
         elif signal_type == 'PPG':
-            filtered_sig = filter_ppg(method=method)
+            filtered_sig = filter_ppg(sig, sampling_rate, method=method)
 
         elif signal_type == 'ACC':
-            filtered_sig = filter_acc(method=method)
+            filtered_sig = filter_acc(sig, sampling_rate, method=method)
 
         elif signal_type == 'EDA':
             filtered_sig = filter_eda(method=method)
