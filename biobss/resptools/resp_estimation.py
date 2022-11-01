@@ -209,52 +209,44 @@ def calc_rqi(resp_sig: ArrayLike, resampling_rate: float=10, rqi_method: list = 
     return rqindices
 
 
-def fuse_rr(fusion_method: str='smartfusion', rqi: ArrayLike=None, **kwargs) -> float:
+def fuse_rr(rr_est: ArrayLike, rqi: ArrayLike=None, fusion_method: str='smartfusion') -> float:
     """Fuses respiratory rates calculated from different modulation types.
 
-    Args:
-        fusion_method (str, optional): Fusion method. Can be one of 'SmartFusion' of 'QualityFusion'. Defaults to 'SmartFusion'.
+    Args: 
+        rr_est (Array): Respiratory rate estimations. 
         rqi (Array, optional): Respiratory quality indices. Defaults to None.
-        rr_am (float, optional): Respiratory rate calculated from amplitude modulation. Defaults to None.
-        rr_fm (float, optional): Respiratory rate calculated from frequency modulation. Defaults to None.
-        rr_bw (float, optional): Respiratory rate calculated from baseline wander. Defaults to None.
-
+        fusion_method (str, optional): Fusion method. Can be one of 'SmartFusion' of 'QualityFusion'. Defaults to 'SmartFusion'.
+    
     Raises:
+        ValueError: If lengths of 'rr_est' and 'rqi' arrays do not match.
         ValueError: If method is 'QualityFusion' and RQI values are not provided.
         ValueError: If method is not one of 'SmartFusion' and 'QualityFusion'.
-        ValueError: If none of kwargs is provided.
 
     Returns:
         float: Fused respiratory rate
     """
     fusion_method = fusion_method.lower()
     
-    if kwargs:
-        rr_est = []
+    if fusion_method == 'smartfusion':
+        rr_std = np.std(rr_est)
 
-        for mod_type in kwargs.keys():
-            rr_est.append(kwargs[mod_type])
-
-        if fusion_method == 'smartfusion':
-            rr_std = np.std(rr_est)
-
-            if (rr_std <= 4):
-                rr_fused = np.mean(rr_est)
-            else:
-                rr_fused = ['invalid signal']
-
-        elif fusion_method == 'qualityfusion':
-            if rqi is not None:
-                rr_fused = np.sum(np.asarray(
-                    rqi)*np.asarray(rr_est))/np.sum(rqi)
-            else:
-                raise ValueError("RQI values are required for the 'QualityFusion' method.'")
-
+        if (rr_std <= 4):
+            rr_fused = np.mean(rr_est)
         else:
-            raise ValueError(
-                "The method should be one of 'SmartFusion' and 'QualityFusion'.")
+            rr_fused = ['invalid signal']
+
+    elif fusion_method == 'qualityfusion':
+        if rqi is not None:
+            if len(rr_est) != len(rqi):
+                raise ValueError("The lengths of 'rr_est' and 'rqi' arrays do not match!")
+            
+            rr_fused = np.sum(np.asarray(
+                rqi)*np.asarray(rr_est))/np.sum(rqi)
+        else:
+            raise ValueError("RQI values are required for the 'QualityFusion' method.'")
 
     else:
-        raise ValueError("At least one respiratory rate value is required.'")
+        raise ValueError(
+            "The method should be one of 'SmartFusion' and 'QualityFusion'.")
 
     return rr_fused
