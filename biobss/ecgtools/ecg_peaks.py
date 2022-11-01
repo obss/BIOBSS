@@ -67,7 +67,7 @@ def ecg_waves(sig: ArrayLike, peaks_locs, sampling_rate: float, delineator: str=
   delineator = delineator.lower()
 
   if delineator == "neurokit2":
-    info = nk.ecg_delineate(sig, rpeaks=peaks_locs, sampling_rate=sampling_rate, method="peak")
+    _, info = nk.ecg_delineate(sig, rpeaks=peaks_locs, sampling_rate=sampling_rate, method="peak")
 
   else:
     raise ValueError(f"Undefined delineator {delineator}.")

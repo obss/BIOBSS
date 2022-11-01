@@ -17,7 +17,7 @@ MAX_VAR_DUR = 300
 MAX_VAR_AMP = 400
 CORR_TH = 0.9
 
-def detect_flatline_clipping(ppg_sig: ArrayLike, threshold: float, clipping: bool=False, flatline: bool=False, **kwargs) -> dict:
+def detect_flatline_clipping(sig: ArrayLike, threshold: float, clipping: bool=False, flatline: bool=False, **kwargs) -> dict:
     """Detects flatlines and clipped parts of the signal.
 
     Args:
@@ -40,7 +40,7 @@ def detect_flatline_clipping(ppg_sig: ArrayLike, threshold: float, clipping: boo
     info={}
 
     if clipping and not flatline:
-        clip_binary = np.where(ppg_sig > threshold)
+        clip_binary = np.where(sig > threshold)
         clipped_segments=_detect_flat_segments(clip_binary)
         info['Clipped segments']=clipped_segments
 
@@ -49,7 +49,7 @@ def detect_flatline_clipping(ppg_sig: ArrayLike, threshold: float, clipping: boo
             if kwargs['duration'] <= 0:
                 raise ValueError("Duration must be greater than 0.")
 
-            sig_dif=np.diff(ppg_sig)
+            sig_dif=np.diff(sig)
             flat_binary = np.where(abs(sig_dif) < threshold)
             flat_segments=_detect_flat_segments(flat_binary)
 
