@@ -1,5 +1,4 @@
 from .signal_detectpeaks import *
-from .signal_differentiate import *
 from .signal_filter import *
 from .signal_normalize import *
 from .signal_resample import *

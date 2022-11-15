@@ -1,6 +1,13 @@
 import numpy as np
 from numpy.typing import ArrayLike
+from biobss.preprocess.signal_detectpeaks import peak_detection
 
+def ppg_beats(sig: ArrayLike , sampling_rate: float, method: str='peakdet', delta: float=None) -> ArrayLike:
+
+    vpg = np.gradient(sig, axis=0, edge_order=1)
+    info = peak_detection(vpg, sampling_rate=sampling_rate, method=method, delta=delta)
+
+    return info['Peak_locs']
 
 def peak_control(peaks_locs: ArrayLike, peaks_amp: ArrayLike, troughs_locs: ArrayLike, troughs_amp: ArrayLike) -> dict:
     """Applies rules to check relative peak and onset locations. 

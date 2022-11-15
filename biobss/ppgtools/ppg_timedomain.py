@@ -33,7 +33,7 @@ FEATURES_TIME_SEGMENT = {
 'snr': lambda sig,_0: _calculate_snr(sig),
 }
 
-def get_time_features(sig: ArrayLike, sampling_rate: float, type: str, prefix: str='signal', **kwargs) -> dict:
+def get_time_features(sig: ArrayLike, sampling_rate: float, feature_types: str, prefix: str='signal', **kwargs) -> dict:
     """Calculates time-domain features.
 
     Cycle-based features:
@@ -80,20 +80,20 @@ def get_time_features(sig: ArrayLike, sampling_rate: float, type: str, prefix: s
     if sampling_rate <= 0:
         raise ValueError("Sampling rate must be greater than 0.")
 
-    type = type.lower()
+    feature_types = [x.lower() for x in feature_types]
 
-    if type=='cycle':
-        features_time={}
-        for key,func in FEATURES_TIME_CYCLE.items():
-            features_time["_".join([prefix, key])]=func(sig,kwargs['peaks_amp'],kwargs['peaks_locs'],kwargs['troughs_locs'],sampling_rate)
+    features_time={}
+    for type in feature_types:
+        if type=='cycle':            
+            for key,func in FEATURES_TIME_CYCLE.items():
+                features_time["_".join([prefix, key])]=func(sig,kwargs['peaks_amp'],kwargs['peaks_locs'],kwargs['troughs_locs'],sampling_rate)
 
-    elif type=='segment':
-        features_time={}
-        for key,func in FEATURES_TIME_SEGMENT.items():
-            features_time["_".join([prefix, key])]=func(sig,sampling_rate)
+        elif type=='segment':
+            for key,func in FEATURES_TIME_SEGMENT.items():
+                features_time["_".join([prefix, key])]=func(sig,sampling_rate)
 
-    else: 
-        raise ValueError("Type should be 'cycle' or 'segment'.")
+        else: 
+            raise ValueError("Type should be 'cycle' or 'segment'.")
 
     return features_time
 

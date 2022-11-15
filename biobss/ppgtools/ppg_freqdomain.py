@@ -4,6 +4,7 @@ from scipy import signal
 from numpy.typing import ArrayLike
 
 from biobss.common.signal_fft import *
+from biobss.common.signal_psd import *
 from biobss.common.signal_power import *
 
 #Frequency domain features
@@ -19,7 +20,7 @@ FUNCTIONS_FREQ_SEGMENT= {
 }  
 
 
-def get_freq_features(sig: ArrayLike, sampling_rate: float, type: str, prefix: str='signal') -> dict:
+def get_freq_features(sig: ArrayLike, sampling_rate: float, feature_types: list=None, prefix: str='signal') -> dict:
     """Calculates frequency-domain features
 
     Segment-based features:
@@ -47,28 +48,35 @@ def get_freq_features(sig: ArrayLike, sampling_rate: float, type: str, prefix: s
     if sampling_rate <= 0:
         raise ValueError("Sampling rate must be greater than 0.")
 
-    type = type.lower()
-    
-    if type=='segment':
-    
-        nfft=len(sig) 
-         
-        freq=fft.fftfreq(nfft,1/sampling_rate)
-        sigfft=np.abs(fft.fft(sig,nfft)/len(sig))
-        P1=sigfft[0:int(nfft/2)]
-        P1[1:-1] = 2 * P1[1:-1]
-        sigfft=P1
-        freq=freq[0 : int(len(sig)/ 2)]
+    feature_types = [x.lower() for x in feature_types]
 
-        sig_=sig-np.mean(sig)
-        f,pxx=signal.welch(sig_, fs=sampling_rate, nfft=nfft)
-        
-        features_freq={}
-        for key,func in FUNCTIONS_FREQ_SEGMENT.items():
-            features_freq["_".join([prefix, key])]=func(sigfft,freq,pxx,f)
+    features_freq={}
+    for type in feature_types:
 
-    else:
-        raise ValueError("Undefined type for frequency domain.")
+        if type=='segment':
+
+            freq, sigfft = sig_fft(sig=sig, sampling_rate=sampling_rate)
+
+            #nfft=len(sig) 
+            #freq=fft.fftfreq(nfft,1/sampling_rate)
+            #sigfft=np.abs(fft.fft(sig,nfft)/len(sig))
+            #P1=sigfft[0:int(nfft/2)]
+            #P1[1:-1] = 2 * P1[1:-1]
+            #sigfft=P1
+            #freq=freq[0 : int(len(sig)/ 2)]
+
+            f, pxx = sig_psd(sig=sig, sampling_rate=sampling_rate, method='welch')
+
+            #nfft=len(sig)
+            #sig_=sig-np.mean(sig)
+            #f,pxx=signal.welch(sig_, fs=sampling_rate, nfft=nfft)
+            
+            features_freq={}
+            for key,func in FUNCTIONS_FREQ_SEGMENT.items():
+                features_freq["_".join([prefix, key])]=func(sigfft,freq,pxx,f)
+
+        else:
+            raise ValueError("Undefined type for frequency domain.")
 
     return features_freq
 
