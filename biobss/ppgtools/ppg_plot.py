@@ -11,7 +11,7 @@ def plot_ppg(signals:dict, peaks:dict=None, sampling_rate:float=None, timestamps
         signals (dict): The dictionary of signals to be plotted. 
         peaks (dict, optional): The dictionary of peaks to be plotted. Defaults to None.
         sampling_rate (float, optional): Sampling rate of the signal. Defaults to None.
-        timestamps (ArrayLike, optional): Timestamp array.. Defaults to None.
+        timestamps (ArrayLike, optional): Timestamp array. Defaults to None.
         timestamp_resolution (str, optional): Timestamp resolution. Defaults to None.
         method (str, optional): Package to generate plots. It can be 'matplotlib' or 'plotly'. Defaults to 'matplotlib'.
         show_peaks (bool, optional): If True, peaks are plotted. Defaults to True.

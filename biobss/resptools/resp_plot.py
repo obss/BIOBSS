@@ -4,8 +4,23 @@ from plotly.subplots import make_subplots
 from ..timetools import *
 from ..plottools import *
 
-def plot_resp(signals:dict, peaks:dict=None, sampling_rate:float=None, timestamp_resolution=None, method:str='matplotlib', show_peaks=True, figsize=(18.5, 10.5), width=1050, height=600):
+def plot_resp(signals:dict, peaks:dict=None, sampling_rate:float=None, timestamp_resolution:str=None, method:str='matplotlib', show_peaks:bool=True, figsize:tuple=(18.5, 10.5), width:float=1050, height:float=600):
+    """Generates plots for PPG signal.
 
+    Args:
+        signals (dict): The dictionary of signals to be plotted.
+        peaks (dict, optional): The dictionary of peaks to be plotted. Defaults to None.
+        sampling_rate (float, optional): Sampling rate of the signal. Defaults to None.
+        timestamp_resolution (str, optional): Timestamp resolution. Defaults to None.
+        method (str, optional): Package to generate plots. Defaults to 'matplotlib'.
+        show_peaks (bool, optional): If True, peaks are plotted. Defaults to True.
+        figsize (tuple, optional): Figure size for matplotlib. Defaults to (18.5, 10.5).
+        width float, optional): Figure width for Plotly. Defaults to 1050.
+        height (float, optional): Figure height for Plotly. Defaults to 600.
+
+    Raises:
+        ValueError: If method is not 'matplotlib' or 'plotly'.
+    """
     if sampling_rate is not None:
         if (timestamp_resolution is None):
             timestamp_resolution='s'
