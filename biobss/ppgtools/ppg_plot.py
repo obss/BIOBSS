@@ -4,8 +4,26 @@ from plotly.subplots import make_subplots
 from ..timetools import *
 from ..plottools import *
 
-def plot_ppg(signals:dict, peaks:dict=None, sampling_rate:float=None, timestamps=None, timestamp_resolution=None, method:str='matplotlib', show_peaks=True, figsize=(18.5, 10.5), width=800, height=440):
+def plot_ppg(signals:dict, peaks:dict=None, sampling_rate:float=None, timestamps:ArrayLike=None, timestamp_resolution:str=None, method:str='matplotlib', show_peaks:bool=True, figsize:tuple=(18.5, 10.5), width:float=800, height:float=440):
+    """Generates plots for PPG signal.
 
+    Args:
+        signals (dict): The dictionary of signals to be plotted. 
+        peaks (dict, optional): The dictionary of peaks to be plotted. Defaults to None.
+        sampling_rate (float, optional): Sampling rate of the signal. Defaults to None.
+        timestamps (ArrayLike, optional): Timestamp array.. Defaults to None.
+        timestamp_resolution (str, optional): Timestamp resolution. Defaults to None.
+        method (str, optional): Package to generate plots. It can be 'matplotlib' or 'plotly'. Defaults to 'matplotlib'.
+        show_peaks (bool, optional): If True, peaks are plotted. Defaults to True.
+        figsize (tuple, optional): Figure size for matplotlib. Defaults to (18.5, 10.5) inches.
+        width (float, optional): Figure width for Plotly. Defaults to 800 pixels.
+        height (float, optional): Figure height for Plotly. Defaults to 440 pixels.
+
+    Raises:
+        ValueError: If timestamps is not None and timestamp resolution is not provided.
+        ValueError: If timestamps array and PPG signal have different lengths.
+        ValueError: If method is not 'matplotlib' or 'plotly'.
+    """
     ppg_raw=signals.get('Raw')
 
     if (timestamps is not None):
