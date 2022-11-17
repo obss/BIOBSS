@@ -1,6 +1,7 @@
 from numpy.typing import ArrayLike
 from typing import Callable
 import numpy as np
+import warnings
 
 from biobss.hrvtools.hrv_freqdomain import *
 from biobss.hrvtools.hrv_timedomain import *
@@ -18,11 +19,12 @@ def get_domain_function(domain:str) -> Callable:
         raise ValueError("Unknown domain:", domain)  
 
 
-def get_hrv_features(sampling_rate: float, signal_type: str='PPG',  input_type: str='ppi', peaks_locs: ArrayLike=None, troughs_locs: ArrayLike=None, ppi: ArrayLike=None, feature_types: ArrayLike=['Freq','Time','Nonlinear'], prefix: str='hrv') -> dict:
+def get_hrv_features(sampling_rate: float, signal_length:float, signal_type: str='PPG',  input_type: str='ppi', peaks_locs: ArrayLike=None, troughs_locs: ArrayLike=None, ppi: ArrayLike=None, feature_types: ArrayLike=['Freq','Time','Nonlinear'], prefix: str='hrv') -> dict:
     """Calculates HRV parameters
 
     Args:
         sampling_rate (float): Sampling rate of the ppg/ecg signal.
+        signal_length (float): Length of ppg/ecg signal (seconds).
         signal_type (str, optional): Signal type to calculate hrv parameters. Should be 'ppg' or 'ecg'. Defaults to 'ppg'.
         input_type (str, optional): Input type for the analyses. Should be 'ppi', 'peaks' or 'troughs'. Defaults to 'ppi'.
                                     Depending on the input type, corresponding input array should be provided.
@@ -45,6 +47,9 @@ def get_hrv_features(sampling_rate: float, signal_type: str='PPG',  input_type: 
     if sampling_rate <= 0:
         raise ValueError("Sampling rate must be greater than 0.")
     
+    if signal_length < 60 :
+        warnings.warn("Signal length is too short!")
+
     input_type = input_type.lower()
     signal_type = signal_type.lower()
     feature_types = [x.capitalize() for x in feature_types]

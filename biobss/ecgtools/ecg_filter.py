@@ -13,7 +13,7 @@ def filter_ecg(sig: ArrayLike, sampling_rate: float, method: str, **kwargs) -> A
       ValueError: If sampling rate is less than or equal to 0. 
       ValueError: If cut-off frequency is less than 0.
       ValueError: If required parameters are not provided for the selected method.
-      ValueError: If filtering method is not one of ['notch', 'bandpass', 'pantompkins', 'hamilton', 'elgendi].
+      ValueError: If filtering method is not one of ['notch', 'pantompkins', 'hamilton', 'elgendi].
 
   Returns:
       ArrayLike: Filtered ECG signal.
@@ -31,19 +31,6 @@ def filter_ecg(sig: ArrayLike, sampling_rate: float, method: str, **kwargs) -> A
 
       b, a = signal.iirnotch(kwargs['f_notch'], kwargs['quality_factor'], sampling_rate)
       filtered_sig = signal.filtfilt(b, a, sig)
-    else:
-      raise ValueError(f'Missing keyword arguments for method: {method}.')
-
-  elif method == 'bandpass':
-    if all(k in kwargs.keys() for k in ('f_lower', 'f_upper', 'N')):
-      if kwargs['f_lower'] < 0 or kwargs['f_upper'] < 0:
-          raise ValueError("Cut-off frequencies must be greater than 0.")
-
-      W1=kwargs['f_lower']/(sampling_rate/2) #normalized frequency 
-      W2=kwargs['f_upper']/(sampling_rate/2) #normalized frequency
-      btype='bandpass'
-      sos = signal.butter(kwargs['N'], [W1,W2], btype, output='sos')
-      filtered_sig=signal.sosfiltfilt(sos, sig)
     else:
       raise ValueError(f'Missing keyword arguments for method: {method}.')
 

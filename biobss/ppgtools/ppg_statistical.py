@@ -22,7 +22,7 @@ FEATURES_STAT_SEGMENT = {
 'entropy': lambda sig: calculate_shannon_entropy(sig),
 }
 
-def get_stat_features(sig: ArrayLike, sampling_rate: float,type: str, prefix: str='signal', **kwargs) -> dict:
+def get_stat_features(sig: ArrayLike, sampling_rate: float,feature_types: list, prefix: str='signal', **kwargs) -> dict:
     """Calculates statistical features.
 
     Cycle-based features: 
@@ -54,20 +54,21 @@ def get_stat_features(sig: ArrayLike, sampling_rate: float,type: str, prefix: st
     if sampling_rate <= 0:
         raise ValueError("Sampling rate must be greater than 0.")
 
-    type = type.lower()
+    feature_types = [x.lower() for x in feature_types]
 
-    if type=='cycle':
-        features_stat={}
-        for key,func in FEATURES_STAT_CYCLE.items():
-            features_stat["_".join([prefix, key])]=func(sig,kwargs['peaks_amp'],kwargs['peaks_locs'],kwargs['troughs_locs'], sampling_rate)
-    
-    elif type=='segment':
-        features_stat={}
-        for key,func in FEATURES_STAT_SEGMENT.items():           
-            features_stat["_".join([prefix, key])]=func(sig)
+    features_stat={}
+    for type in feature_types:
 
-    else: 
-        raise ValueError("Type should be 'cycle' or 'segment'.")
+        if type=='cycle':
+            for key,func in FEATURES_STAT_CYCLE.items():
+                features_stat["_".join([prefix, key])]=func(sig,kwargs['peaks_amp'],kwargs['peaks_locs'],kwargs['troughs_locs'], sampling_rate)
+        
+        elif type=='segment':
+            for key,func in FEATURES_STAT_SEGMENT.items():           
+                features_stat["_".join([prefix, key])]=func(sig)
+
+        else: 
+            raise ValueError("Type should be 'cycle' or 'segment'.")
 
     return features_stat
 

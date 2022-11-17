@@ -69,7 +69,7 @@ def txt_to_csv(txt_dir: str, file_types: list=['HR','PPI','ACC','PPG','MAGN','GY
             else:
                 warnings.warn(f'{csv_dir} already present, skipping txt to csv conversion.')
         else:
-            warnings.warn(f'No files found in {txt_dir}.')
+            warnings.warn(f'No files found in {root}.')
 
 
 def rename_csv(csv_dir: str, file_types: list=['HR','PPI','ACC','PPG','MAGN','GYRO']):
@@ -364,7 +364,7 @@ def synchronize_signals(csv_dir: str, time_step: float=1, time_list: pd.DataFram
     return data
 
 
-def marker_to_events(filepath: str, markerpath: str, events: list, out_path: str, save_file: bool=False) -> pd.DataFrame:
+def marker_to_events(filepath: str, markerpath: str, events: list, out_path: str=None, save_file: bool=False) -> pd.DataFrame:
     """Segments signals for events using the marker file.
 
     Args:
@@ -396,7 +396,10 @@ def marker_to_events(filepath: str, markerpath: str, events: list, out_path: str
         event_list[event_ind]=event
 
     if save_file:
-        pd.DataFrame(event_list).to_csv(out_path,header=None)
+        if out_path is not None:
+            pd.DataFrame(event_list).to_csv(out_path,header=None)
+        else:
+            raise ValueError("out_path is required!")
 
     data['Events']=event_list
     return data

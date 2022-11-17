@@ -6,14 +6,14 @@ from biobss.ppgtools.ppg_filter import *
 from biobss.ecgtools.ecg_filter import *
 from biobss.imutools.acc_filter import *
 
-def filter_signal(sig: ArrayLike, sampling_rate: float, filter_type: str, N: int, f_lower: float=None, f_upper: float=None, axis: int=0, signal_type: str=None, method: str=None) -> ArrayLike:
+def filter_signal(sig: ArrayLike, sampling_rate: float, filter_type: str=None, N: int=None, f_lower: float=None, f_upper: float=None, axis: int=0, signal_type: str=None, method: str=None, **kwargs) -> ArrayLike:
     """Filters a signal using a N-th order Butterworth filter unless signal_type is specified. If signal_type is specified, predefined filter parameters are used.
 
     Args:
         sig (ArrayLike): Signal to be filtered.
         sampling_rate (float): The sampling frequency of the signal (Hz).
-        filter_type (str): Type of the filter. Can be 'lowpass', 'highpass' or 'bandpass'.
-        N (int): Order of the filter. 
+        filter_type (str, optional): Type of the filter. Can be 'lowpass', 'highpass' or 'bandpass'. Defaults to None.
+        N (int): Order of the filter. Defaults to None.
         f_lower (float, optional): Lower cutoff frequency (Hz). Defaults to None.
         f_upper (float, optional): Upper cutoff frequency (Hz). Defaults to None.
         axis (int, optional): The axis alongh which filtering is applied. Defaults to 0.
@@ -83,13 +83,13 @@ def filter_signal(sig: ArrayLike, sampling_rate: float, filter_type: str, N: int
             method = method.lower()
         
         if signal_type == 'ECG':
-            filtered_sig = filter_ecg(method=method) 
+            filtered_sig = filter_ecg(sig, sampling_rate, method=method, **kwargs) 
 
         elif signal_type == 'PPG':
-            filtered_sig = filter_ppg(method=method)
+            filtered_sig = filter_ppg(sig, sampling_rate, method=method)
 
         elif signal_type == 'ACC':
-            filtered_sig = filter_acc(method=method)
+            filtered_sig = filter_acc(sig, sampling_rate, method=method)
 
         elif signal_type == 'EDA':
             filtered_sig = filter_eda(method=method)

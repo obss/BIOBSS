@@ -45,7 +45,7 @@ def ecg_peaks(sig: ArrayLike , sampling_rate: float, method: str='pantompkins') 
   return r_peaks
 
 
-def ecg_waves(sig: ArrayLike, peaks_locs, sampling_rate: float, delineator: str='neurokit2') -> dict:
+def ecg_waves(sig: ArrayLike, sampling_rate: float, peaks_locs:ArrayLike=None, delineator: str='neurokit2') -> dict:
   """Detects fiducial points of ECG signal and returns a dictionary.
 
   Args:
@@ -64,10 +64,13 @@ def ecg_waves(sig: ArrayLike, peaks_locs, sampling_rate: float, delineator: str=
   if sampling_rate <= 0:
     raise ValueError("Sampling rate must be greater than 0.")
 
+  if peaks_locs is None:
+    peaks_locs=ecg_peaks(sig=sig, sampling_rate=sampling_rate)
+
   delineator = delineator.lower()
 
   if delineator == "neurokit2":
-    info = nk.ecg_delineate(sig, rpeaks=peaks_locs, sampling_rate=sampling_rate, method="peak")
+    _, info = nk.ecg_delineate(sig, rpeaks=peaks_locs, sampling_rate=sampling_rate, method="peak")
 
   else:
     raise ValueError(f"Undefined delineator {delineator}.")
