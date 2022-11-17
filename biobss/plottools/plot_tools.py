@@ -37,7 +37,12 @@ def create_signal_plot(signal,ax,timestamp=None,timestamp_resolution=None,plot_t
     
 def create_signal_plot_plotly(signal,fig,timestamp=None,timestamp_resolution=None,plot_title="Signal Plot",signal_name="Signal",peaks=None,location=None):
     
-    register_plotly_resampler(mode='auto')
+    #adjust it
+    limit=200000
+    
+    if(len(signal)>limit):
+        Warning('Signal is too large and will be resampled. Consider using create_signal_plot instead')
+        register_plotly_resampler(mode='auto')
     if(location is None):
         raise ValueError('location must be specified')
     if(timestamp is None):

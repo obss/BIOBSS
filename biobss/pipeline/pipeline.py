@@ -42,7 +42,7 @@ class Bio_Pipeline:
 
     def set_input(
         self,
-        signal: Union[Bio_Data, ArrayLike],
+        signal: Union[Bio_Data, ArrayLike, Bio_Channel],
         sampling_rate=None,
         name=None,
         timestamp=None,
@@ -52,14 +52,17 @@ class Bio_Pipeline:
 
         if isinstance(signal, Bio_Data):
             self.input = signal
+        elif isinstance(signal, Bio_Channel):
+            self.input = Bio_Data()
+            self.input.add_channel(signal)
         else:
             if sampling_rate is None:
                 raise ValueError(
-                    "If signal is not a Bio_Data object, sampling_rate must be specified"
+                    "If signal is not a Bio_Data or Bio_Channel object, sampling_rate must be specified"
                 )
             if name is None:
                 raise ValueError(
-                    "If signal is not a Bio_Data object, name must be specified"
+                    "If signal is not a Bio_Data or Bio_Channel object, name must be specified"
                 )
             self.input = Bio_Data()
             if isinstance(signal, (np.ndarray, pd.Series, list)):

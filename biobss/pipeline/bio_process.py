@@ -76,7 +76,7 @@ class Bio_Process:
         elif isinstance(result, Bio_Data):
             return result
         elif isinstance(result, tuple):
-            if(self.returnindex is not None):
+            if(self.return_index is not None):
                 result = result[self.returnindex]
             else:
                 raise ValueError(
@@ -100,6 +100,8 @@ class Bio_Process:
         timestap_resolution=signal.timestamp_resolution       
         
         if(isinstance(result,(np.ndarray,list))):
+            if(self.return_index is not None):
+                result = result[self.return_index]
             out_signal=np.array(result)
             if(len(result)!=len(signal.channel)):
                 sampling_rate=len(result)/signal.signal_duration
