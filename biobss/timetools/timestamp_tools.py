@@ -12,6 +12,8 @@ def create_timestamp_signal(resolution,length,start,rate):
                 timestamp_factor = 1
     elif(resolution == 'min'):
                 timestamp_factor = 60
+    else:
+        raise ValueError('resolution must be "ns","ms","s","min"')
         
     timestamp = (np.arange(length)/rate)*timestamp_factor
     timestamp = timestamp+start

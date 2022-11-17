@@ -1,5 +1,6 @@
+import re
 import time
-from .. import signaltools
+from .. import preprocess
 from .bioprocess_queue import Process_List
 from .bio_data import Bio_Data
 from .bio_channel import Bio_Channel
@@ -8,6 +9,7 @@ import numpy as np
 import pandas as pd
 from numpy.typing import ArrayLike
 from .feature_extraction import Feature
+from copy import copy
 
 """a biological signal processing object with preprocessing and postprocessing steps"""
 
@@ -40,7 +42,7 @@ class Bio_Pipeline:
 
     def set_input(
         self,
-        signal: Union[Bio_Data, ArrayLike],
+        signal: Union[Bio_Data, ArrayLike, Bio_Channel],
         sampling_rate=None,
         name=None,
         timestamp=None,
@@ -50,14 +52,17 @@ class Bio_Pipeline:
 
         if isinstance(signal, Bio_Data):
             self.input = signal
+        elif isinstance(signal, Bio_Channel):
+            self.input = Bio_Data()
+            self.input.add_channel(signal)
         else:
             if sampling_rate is None:
                 raise ValueError(
-                    "If signal is not a Bio_Data object, sampling_rate must be specified"
+                    "If signal is not a Bio_Data or Bio_Channel object, sampling_rate must be specified"
                 )
             if name is None:
                 raise ValueError(
-                    "If signal is not a Bio_Data object, name must be specified"
+                    "If signal is not a Bio_Data or Bio_Channel object, name must be specified"
                 )
             self.input = Bio_Data()
             if isinstance(signal, (np.ndarray, pd.Series, list)):
@@ -93,21 +98,21 @@ class Bio_Pipeline:
         self.step_size = step_size
 
     def convert_windows(self):
-        for ch in self.input.get_channel_names():
-            channel = self.input[ch]
-            windowed = signaltools.segment_signal(
+        for ch in self.data.get_channel_names():
+            channel = self.data[ch]
+            windowed = preprocess.segment_signal(
                 channel.channel,
                 self.window_size,
                 self.step_size,
                 sampling_rate=channel.sampling_rate,
             )
-            timestamps = signaltools.segment_signal(
+            timestamps = preprocess.segment_signal(
                 channel.timestamp,
                 self.window_size,
                 self.step_size,
                 sampling_rate=channel.sampling_rate,
             )
-            self.input.modify_signal(
+            self.data.modify_signal(
                 windowed,
                 channel_name=channel.signal_name,
                 timestamp=timestamps,
@@ -126,16 +131,42 @@ class Bio_Pipeline:
 
     def calculate_feature(self, feature: Feature):
         self.features = pd.concat(
-            [self.features, feature.run(self.input)], axis=1)
+            [self.features, feature.run(self.data)], axis=1)
 
-    def run_pipeline(self):
-
-        self.input = self.preprocess_queue.run_process_queue(self.input)
+    def run_pipeline(self):        
+        try:
+            self.data = copy(self.input)
+        except AttributeError:
+            raise ValueError("Input data must be set before running pipeline")
+        
+        self.data = self.preprocess_queue.run_process_queue(self.data)
         if self.windowed:
             self.convert_windows()
 
-        self.input = self.process_queue.run_process_queue(self.input)
-
+        self.data = self.process_queue.run_process_queue(self.data)
+        
+    def get_features(self):
+        return copy(self.features)
+    
+    def get_data(self):
+        return copy(self.data)
+    
+    def get_input(self):
+        return copy(self.input)
+    
+    def export_data(self, filename):
+        self.data.export_data(filename)
+        
+    def export_features(self, filename):
+        self.features.to_csv(filename)
+        
+    def clear_data(self):
+        self.data = None
+    def clear_features(self):
+        self.features = None
+    def clear_input(self):
+        self.input = None
+            
     def __repr__(self) -> str:
         representation = "Bio_Pipeline:\n"
         representation += "\tPreprocessors: " + \

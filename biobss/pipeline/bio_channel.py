@@ -7,7 +7,7 @@ from ..timetools import timestamp_tools
 class Bio_Channel():
     """ Signal object with add and iterate process objects"""
 
-    def __init__(self, signal: ArrayLike, name: str, sampling_rate: float, timestamp=None, timestamp_resolution=None, timestamp_start=0, verbose=False):
+    def __init__(self, signal: ArrayLike, name: str, sampling_rate: float, timestamp=None, timestamp_resolution=None, timestamp_start=0, verbose=False,unit=None):
 
         # initialize channel data
         self.channel = np.array(signal)

@@ -7,6 +7,10 @@ from .eda_peaks import *
 from .eda_signalfeatures import *
 from .eda_statistical import *
 from .eda_plot import *
+<<<<<<< HEAD
+
+=======
+>>>>>>> a5c1edbc44fa916c296ebb316ff9414c2bb6d232
 
 __all__ = [
     "eda_decompose",
