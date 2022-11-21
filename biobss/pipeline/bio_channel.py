@@ -5,9 +5,32 @@ from ..timetools import timestamp_tools
 
 
 class Bio_Channel():
-    """ Signal object with add and iterate process objects"""
+    """ Biological signal channel class
+    """
 
     def __init__(self, signal: ArrayLike, name: str, sampling_rate: float, timestamp=None, timestamp_resolution=None, timestamp_start=0, verbose=False,unit=None):
+
+        # Docstring
+        """ Biological signal channel class
+        Args:
+            signal (ArrayLike): signal data
+            name (str): signal name
+            sampling_rate (float): signal sampling rate
+            timestamp (ArrayLike): signal timestamp
+            timestamp_resolution (float): signal timestamp resolution
+            timestamp_start (float): signal timestamp start
+            verbose (bool): print debug info
+            unit (str): signal unit
+        
+        returns:
+            Bio_Channel: Bio_Channel object
+        
+        raises:
+            ValueError: if signal and timestamp dimensions do not match
+            ValueError: if signal and timestamp resolution do not match
+        # End Docstring        
+        """
+        
 
         # initialize channel data
         self.channel = np.array(signal)
@@ -61,6 +84,11 @@ class Bio_Channel():
             self.windows = signal.shape[0]
 
     def copy(self):
+        """Returns a copy of the Bio_Channel object
+
+        Returns:
+            Bio_Channel: Bio_Channel object
+        """
         return copy.deepcopy(self)
 
     def sync_timestamps(self, offset: float):
