@@ -33,4 +33,4 @@ python:
         - docs
     - method: pip
       path: another/package
-  system_packages: true
+  system_packages: false
