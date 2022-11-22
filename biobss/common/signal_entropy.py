@@ -1,10 +1,9 @@
-import numpy as np
 from scipy import stats
 import collections
 from numpy.typing import ArrayLike
 
 def calculate_shannon_entropy(sig: ArrayLike, base: int=2) -> float:
-    """Calculates shannon entropy of the signal.
+    """Calculates shannon entropy of a signal.
 
     Args:
         sig (ArrayLike): Signal to be analyzed.

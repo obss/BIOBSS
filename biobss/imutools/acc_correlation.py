@@ -3,14 +3,18 @@ import itertools
 
 
 def get_corr_features(signals: dict, prefix: str="signal") -> dict:
-    """Calculates correlation of N signals with each other.
+    """Calculates correlation features for N signals
+
+        For example:
+        accx_accy_corr: correlation coefficient for x and y axes
+        accx_accz_corr: correlation coefficient for x and z axes
+        accy_accz_corr: correlation coefficient for y and z axes
 
     Args:
-        signals (2-D Arraylike): Array of signals
-        signal_names (Arraylike): Array of signal names
+        signals (dict): Dictionary of signals for different axes.
 
     Returns:
-        dict : dict of correlation features
+        dict: Dictionary of correlation features
     """
 
     comb = list(itertools.combinations(signals.keys(), 2))

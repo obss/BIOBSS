@@ -41,14 +41,14 @@ def resample_signal(signal: ArrayLike, sampling_rate: float, target_sampling_rat
 
 
 def resample_signal_object(signal: Bio_Channel, target_sample_rate: float) -> Bio_Channel:
-    """_summary_
+    """Resamples the given signal. 
 
     Args:
-        signal (Signal): input signal
+        signal (Signal): Signal to be analyzed.
         target_sample_rate (float): Expected sample rate after resampling
 
     Returns:
-        Signal: resampled signal
+        Signal: Resampled signal
     """
     if(not isinstance(signal, Bio_Channel)):
         raise ValueError("Expecting a Signal object")

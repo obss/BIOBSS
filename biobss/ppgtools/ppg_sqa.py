@@ -5,7 +5,20 @@ from typing import Tuple
 
 from biobss.sqatools.signal_quality import *
 
-def ppg_sqa(ppg_sig: ArrayLike, sampling_rate:float, methods: list, **kwargs) -> bool:
+def ppg_sqa(ppg_sig: ArrayLike, sampling_rate:float, methods: list, **kwargs) -> dict:
+    """Assesses quality of PPG signal by applying rules based on morphological information.
+
+    Args:
+        ppg_sig (ArrayLike): Signal to be analyzed.
+        sampling_rate (float): Sampling rate of the PPG signal (Hz).
+        methods (list): Methods to be applied.
+
+    Raises:
+        ValueError: If method is undefined.
+
+    Returns:
+        dict: Dictionary of boolean results of the applied rules.
+    """
 
     results = {}
 

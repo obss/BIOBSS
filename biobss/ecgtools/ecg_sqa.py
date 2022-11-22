@@ -1,12 +1,21 @@
-import numpy as np
-import math
 from numpy.typing import ArrayLike
-from typing import Tuple
 
 from biobss.sqatools.signal_quality import *
 
-def ecg_sqa(ecg_sig: ArrayLike, sampling_rate:float, methods: list, **kwargs) -> bool:
+def ecg_sqa(ecg_sig: ArrayLike, sampling_rate:float, methods: list, **kwargs) -> dict:
+    """Assesses quality of ECG signal by applying rules based on morphological information.
 
+    Args:
+        ecg_sig (ArrayLike): Signal to be analyzed.
+        sampling_rate (float): Sampling rate of the ECG signal (Hz).
+        methods (list): Methods to be applied.
+
+    Raises:
+        ValueError: If method is undefined.
+
+    Returns:
+        dict: Dictionary of boolean results of the applied rules.
+    """
     results = {}
 
     for method in methods:

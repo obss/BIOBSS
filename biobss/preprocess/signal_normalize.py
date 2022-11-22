@@ -2,10 +2,10 @@ from numpy.typing import ArrayLike
 from ..pipeline.bio_channel import Bio_Channel
 
 def normalize_signal(signal: ArrayLike, method: str='zscore') -> ArrayLike:
-    """Method for normalizing given signal
+    """Normalizes a signal
 
     Args:
-        signal (ArrayLike): Signal to be analyzed
+        signal (ArrayLike): Signal to be normalized
         method (str, optional): Normalization method. Defaults to 'zscore'.
 
     Raises:

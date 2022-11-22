@@ -1,6 +1,23 @@
 import numpy as np
+from numpy.typing import ArrayLike
 
-def create_timestamp_signal(resolution,length,start,rate):
+def create_timestamp_signal(resolution: str, length: float, start: float, rate: float) -> ArrayLike:
+    """Generates a timestamp array
+
+    Args:
+        resolution (str): Timestamp resolution. It can be 'ns', 'ms', 's' or 'min'.
+        length (float): Length of timestamp array to be generated
+        start (float): Starting time
+        rate (float): Rate of increment
+
+    Raises:
+        ValueError: If starting time is less then zero.
+        ValueError: If resolution is undefined.
+
+    Returns:
+        ArrayLike: Timestamp array.
+    """
+
     if(start < 0):
         raise ValueError('Timestamp start must be greater than 0')
     

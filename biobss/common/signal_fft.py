@@ -3,12 +3,12 @@ from scipy import fft, signal
 from numpy.typing import ArrayLike
 
 
-def sig_fft(sig: ArrayLike, sampling_rate: int) -> tuple:
+def sig_fft(sig: ArrayLike, sampling_rate: float) -> tuple:
     """Calculates Fast Fourier Transform (FFT) of a signal.
 
     Args:
         sig (ArrayLike): The signal to be analyzed.
-        sampling_rate (int): Sampling frequency of the signal (Hz).
+        sampling_rate (float): Sampling frequency of the signal (Hz).
 
     Returns:
         tuple: fft frequencies, fft amplitudes
@@ -24,7 +24,7 @@ def sig_fft(sig: ArrayLike, sampling_rate: int) -> tuple:
     return freq, sigfft
 
 def fft_peaks(sigfft: ArrayLike, freq:ArrayLike, peakno: int, loc:bool=False) -> float:
-    """Detects peaks from the fft of the signal. Returns peak amplitudes or peak locations (frequencies).
+    """Detects peaks from the FFT of the signal. Returns peak amplitudes or peak locations (frequencies).
 
     Args:
         sigfft (ArrayLike): fft array to be analyzed.

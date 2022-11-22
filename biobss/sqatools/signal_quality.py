@@ -222,7 +222,7 @@ def template_matching(sig: ArrayLike, peaks_locs: ArrayLike, corr_th: float=CORR
     """Applies template matching method for signal quality assessment
 
     Args:
-        ppg_sig (ArrayLike): Signal to be analyzed.
+        sig (ArrayLike): Signal to be analyzed.
         peaks_locs (ArrayLike): Peak locations (Systolic peaks for PPG signal, R peaks for ECG signal).
         corr_th (float, optional): Threshold for the correlation coefficient above which the signal is considered to be valid. Defaults to CORR_TH.
 

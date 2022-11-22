@@ -1,14 +1,12 @@
 import numpy as np
-from scipy import fft 
-from scipy import signal
 from numpy.typing import ArrayLike
 
 def sig_power(pxx:ArrayLike, fxx:ArrayLike, freq_range:list) -> float:
-    """Calculates power of the signal for a given frequency range.
+    """Calculates signal power from power spectral density for a given frequency range.
 
     Args:
         pxx (ArrayLike): Array of power spectral density values.
-        fxx (ArrayLike): frequencies of the pxx array.
+        fxx (ArrayLike): Frequencies corresponding to pxx array.
         freq_range (list): Frequency range to calculate signal power.
 
     Returns:
