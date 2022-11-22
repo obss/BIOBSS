@@ -5,7 +5,7 @@ from ..timetools import *
 from ..plottools import *
 
 def plot_resp(signals:dict, peaks:dict=None, sampling_rate:float=None, timestamp_resolution:str=None, method:str='matplotlib', show_peaks:bool=True, figsize:tuple=(18.5, 10.5), width:float=1050, height:float=600):
-    """Generates plots for PPG signal.
+    """Generates plots for respiration signal(s).
 
     Args:
         signals (dict): The dictionary of signals to be plotted.

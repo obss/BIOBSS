@@ -1,5 +1,5 @@
 import numpy as np
-from scipy import stats, signal, fft
+from scipy import stats, signal
 from numpy.typing import ArrayLike
 
 from biobss.common.signal_power import *
@@ -32,24 +32,35 @@ FREQ_FEATURES = {
 def get_freq_features(sig: ArrayLike, sampling_rate, prefix) -> dict:
     """Calculates frequency-domain features.
 
-    From https://towardsdatascience.com/feature-engineering-on-time-series-data-transforming-signal-data-of-a-smartphone-accelerometer-for-72cbe34b8a60
+    From 
+        https://towardsdatascience.com/feature-engineering-on-time-series-data-transforming-signal-data-of-a-smartphone-accelerometer-for-72cbe34b8a60
+        Zangróniz, R., Martínez-Rodrigo, A., Pastor, J.M., López, M.T. and Fernández-Caballero, A., 2017. 
+        Electrodermal activity sensor for classification of calm/distress condition. Sensors, 17(10), p.2324.
 
-    In regards to frequency aspects, the signal is transformed into the frequency domain by
-    using a nonparametric FFT algorithm. Then, the spectral power in bandwidths 0.1 to 0.2 (F1SC), 0.2 to
-    0.3 (F2SC) and 0.3 to 0.4 (F3SC) Hz are estimated.
-
-    Entropy and Energy are also calculated.
-    Energy : sum of the power in the signal
-    Entropy : The entropy of the signal is the sum of the power in the signal times the log of the power in the signal.
-    Max Frequency : The frequency with the highest power in the signal.
-
-    Zangróniz, R., Martínez-Rodrigo, A., Pastor, J.M., López, M.T. and Fernández-Caballero, A., 2017. 
-    Electrodermal activity sensor for classification of calm/distress condition. Sensors, 17(10), p.2324.
+    fft_mean': mean of fft peaks
+    fft_std': standard deviation of fft peaks
+    fft_mad': mean absolute deviation of fft peaks
+    fft_min': minimum value of fft peaks
+    fft_max': maximum value of fft peaks
+    fft_range': difference of maximum and minimum values of fft peaks
+    fft_median': median value of fft peaks
+    fft_medad': median absolute deviation of fft peaks
+    fft_iqr': interquartile range of fft peaks
+    fft_abmean': number of fft peaks above mean
+    fft_npeaks': number of fft peaks
+    fft_skew': skewness of fft peaks
+    fft_kurtosis': kurtosis of fft peaks
+    fft_energy': energy of fft peaks
+    fft_entropy': entropy of fft peaks
+    f1sc': signal power in the range of 0.1 to 0.2 Hz
+    f2sc': signal power in the range of 0.2 to 0.3 Hz
+    f3sc': signal power in the range of 0.3 to 0.4 Hz
+    max_freq': frequency of maximum fft peak
 
     Args:
-        sig (ArrayLike): Input signal
-        sampling_rate (_type_): Sampling rate
-        prefix (_type_): Prefix 
+        sig (ArrayLike): Signal to be analyzed.
+        sampling_rate (float): Sampling rate of the signal (Hz).
+        prefix (str): Prefix. Defaults to None.
 
     Returns:
         dict: Dictionary of statistical features
@@ -58,21 +69,8 @@ def get_freq_features(sig: ArrayLike, sampling_rate, prefix) -> dict:
     features_freq={}
 
     freq, sigfft = sig_fft(sig=sig, sampling_rate=sampling_rate)
-
-    #nfft=len(sig)
-    #freq=fft.fftfreq(nfft,1/sampling_rate)
-    #sigfft=np.abs(fft.fft(sig,nfft)/len(sig))
-    #P1=sigfft[0:int(nfft/2)]
-    #P1[1:-1] = 2 * P1[1:-1]
-    #sigfft=P1
-    #freq=freq[0 : int(len(sig)/ 2)]
-
     f, pxx = sig_psd(sig=sig, sampling_rate=sampling_rate, method='welch')
-
-    #nfft=len(sig)
-    #sig_=sig-np.mean(sig)
-    #f,pxx=signal.welch(sig_, fs=sampling_rate, nfft=nfft)
-    
+ 
     features_freq={}
     for key,func in FREQ_FEATURES.items():
         features_freq["_".join([prefix, key])]=func(sigfft,freq,pxx,f)

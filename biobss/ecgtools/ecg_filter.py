@@ -6,7 +6,7 @@ def filter_ecg(sig: ArrayLike, sampling_rate: float, method: str, **kwargs) -> A
 
   Args:
       sig (ArrayLike): ECG signal.
-      sampling_rate (float): Sampling rate of the ECG signal.
+      sampling_rate (float): Sampling rate of the ECG signal (Hz).
       method (str): Filtering method. Should be one of ['notch', 'bandpass', 'pantompkins', 'hamilton', 'elgendi].
 
   Raises:

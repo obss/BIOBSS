@@ -28,30 +28,27 @@ def get_stat_features(sig: ArrayLike, sampling_rate, prefix) -> dict:
 
     From https://towardsdatascience.com/feature-engineering-on-time-series-data-transforming-signal-data-of-a-smartphone-accelerometer-for-72cbe34b8a60
 
-    mean: Mean value of the signal.
-    std: Standard deviation of the signal.
-    mad: Mean absolute deviation of the signal.
-    min: Minimum value of the signal.
-    max: Maximum value of the signal.
-    range: Difference of maximum and minimum values.
-    median: Median value of the signal.
-    medad: Median absolute deviation of the signal.
-    iqr: Interquartile range of the signal. 
-    ncount: Number of negative values.
-    pcount: Number of positive values
-    abmean: Number of values above mean 
-    npeaks: Number of peaks
-    skew: Skewness
-    kurtosis: Kurtosis
-    energy: Signal energy
+    mean: mean of the signal amplitude
+    std: standard deviation of the signal amplitude
+    mad: mean absolute deviation of the signal amplitude
+    min: minimum value of the signal amplitude
+    max: maximum value of the signal amplitude
+    range: difference of maximum and minimum values of the signal amplitude
+    median: median value of the signal amplitude
+    medad: median absolute deviation of the signal amplitude
+    iqr: interquartile range of the signal amplitude
+    ncount: number of negative values 
+    pcount: number of positibe values 
+    abmean: number of values above mean
+    npeaks: number of peaks
+    skew: Skewness of the signal
+    kurtosis: Kurtosis of the signal
+    energy: signal energy (the mean of sum of squares of the values in a window)
     momentum: Signal momentum
-    average resultant acceleration: [i.mean() for i in ((pd.Series(x_list)**2 + pd.Series(y_list)**2 + pd.Series(z_list)**2)**0.5)]
-    signal magnitude area: pd.Series(x_list).apply(lambda x: np.sum(abs(x)/100)) + pd.Series(y_list).apply(lambda x: np.sum(abs(x)/100)) + pd.Series(z_list).apply(lambda x: np.sum(abs(x)/100)) 
-
+    
     Args:
         sig (ArrayLike): Input signal
-        sampling_rate (_type_): Sampling rate
-        prefix (_type_): Prefix 
+        prefix (str): Prefix. Defaults to 'acc'.
 
     Returns:
         dict: Dictionary of statistical features

@@ -6,9 +6,10 @@ import neurokit2 as nk
 def ecg_peaks(sig: ArrayLike , sampling_rate: float, method: str='pantompkins') -> ArrayLike:
   """Detects R peaks from ECG signal. 
      Uses py-ecg-detectors package(https://github.com/berndporr/py-ecg-detectors/).
+
   Args:
       sig (ArrayLike): Unfiltered ECG signal.
-      sampling_rate (float): Sampling rate of the ECG signal.
+      sampling_rate (float): Sampling rate of the ECG signal (Hz).
       method (str, optional): Peak detection method. Should be 'pantompkins', 'hamilton' or 'elgendi'. Defaults to 'pantompkins'.
         'pantompkins': "Pan, J. & Tompkins, W. J.,(1985). 'A real-time QRS detection algorithm'. IEEE transactions
                         on biomedical engineering, (3), 230-236."
@@ -51,7 +52,7 @@ def ecg_waves(sig: ArrayLike, sampling_rate: float, peaks_locs:ArrayLike=None, d
   Args:
       sig (ArrayLike): ECG signal.
       peaks_locs (_type_): R peak locations.
-      sampling_rate (float): Sampling rate of the ECG signal.
+      sampling_rate (float): Sampling rate of the ECG signal (Hz).
       delineator (str, optional): Delineator to be used. Defaults to 'neurokit2'.
 
   Raises:
@@ -59,7 +60,7 @@ def ecg_waves(sig: ArrayLike, sampling_rate: float, peaks_locs:ArrayLike=None, d
       ValueError: If delineator is not one of defined methods.
 
   Returns:
-      dict: _description_
+      dict: Dictionary of fiducial point locations.
   """
   if sampling_rate <= 0:
     raise ValueError("Sampling rate must be greater than 0.")

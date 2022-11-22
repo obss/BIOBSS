@@ -28,29 +28,25 @@ FEATURES_TIME = {
 def hrv_time_features(ppi: ArrayLike, sampling_rate:int, prefix: str='hrv') -> dict:
     """Calculates time-domain hrv parameters.
 
-    mean_nni: The mean of the RR intervals.
-    sdnn: the standard deviation of intervals. Often calculated over a 24-hour period. 
-    (sdann, the standard deviation of the average intervals calculated over short periods, usually 5 minutes)
-    rmssd: the square root of the mean of the squares of the successive differences between adjacent intervals
-    sdsd: the standard deviation of the successive differences between adjacent intervals
-    nni_50: the number of pairs of successive intervals that differ by more than 50 ms
-    pnni_50: the proportion of NN50 divided by the total number of intervals
-    nni_20: the number of pairs of successive intervals that differ by more than 20 ms
-    pnni_20: the proportion of NN20 divided by the total number of intervals
-    cvnni: The standard deviation of the RR intervals (sdnn) divided by the mean of the RR
-        intervals (mean_nni).
-    cvsd: the square root of the mean of the squares of the successive differences between adjacent intervals (rmssd) divided by the
-        mean of the RR intervals (mean_nni). 
-    median_nni: The median of the absolute values of the successive differences between RR intervals.
-    range_nni: The range of the NN intervals
-    mean_hr: The mean HR
-    min_hr: The minimum HR
-    max_hr: The maximum HR
-    std_hr: The standard deviation of the HR
-    mad_nni: The median absolute deviation of the RR intervals.
-    mcv_nni: The median absolute deviation of the RR intervals (mad_nni) divided by the median
-        of the absolute differences of their successive differences (median_nni).
-    iqr_nni: The interquartile range (IQR) of the RR intervals.    
+    mean_nni: mean of peak to peak intervals
+    sdnn: standard deviation of peak to peak intervals. Often calculated over a 24-hour period. 
+    rmssd: root mean square of successive differences between peak to peak intervals
+    sdsd: standard deviation of successive differences between peak to peak intervals
+    nni_50: number of pairs of successive intervals that differ by more than 50 ms
+    pnni_50: ratio of nni_50 to total number of intervals
+    nni_20: number of pairs of successive intervals that differ by more than 20 ms
+    pnni_20: ratio of nni_20 to total number of intervals
+    cvnni: ratio of sdnn to mean_nni 
+    cvsd: ratio of rmssd to mean_nni
+    median_nni: median of absolute values of successive differences between peak to peak intervals
+    range_nni: range of peak to peak intervals
+    mean_hr: mean heart rate
+    min_hr: minimum heart rate
+    max_hr: maximum heart rate
+    std_hr: standard deviation of heart rate
+    mad_nni: mean absolute deviation of peak to peak intervals
+    mcv_nni: ratio of mead_nni to median_nni
+    iqr_nni: interquartile range of peak to peak intervals    
 
     Args:
         ppi (ArrayLike): Peak-to-peak interval array (miliseconds).

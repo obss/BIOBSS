@@ -1,23 +1,22 @@
 import numpy as np
-from scipy import fft 
 from scipy import signal
 from numpy.typing import ArrayLike
 
 from biobss.common.signal_fft import *
 
-def sig_psd(sig: ArrayLike, sampling_rate: int, method: str='welch') -> tuple:
-    """Calculate Power Spectral Density (PSD) of a signal using 'fft' or 'welch' method.
+def sig_psd(sig: ArrayLike, sampling_rate: float, method: str='welch') -> tuple:
+    """Calculates Power Spectral Density (PSD) of a signal using 'fft' or 'welch' method.
 
     Args:
         sig (ArrayLike): The signal to be analyzed.
-        sampling_rate (int): Sampling frequency of the signal. 
+        sampling_rate (float): Sampling rate of the signal (Hz). 
         method (str, optional): Method to calculate PSD. It can be 'welch' or 'fft'. Defaults to 'welch'.
 
     Raises:
         ValueError: If 'method' is not one of 'fft' and 'welch'.
 
     Returns:
-        tuple: psd frequencies, psd amplitudes
+        tuple: PSD frequencies, PSD amplitudes
     """
 
     if method == 'welch':

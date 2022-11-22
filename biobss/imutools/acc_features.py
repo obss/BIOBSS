@@ -19,7 +19,23 @@ def get_domain_function(domain:str) -> Callable:
 
     
 def get_acc_features(signals: dict, sampling_rate: float, prefix: str="acc", feature_types: ArrayLike=['Freq','Stat','Corr'], magnitude: bool=False) -> dict:
-  
+    """Calculates ACC features and returns a dictionary.
+
+    Args:
+        signals (dict): Dictionary of ACC signals for different axes.
+        sampling_rate (float): Sampling rate of the ACC signals (Hz).
+        prefix (str, optional): Prefix. Defaults to "acc".
+        feature_types (ArrayLike, optional): Feature types to be calculated. It can be a list of 'Freq', 'Stat' and 'Corr'. Defaults to ['Freq','Stat','Corr'].
+        magnitude (bool, optional): If True, features are also calculated for magnitude signal. Defaults to False.
+
+    Raises:
+        ValueError: If sampling rate is not greater than zero.
+        ValueError: If feature type is invalid.
+
+    Returns:
+        dict: Dictionary of calculated features.
+    """
+
     if sampling_rate <= 0:
         raise ValueError("Sampling rate must be greater than 0.")
     

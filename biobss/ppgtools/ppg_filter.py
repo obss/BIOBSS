@@ -3,6 +3,20 @@ from numpy.typing import ArrayLike
 import warnings
 
 def filter_ppg(sig: ArrayLike, sampling_rate: float, method: str='bandpass') -> ArrayLike:
+    """Filters PPG signal using predefined filters.
+
+    Args:
+        sig (ArrayLike): PPG signal to be filtered.
+        sampling_rate (float): Sampling rate of the PPG signal.
+        method (str, optional): Filtering method. Defaults to 'bandpass'.
+
+    Raises:
+        ValueError: If sampling rate is not greater than zero.
+        ValueError: If method is undefined.
+
+    Returns:
+        ArrayLike: Filtered PPG signal.
+    """
     
     if sampling_rate <= 0:
         raise ValueError("Sampling rate must be greater than 0.")

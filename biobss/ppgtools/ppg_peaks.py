@@ -3,6 +3,17 @@ from numpy.typing import ArrayLike
 from biobss.preprocess.signal_detectpeaks import peak_detection
 
 def ppg_beats(sig: ArrayLike , sampling_rate: float, method: str='peakdet', delta: float=None) -> ArrayLike:
+    """Detects PPG beats using the 1st derivative of the PPG signal. The detected locations correspond to the rising edge of the PPG beats.
+
+    Args:
+        sig (ArrayLike): Signal to be analyzed.
+        sampling_rate (float): Sampling rate of the signal (Hz).
+        method (str, optional): Peak detection method. Defaults to 'peakdet'.
+        delta (float, optional): Delta parameter of the 'peakdet' method. Defaults to None.
+
+    Returns:
+        ArrayLike: Beat locations.
+    """
 
     vpg = np.gradient(sig, axis=0, edge_order=1)
     info = peak_detection(vpg, sampling_rate=sampling_rate, method=method, delta=delta)

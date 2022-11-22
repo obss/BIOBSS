@@ -56,20 +56,7 @@ def get_freq_features(sig: ArrayLike, sampling_rate: float, feature_types: list=
         if type=='segment':
 
             freq, sigfft = sig_fft(sig=sig, sampling_rate=sampling_rate)
-
-            #nfft=len(sig) 
-            #freq=fft.fftfreq(nfft,1/sampling_rate)
-            #sigfft=np.abs(fft.fft(sig,nfft)/len(sig))
-            #P1=sigfft[0:int(nfft/2)]
-            #P1[1:-1] = 2 * P1[1:-1]
-            #sigfft=P1
-            #freq=freq[0 : int(len(sig)/ 2)]
-
             f, pxx = sig_psd(sig=sig, sampling_rate=sampling_rate, method='welch')
-
-            #nfft=len(sig)
-            #sig_=sig-np.mean(sig)
-            #f,pxx=signal.welch(sig_, fs=sampling_rate, nfft=nfft)
             
             features_freq={}
             for key,func in FUNCTIONS_FREQ_SEGMENT.items():
