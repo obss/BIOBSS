@@ -22,7 +22,7 @@ FEATURES_STAT_SEGMENT = {
 'entropy': lambda sig: calculate_shannon_entropy(sig),
 }
 
-def get_stat_features(sig: ArrayLike, sampling_rate: float,feature_types: list, prefix: str='signal', **kwargs) -> dict:
+def get_stat_features(sig: ArrayLike, sampling_rate: float, input_types: list, prefix: str='signal', **kwargs) -> dict:
     """Calculates statistical features.
 
     Cycle-based features: 
@@ -54,10 +54,10 @@ def get_stat_features(sig: ArrayLike, sampling_rate: float,feature_types: list, 
     if sampling_rate <= 0:
         raise ValueError("Sampling rate must be greater than 0.")
 
-    feature_types = [x.lower() for x in feature_types]
+    input_types = [x.lower() for x in input_types]
 
     features_stat={}
-    for type in feature_types:
+    for type in input_types:
 
         if type=='cycle':
             for key,func in FEATURES_STAT_CYCLE.items():

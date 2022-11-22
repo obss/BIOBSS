@@ -52,7 +52,7 @@ def from_cycles(sig: ArrayLike, peaks_locs: ArrayLike, peaks_amp: ArrayLike, tro
             raise ValueError("Invalid feature type: " + domain)
         else:
             domain_function = get_domain_function(domain)
-            features.update(domain_function(sig,sampling_rate,type='cycle',prefix=prefix, peaks_locs=peaks_locs, peaks_amp=peaks_amp, troughs_locs=troughs_locs, troughs_amp=troughs_amp))
+            features.update(domain_function(sig,sampling_rate,input_types=['cycle'],prefix=prefix, peaks_locs=peaks_locs, peaks_amp=peaks_amp, troughs_locs=troughs_locs, troughs_amp=troughs_amp))
 
     return features
 
@@ -84,7 +84,7 @@ def from_segment(sig: ArrayLike,sampling_rate: float, feature_types: ArrayLike=[
             raise ValueError("invalid feature type: " + domain)
         else:
             domain_function = get_domain_function(domain)
-            features.update(domain_function(sig,sampling_rate,type='segment',prefix=prefix))
+            features.update(domain_function(sig,sampling_rate,input_types=['segment'],prefix=prefix))
 
     return features
 

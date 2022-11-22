@@ -20,7 +20,7 @@ FUNCTIONS_FREQ_SEGMENT= {
 }  
 
 
-def get_freq_features(sig: ArrayLike, sampling_rate: float, feature_types: list=None, prefix: str='signal') -> dict:
+def get_freq_features(sig: ArrayLike, sampling_rate: float, input_types: list=None, prefix: str='signal') -> dict:
     """Calculates frequency-domain features
 
     Segment-based features:
@@ -48,10 +48,10 @@ def get_freq_features(sig: ArrayLike, sampling_rate: float, feature_types: list=
     if sampling_rate <= 0:
         raise ValueError("Sampling rate must be greater than 0.")
 
-    feature_types = [x.lower() for x in feature_types]
+    input_types = [x.lower() for x in input_types]
 
     features_freq={}
-    for type in feature_types:
+    for type in input_types:
 
         if type=='segment':
 

@@ -33,7 +33,7 @@ FEATURES_TIME_SEGMENT = {
 'snr': lambda sig,_0: _calculate_snr(sig),
 }
 
-def get_time_features(sig: ArrayLike, sampling_rate: float, feature_types: str, prefix: str='signal', **kwargs) -> dict:
+def get_time_features(sig: ArrayLike, sampling_rate: float, input_types: str, prefix: str='signal', **kwargs) -> dict:
     """Calculates time-domain features.
 
     Cycle-based features:
@@ -80,10 +80,10 @@ def get_time_features(sig: ArrayLike, sampling_rate: float, feature_types: str, 
     if sampling_rate <= 0:
         raise ValueError("Sampling rate must be greater than 0.")
 
-    feature_types = [x.lower() for x in feature_types]
+    input_types = [x.lower() for x in input_types]
 
     features_time={}
-    for type in feature_types:
+    for type in input_types:
         if type=='cycle':            
             for key,func in FEATURES_TIME_CYCLE.items():
                 features_time["_".join([prefix, key])]=func(sig,kwargs['peaks_amp'],kwargs['peaks_locs'],kwargs['troughs_locs'],sampling_rate)
