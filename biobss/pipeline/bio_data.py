@@ -9,9 +9,10 @@ import warnings
 
 
 class Bio_Data:
-    """Signal object with add and iterate process objects"""
+    """ Biological signal data class"""
 
     def __init__(self):
+        """Initialize a Bio_Data object"""
 
         self.data = {}  # Data_Channel objects
 
@@ -25,6 +26,25 @@ class Bio_Data:
         timestamp_resolution:str = None,
         modify_existed: bool = False,
     ):
+        """ Add a channel to the Bio_Data object
+
+        Args:
+            signal (Union[ArrayLike, Bio_Channel]): Signal content of the channel
+            channel_name (str, optional): Name of the channel. Defaults to None.
+            sampling_rate (Union[int, float], optional): Sampling rate of the channel. Defaults to None.
+            timestamp (ArrayLike, optional): Timestamp of the channel. Defaults to None.
+            timestamp_start (Union[int, float], optional): Start timestamp of the channel. Defaults to 0.
+            timestamp_resolution (str, optional): Timestamp resolution of the channel. Defaults to None.
+            modify_existed (bool, optional): Whether to modify the existed channel or create new channel. Defaults to False.
+
+        Raises:
+            ValueError: If channel_name is None
+            ValueError: If channel_name already exists
+            ValueError: If signal is not a Bio_Channel object and timestamp is None
+            ValueError: If signal is not a Bio_Channel object and signal shape is different than existing signal
+            ValueError: If timestamp_resolution is None and timestamp is provided
+            ValueError: If sampling_rate is None and signal is not a Bio_Channel object
+        """
 
         if channel_name in self.data.keys():
             if not modify_existed:
@@ -59,6 +79,13 @@ class Bio_Data:
             self.data[channel_name] = channel
 
     def remove_channel(self, channel_name):
+        """ Remove a channel from the Bio_Data object
+
+        Args:
+            channel_name (str): Name of the channel to be removed
+        Raises:
+            ValueError: If channel_name does not exist
+        """
 
         if channel_name not in self.data.keys():
             raise ValueError("Channel does not exist")
@@ -73,6 +100,23 @@ class Bio_Data:
         timestamp_start=0,
         timestamp_resolution=None,
     ):
+        """Modify a channel in the Bio_Data object
+
+        Args:
+            signal (Union[ArrayLike, Bio_Channel]): Signal content of the channel
+            channel_name (str): Name of the channel
+            sampling_rate (Union[int, float], optional): Sampling rate of the channel. Defaults to None.
+            timestamp (ArrayLike, optional): Timestamp of the channel. Defaults to None.
+            timestamp_start (Union[int, float], optional): Start timestamp of the channel. Defaults to 0.
+            timestamp_resolution (str, optional): Timestamp resolution of the channel. Defaults to None.
+
+        Raises:
+            ValueError: If channel_name does not exist
+            ValueError: If signal is not a Bio_Channel object and timestamp is None
+            ValueError: If signal is not a Bio_Channel object and signal shape is different than existing signal
+            ValueError: If timestamp_resolution is None and timestamp is provided
+            ValueError: If sampling_rate is None and signal is not a Bio_Channel object
+        """
         if channel_name not in self.data.keys():
             raise ValueError("Channel does not exist")
         if isinstance(signal, Bio_Channel):
@@ -107,8 +151,12 @@ class Bio_Data:
         return copy.deepcopy(self)
 
     def join(self, other: "Bio_Data"):
-        """Join two Bio_Data objects"""
-            
+        """ "Join two Bio_Data object
+        Args:
+            other (Bio_Data): Bio_Data object to be joined
+        Returns:
+            Bio_Data: Joined Bio_Data object
+        """
         for channel_name in other.data.keys():
             if channel_name not in self.data.keys():
                 self.add_channel(
