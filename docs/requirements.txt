@@ -1,0 +1,13 @@
+antropy==0.1.4
+cvxopt==1.3.0
+heartpy==1.2.7
+matplotlib==3.5.1
+neurokit2==0.1.7
+numpy==1.22.3
+pandas==1.4.4
+plotly==5.11.0
+plotly_resampler==0.8.2
+py_ecg_detectors==1.3.2
+pyparsing==3.0.7
+PyYAML==6.0
+scipy==1.9.3
