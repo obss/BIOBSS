@@ -23,7 +23,7 @@ import sys
 #
 # sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath("../"))
-sys.path.insert(0, os.path.abspath("./"))
+sys.path.insert(0, os.path.abspath("."))
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -194,8 +194,8 @@ htmlhelp_basename = 'Mapnikdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'Mapnik.tex', u'Mapnik Documentation',
-   u'Mapnik Contributors', 'manual'),
+  ('index', 'biobss.tex', u'biobss Documentation',
+   u'biobss Contributors', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -227,18 +227,18 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'mapnik', u'Mapnik Documentation',
-     [u'Mapnik Contributors'], 1)
+    ('index', 'biobss', u'biobss Documentation',
+     [u'biobss Contributors'], 1)
 ]
 
 
 # -- Options for Epub output ---------------------------------------------------
 
 # Bibliographic Dublin Core info.
-epub_title = u'Mapnik'
-epub_author = u'Mapnik Contributors'
-epub_publisher = u'Mapnik Contributors'
-epub_copyright = u'2010, Mapnik Contributors'
+epub_title = u'biobss'
+epub_author = u'biobss Contributors'
+epub_publisher = u'biobss Contributors'
+epub_copyright = u'2022, v Contributors'
 
 # The language of the text. It defaults to the language option
 # or en if the language is not set.
