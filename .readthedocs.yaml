@@ -27,10 +27,5 @@ sphinx:
 python:
   install:
     - requirements: docs/requirements.txt
-    - method: pip
+    - method: setuptools
       path: .
-      extra_requirements:
-        - docs
-    - method: pip
-      path: another/package
-  system_packages: false
