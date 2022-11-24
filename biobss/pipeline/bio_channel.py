@@ -8,7 +8,7 @@ from ..timetools import timestamp_tools
 class Bio_Channel():
     """ Biological signal channel class
     """
-
+    #TODO: Add a method to change the sampling rate of the channel
     def __init__(self, signal: ArrayLike, name: str, sampling_rate: float, timestamp=None, timestamp_resolution=None, timestamp_start=0, verbose=False,unit=None):
 
         # Docstring
