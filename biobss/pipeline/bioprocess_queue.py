@@ -1,3 +1,4 @@
+from __future__ import annotations
 from .bio_data import Bio_Data
 from .bio_channel import Bio_Channel
 from typing import Union

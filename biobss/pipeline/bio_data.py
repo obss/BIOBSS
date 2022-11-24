@@ -1,4 +1,4 @@
-from codecs import replace_errors
+from __future__ import annotations
 import numpy as np
 import copy as copy
 import pandas as pd
