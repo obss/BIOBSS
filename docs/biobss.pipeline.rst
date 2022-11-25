@@ -1,8 +1,15 @@
-biobss.pipeline package
-=======================
+BIOBSS Pipeline Creation Tool (biobss.pipeline)
+==================================================
+
+This pipeline creation tool is designed to help you create a 
+pipeline to process biologcal signal data. It aims to provide an
+end-to-end solution for processing biological signal data. Ideally 
+you should be able to use this tool to create a pipeline that takes your 
+signal as an input and produce processed signal and a feature vector as output.
+
 
 Submodules
-----------
+--------------------------------------------------
 
 biobss.pipeline.bio\_channel module
 -----------------------------------
