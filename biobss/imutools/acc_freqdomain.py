@@ -29,7 +29,7 @@ FREQ_FEATURES = {
 }
 
 
-def get_freq_features(sig: ArrayLike, sampling_rate, prefix) -> dict:
+def get_freq_features(signals: ArrayLike, signal_names:ArrayLike, sampling_rate, prefix='acc') -> dict:
     """Calculates frequency-domain features.
 
     From 
@@ -65,15 +65,19 @@ def get_freq_features(sig: ArrayLike, sampling_rate, prefix) -> dict:
     Returns:
         dict: Dictionary of statistical features
     """
+    data = dict(zip(signal_names, signals))
 
     features_freq={}
+    
+    for signal_name, signal in data.items():
 
-    freq, sigfft = sig_fft(sig=sig, sampling_rate=sampling_rate)
-    f, pxx = sig_psd(sig=sig, sampling_rate=sampling_rate, method='welch')
- 
-    features_freq={}
-    for key,func in FREQ_FEATURES.items():
-        features_freq["_".join([prefix, key])]=func(sigfft,freq,pxx,f)
+        freq, sigfft = sig_fft(sig=signal, sampling_rate=sampling_rate)
+        f, pxx = sig_psd(sig=signal, sampling_rate=sampling_rate, method='welch')
+    
+        features_freq={}
+
+        for key,func in FREQ_FEATURES.items():
+            features_freq["_".join([signal_name, key])]=func(sigfft,freq,pxx,f)
 
     return features_freq
 

@@ -18,7 +18,7 @@ def get_domain_function(domain:str) -> Callable:
         raise ValueError("Unknown domain:", domain)   
 
     
-def get_acc_features(signals: dict, sampling_rate: float, prefix: str="acc", feature_types: ArrayLike=['Freq','Stat','Corr'], magnitude: bool=False) -> dict:
+def get_acc_features(signals: ArrayLike, signal_names: ArrayLike, sampling_rate: float, prefix: str="acc", feature_types: ArrayLike=['Freq','Stat','Corr'], magnitude: bool=False) -> dict:
     """Calculates ACC features and returns a dictionary.
 
     Args:
@@ -35,6 +35,7 @@ def get_acc_features(signals: dict, sampling_rate: float, prefix: str="acc", fea
     Returns:
         dict: Dictionary of calculated features.
     """
+    data = dict(zip(signal_names, signals))
 
     if sampling_rate <= 0:
         raise ValueError("Sampling rate must be greater than 0.")
@@ -49,18 +50,19 @@ def get_acc_features(signals: dict, sampling_rate: float, prefix: str="acc", fea
             raise ValueError("invalid feature type: " + domain)
         else:
             if domain in ['Freq', 'Stat']:
+
                 domain_function = get_domain_function(domain)
-                for signal_name, signal in signals.items():
-                    features.update(domain_function(signal,sampling_rate,prefix=signal_name))
+                features.update(domain_function(signals=signals,signal_names=signal_names,sampling_rate=sampling_rate))
+
                 if magnitude:
                     sum=0
-                    for sig in signals.values():
+                    for sig in data.values():
                         sum += np.square(sig)
                     magn=np.sqrt(sum)
-                    features.update(domain_function(magn,sampling_rate,prefix="magn"))
+                    features.update(domain_function(signals=[magn],signal_names=['magn'],sampling_rate=sampling_rate))                
             else: 
                 domain_function = get_domain_function(domain)
-                features.update(domain_function(signals, prefix=prefix))
+                features.update(domain_function(signals=signals,signal_names=signal_names,sampling_rate=sampling_rate))
 
     return features
 

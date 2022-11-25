@@ -23,7 +23,7 @@ STAT_FEATURES = {
 }
 
 
-def get_stat_features(sig: ArrayLike, sampling_rate, prefix) -> dict:
+def get_stat_features(signals: ArrayLike, signal_names:ArrayLike, sampling_rate, prefix:str="acc") -> dict:
     """Calculates statistical features.
 
     From https://towardsdatascience.com/feature-engineering-on-time-series-data-transforming-signal-data-of-a-smartphone-accelerometer-for-72cbe34b8a60
@@ -53,11 +53,14 @@ def get_stat_features(sig: ArrayLike, sampling_rate, prefix) -> dict:
     Returns:
         dict: Dictionary of statistical features
     """
+    data = dict(zip(signal_names, signals))
 
     features_stat={}
 
-    for key,func in STAT_FEATURES.items():
-        features_stat["_".join([prefix, key])]=func(sig)
+    for signal_name, signal in data.items():
+
+        for key,func in STAT_FEATURES.items():
+            features_stat["_".join([signal_name, key])]=func(signal)
 
 
     return features_stat

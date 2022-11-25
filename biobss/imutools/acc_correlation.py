@@ -1,8 +1,9 @@
 from scipy.stats import pearsonr
 import itertools
+from numpy.typing import ArrayLike
 
 
-def get_corr_features(signals: dict, prefix: str="signal") -> dict:
+def get_corr_features(signals: ArrayLike, signal_names: ArrayLike, prefix: str="signal", **kwargs) -> dict:
     """Calculates correlation features for N signals
 
         For example:
@@ -17,9 +18,11 @@ def get_corr_features(signals: dict, prefix: str="signal") -> dict:
         dict: Dictionary of correlation features
     """
 
-    comb = list(itertools.combinations(signals.keys(), 2))
+    data = dict(zip(signal_names, signals))
+    comb = list(itertools.combinations(signal_names, 2))
+    
     corr_list = {}
     for i in comb:
-        corr_list["_".join(i) + "_corr"] = pearsonr(signals[i[0]], signals[i[1]])[0]
+        corr_list["_".join(i) + "_corr"] = pearsonr(data[i[0]], data[i[1]])[0]
 
     return corr_list
