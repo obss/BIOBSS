@@ -20,31 +20,33 @@ def ppg_beats(sig: ArrayLike , sampling_rate: float, method: str='peakdet', delt
 
     return info['Peak_locs']
 
-def peak_control(peaks_locs: ArrayLike, peaks_amp: ArrayLike, troughs_locs: ArrayLike, troughs_amp: ArrayLike) -> dict:
+def peak_control(sig: ArrayLike, peaks_locs: ArrayLike, troughs_locs: ArrayLike, type: str='peak') -> dict:
     """Applies rules to check relative peak and onset locations. 
        First, trims the PPG segment as it starts and ends with a trough.
        Then, checks for missing or duplicate peaks taking the trough lcoations as reference. There must be one peak between successive troughs.
 
     Args:
-        peaks_locs (array): PPG peak locations
-        peaks_amp (array): PPG peak amplitudes
-        troughs_locs (array): PPG trough locations
-        troughs_amp (array): PPG trough amplitudes
+        sig (ArrayLike): PPG signal
+        peaks_locs (ArrayLike): PPG peak locations
+        troughs_locs (ArrayLike): PPG trough locations
+        type (str, optional): Type of peaks. It can be 'peak' or 'beat'. Defaults to 'peak'.
 
     Returns:
-        info(dict): Dictionary of peak locations, peak amplitudes, trough locations and trough amplitudes.
+        dict: Dictionary of peak locations, peak amplitudes, trough locations and trough amplitudes.
     """
-    if (len(peaks_locs) != len(peaks_amp)):
-        raise ValueError("Lengths of peak location and peak amplitude arrays do not match!")
-    if (len(troughs_locs) != len(troughs_amp)):
-        raise ValueError("Lengths of trough location and trough amplitude arrays do not match!")
+   
+    if type == 'beat':
+        sig = np.gradient(sig, axis=0, edge_order=1)
+    
+    peaks_amp = sig[peaks_locs]
+    troughs_amp = sig[troughs_locs]
 
     # Trim the arrays as the signal starts and ends with a trough
-    if peaks_locs[0] < troughs_locs[0]:
+    while peaks_locs[0] < troughs_locs[0]:
         peaks_locs = peaks_locs[1:]
         peaks_amp = peaks_amp[1:]
 
-    if peaks_locs[-1] > troughs_locs[-1]:
+    while peaks_locs[-1] > troughs_locs[-1]:
         peaks_locs = peaks_locs[:-1]
         peaks_amp = peaks_amp[:-1]
 
@@ -76,14 +78,12 @@ def peak_control(peaks_locs: ArrayLike, peaks_amp: ArrayLike, troughs_locs: Arra
             ind_mx = np.argmax(peaks_amp[ind_S])
             peak_S.insert(i, peak_mx)
             loc_S.insert(i, peaks_locs[ind_S[ind_mx][0]])
-            j = j+1
+            j = j + np.size(ind_S)
 
     peaks_locs = loc_S
     peaks_amp = peak_S
 
     info['Peak_locs'] = peaks_locs
-    info['Peaks'] = peaks_amp
     info['Trough_locs'] = troughs_locs
-    info['Troughs'] = troughs_amp
 
     return info

@@ -145,7 +145,7 @@ def from_waves(sig: ArrayLike, R_peaks: ArrayLike, fiducials: dict, sampling_rat
         features={}
         for key,func in FEATURES_WAVES.items():
             features["_".join([prefix, key])]=func(sig, sampling_rate, P_peaks, Q_peaks, R_peaks, S_peaks, T_peaks, beatno=m)
-        features_waves['m'] = features
+        features_waves[m] = features
   
     return features_waves
 

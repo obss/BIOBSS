@@ -91,24 +91,7 @@ def filter_signal(sig: ArrayLike, sampling_rate: float, filter_type: str=None, N
         elif signal_type == 'ACC':
             filtered_sig = filter_acc(sig, sampling_rate, method=method)
 
-        elif signal_type == 'EDA':
-            filtered_sig = filter_eda(method=method)
-
         else:
             raise ValueError(f"Signal type should be one of {valid_types}.")
 
     return filtered_sig
-
-
-def filter_eda(method):
-
-    if method is None:
-        N = 2
-        filter_type = 'bandpass'
-        f_lower = 0.5
-        f_upper = 5
-        warnings.warn(f"Default parameters will be used for filtering. {N}th order {method} {filter_type} filter with f1={f_lower} and f2={f_upper}.")
-
-
-
-
