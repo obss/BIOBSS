@@ -71,7 +71,7 @@ def load_sample_data(data_type:str) -> tuple:
 
         filename='EDA_Chest.pkl'
         fs = 700
-        L = 6000
+        L = 5920
         sig = pd.read_pickle(os.path.join(data_dir,filename))
         # Flatten the data
         sig = sig.flatten()
