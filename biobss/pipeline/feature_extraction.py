@@ -1,7 +1,5 @@
 from __future__ import annotations
 from distutils.log import warn
-from sqlite3 import Timestamp
-from symbol import parameters
 from .bio_data import Bio_Data
 import pandas as pd
 import numpy as np

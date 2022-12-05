@@ -38,7 +38,7 @@ class Bio_Channel():
         self.signal_name = name
 
         self._initialize_sampling_rate(sampling_rate)        
-        self._initialize_timestamp(timestamp_resolution, timestamp_start, sampling_rate)
+        self._initialize_timestamp(timestamp,timestamp_resolution, timestamp_start, sampling_rate)
 
         # initialize signal duration and windows
         if(len(signal.shape) < 2):
@@ -53,7 +53,7 @@ class Bio_Channel():
             raise ValueError('Sampling rate must be greater than 0')
         self.sampling_rate = sampling_rate
             
-    def _initialize_timestamp(self, timestamp_resolution: str, timestamp_start: float):
+    def _initialize_timestamp(self,timestamp, timestamp_resolution: str, timestamp_start: float,sampling_rate: float):
         if(timestamp is not None):
             timestamp = np.array(timestamp)
             if(timestamp_resolution is None):
@@ -153,3 +153,4 @@ class Bio_Channel():
         representation += " (" + str(self.channel.dtype) + ")"
         representation += self.__str__()
         return representation
+
