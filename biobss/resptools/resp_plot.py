@@ -28,6 +28,12 @@ def plot_resp(signals:dict, peaks:dict=None, sampling_rate:float=None, timestamp
     else:
         x_label = 'Sample'
 
+    if peaks is None:
+        if show_peaks:
+            raise ValueError("Peaks must be specified if show_peaks is True.")
+        else:
+            peaks = {}
+
     if method == 'matplotlib':
         plot_resp_matplotlib(signals=signals, peaks=peaks, sampling_rate=sampling_rate, timestamp_resolution=timestamp_resolution, x_label=x_label, figsize=figsize, show_peaks=show_peaks)
     elif method == 'plotly':
@@ -57,13 +63,10 @@ def plot_resp_matplotlib(signals:dict, peaks:dict=None, sampling_rate:float=None
             x_values = np.linspace(0, len(y_values), len(y_values))
             #x_label = 'Sample'
             
-        create_signal_plot_matplotlib(ax=axs[i], signal=y_values, x_values=x_values, plot_title=signal_name, signal_name=signal_name, x_label=x_label)
+        if signal_name not in peaks.keys():
+            peaks[signal_name] = {}
 
-        if show_peaks:
-            if peaks[signal_name] is not None:
-                plot_peaks_matplotlib(axs[i], peaks=peaks, x_values=x_values)
-            else:
-                raise ValueError("Peaks must be specified if show_peaks is True.")
+        create_signal_plot_matplotlib(ax=axs[i], signal=y_values, x_values=x_values, show_peaks=show_peaks, peaks=peaks[signal_name], plot_title=signal_name, signal_name=signal_name, x_label=x_label)
         
         i += 1
 
@@ -89,15 +92,12 @@ def plot_resp_plotly(signals:dict, peaks:dict=None, sampling_rate:float=None, ti
         else:
             x_values = np.linspace(0, len(y_values), len(y_values))
             x_label = 'Sample'
-            
-        create_signal_plot_plotly(fig, signal=y_values, x_values=x_values, plot_title=signal_name,signal_name=signal_name, x_label=x_label, location=(i,1))
+                 
+        if signal_name not in peaks.keys():
+            peaks[signal_name] = {}
 
-        if show_peaks:
-            if peaks[signal_name] is not None:
-                plot_peaks_plotly(fig, peaks=peaks, x_values=x_values, x_label=x_label)    
-            else:
-                raise ValueError("Peaks must be specified if show_peaks is True.")
-
+        create_signal_plot_plotly(fig, signal=y_values, x_values=x_values, show_peaks=show_peaks, peaks=peaks[signal_name], plot_title=signal_name,signal_name=signal_name, x_label=x_label, location=(i,1))                      
+     
         i += 1
 
     fig.update_layout({'title': {'text': 'Respiration Signal(s)', 'x':0.45, 'y': 0.9}})
