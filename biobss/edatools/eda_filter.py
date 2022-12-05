@@ -2,7 +2,7 @@ import neurokit2 as nk
 import numpy as np
 
 
-def eda_clean(eda_signal: np.ndarray, sampling_rate: float,method='neurokit'):
+def filter_eda(eda_signal: np.ndarray, sampling_rate: float,method='neurokit'):
 
 
     if(method=='neurokit' or method=='biosppy'):        

@@ -58,14 +58,14 @@ def plot_ecg(signals:dict, peaks:dict=None, sampling_rate:float=None, timestamps
             peaks = {}
 
     if method == 'matplotlib':
-        plot_ecg_matplotlib(signals=signals, peaks=peaks, x_values=x_values, x_label=x_label, figsize=figsize, show_peaks=show_peaks)
+        _plot_ecg_matplotlib(signals=signals, peaks=peaks, x_values=x_values, x_label=x_label, figsize=figsize, show_peaks=show_peaks)
 
     elif method == 'plotly':
-        plot_ecg_plotly(signals=signals, peaks=peaks, x_values=x_values, x_label=x_label, width=width, height=height, show_peaks=show_peaks)
+        _plot_ecg_plotly(signals=signals, peaks=peaks, x_values=x_values, x_label=x_label, width=width, height=height, show_peaks=show_peaks)
     else:
         raise ValueError("Undefined method.")
 
-def plot_ecg_matplotlib(signals:dict, peaks:dict=None, x_values:ArrayLike=None, x_label:str='Sample', figsize=(18.5, 10.5), show_peaks=True):
+def _plot_ecg_matplotlib(signals:dict, peaks:dict=None, x_values:ArrayLike=None, x_label:str='Sample', figsize=(18.5, 10.5), show_peaks=True):
     
     # Create figure
     fig, axs = plt.subplots(figsize=figsize)
@@ -86,7 +86,7 @@ def plot_ecg_matplotlib(signals:dict, peaks:dict=None, x_values:ArrayLike=None, 
     fig.tight_layout()
     plt.show()
 
-def plot_ecg_plotly(signals:dict, peaks:dict=None, x_values:ArrayLike=None, x_label:str='Sample', width=800, height=440, show_peaks=True):
+def _plot_ecg_plotly(signals:dict, peaks:dict=None, x_values:ArrayLike=None, x_label:str='Sample', width=800, height=440, show_peaks=True):
 
     # Create figure    
     fig = make_subplots(rows=1, cols=1)

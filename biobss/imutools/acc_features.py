@@ -9,11 +9,11 @@ from biobss.imutools.acc_correlation import *
 def get_domain_function(domain:str) -> Callable:
 
     if domain == "Corr":
-        return get_corr_features
+        return acc_corr_features
     elif domain == "Freq":
-        return get_freq_features
+        return acc_freq_features
     elif domain == "Stat":
-        return get_stat_features
+        return acc_stat_features
     else:
         raise ValueError("Unknown domain:", domain)   
 

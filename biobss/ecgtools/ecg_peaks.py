@@ -3,7 +3,7 @@ from ecgdetectors import Detectors
 import neurokit2 as nk
 
 
-def ecg_peaks(sig: ArrayLike , sampling_rate: float, method: str='pantompkins') -> ArrayLike:
+def ecg_detectpeaks(sig: ArrayLike , sampling_rate: float, method: str='pantompkins') -> ArrayLike:
   """Detects R peaks from ECG signal. 
      Uses py-ecg-detectors package(https://github.com/berndporr/py-ecg-detectors/).
 
@@ -46,7 +46,7 @@ def ecg_peaks(sig: ArrayLike , sampling_rate: float, method: str='pantompkins') 
   return r_peaks
 
 
-def ecg_waves(sig: ArrayLike, sampling_rate: float, peaks_locs:ArrayLike=None, delineator: str='neurokit2') -> dict:
+def ecg_detectwaves(sig: ArrayLike, sampling_rate: float, peaks_locs:ArrayLike=None, delineator: str='neurokit2') -> dict:
   """Detects fiducial points of ECG signal and returns a dictionary.
 
   Args:
@@ -66,7 +66,7 @@ def ecg_waves(sig: ArrayLike, sampling_rate: float, peaks_locs:ArrayLike=None, d
     raise ValueError("Sampling rate must be greater than 0.")
 
   if peaks_locs is None:
-    peaks_locs=ecg_peaks(sig=sig, sampling_rate=sampling_rate)
+    peaks_locs=ecg_detectpeaks(sig=sig, sampling_rate=sampling_rate)
 
   delineator = delineator.lower()
 

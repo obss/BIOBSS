@@ -21,7 +21,7 @@ def get_feature_names():
     return STAT_FEATURES.keys()
 
 
-def get_stat_features(signal: np.ndarray, prefix="signal") -> dict:
+def eda_stat_features(signal: np.ndarray, prefix="signal") -> dict:
     """This methods takes an 1-D Array input and calculate statistical features over it.
 
     Features : 

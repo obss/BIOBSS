@@ -9,11 +9,11 @@ from biobss.ppgtools.ppg_timedomain import *
 def get_domain_function(domain:str) -> Callable:
 
     if domain == "Time":
-        return get_time_features
+        return ppg_time_features
     elif domain == "Freq":
-        return get_freq_features
+        return ppg_freq_features
     elif domain == "Stat":
-        return get_stat_features
+        return ppg_stat_features
     else:
         raise ValueError("Unknown domain:", domain)   
 

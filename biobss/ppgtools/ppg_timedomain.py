@@ -33,7 +33,7 @@ FEATURES_TIME_SEGMENT = {
 'snr': lambda sig,_0: _calculate_snr(sig),
 }
 
-def get_time_features(sig: ArrayLike, sampling_rate: float, input_types: str, prefix: str='signal', **kwargs) -> dict:
+def ppg_time_features(sig: ArrayLike, sampling_rate: float, input_types: str, prefix: str='signal', **kwargs) -> dict:
     """Calculates time-domain features.
 
     Cycle-based features:

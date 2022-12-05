@@ -23,7 +23,7 @@ STAT_FEATURES = {
 }
 
 
-def get_stat_features(signals: ArrayLike, signal_names:ArrayLike, sampling_rate, prefix:str="acc") -> dict:
+def acc_stat_features(signals: ArrayLike, signal_names:ArrayLike, sampling_rate, prefix:str="acc") -> dict:
     """Calculates statistical features.
 
     From https://towardsdatascience.com/feature-engineering-on-time-series-data-transforming-signal-data-of-a-smartphone-accelerometer-for-72cbe34b8a60

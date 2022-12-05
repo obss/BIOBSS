@@ -5,6 +5,7 @@ import warnings
 from biobss.ppgtools.ppg_filter import *
 from biobss.ecgtools.ecg_filter import *
 from biobss.imutools.acc_filter import *
+from biobss.edatools.eda_filter import *
 
 def filter_signal(sig: ArrayLike, sampling_rate: float, filter_type: str=None, N: int=None, f_lower: float=None, f_upper: float=None, axis: int=0, signal_type: str=None, method: str=None, **kwargs) -> ArrayLike:
     """Filters a signal using a N-th order Butterworth filter unless signal_type is specified. If signal_type is specified, predefined filter parameters are used.
@@ -90,6 +91,9 @@ def filter_signal(sig: ArrayLike, sampling_rate: float, filter_type: str=None, N
 
         elif signal_type == 'ACC':
             filtered_sig = filter_acc(sig, sampling_rate, method=method)
+        
+        elif signal_type == 'EDA':
+            filtered_sig = filter_eda(sig, sampling_rate, method=method)
 
         else:
             raise ValueError(f"Signal type should be one of {valid_types}.")

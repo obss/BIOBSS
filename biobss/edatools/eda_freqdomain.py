@@ -15,7 +15,7 @@ FREQ_FEATURES = {
 }
 
 
-def get_freq_features(sig: ArrayLike, prefix="signal") -> dict:
+def eda_freq_features(sig: ArrayLike, prefix="signal") -> dict:
     """This method calculates Frequency features over the given signal.
 
     In regards to frequency aspects, the signal is transformed into the frequency domain by

@@ -22,7 +22,7 @@ FEATURES_STAT_SEGMENT = {
 'entropy': lambda sig: calculate_shannon_entropy(sig),
 }
 
-def get_stat_features(sig: ArrayLike, sampling_rate: float, input_types: list, prefix: str='signal', **kwargs) -> dict:
+def ppg_stat_features(sig: ArrayLike, sampling_rate: float, input_types: list, prefix: str='signal', **kwargs) -> dict:
     """Calculates statistical features.
 
     Cycle-based features: 

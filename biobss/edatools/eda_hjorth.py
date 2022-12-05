@@ -4,7 +4,7 @@ from numpy.typing import ArrayLike
 
 from biobss.common.signal_hjorth import *
 
-def get_hjorth_features(signal: ArrayLike, prefix="signal"):
+def eda_hjorth_features(signal: ArrayLike, prefix="signal"):
     """This method returns Hjörth parameters for the given signal.
     For more details, see the https://en.wikipedia.org/wiki/Hjorth_parameters
 

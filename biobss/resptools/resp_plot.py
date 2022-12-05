@@ -35,13 +35,13 @@ def plot_resp(signals:dict, peaks:dict=None, sampling_rate:float=None, timestamp
             peaks = {}
 
     if method == 'matplotlib':
-        plot_resp_matplotlib(signals=signals, peaks=peaks, sampling_rate=sampling_rate, timestamp_resolution=timestamp_resolution, x_label=x_label, figsize=figsize, show_peaks=show_peaks)
+        _plot_resp_matplotlib(signals=signals, peaks=peaks, sampling_rate=sampling_rate, timestamp_resolution=timestamp_resolution, x_label=x_label, figsize=figsize, show_peaks=show_peaks)
     elif method == 'plotly':
-        plot_resp_plotly(signals=signals, peaks=peaks, sampling_rate=sampling_rate, timestamp_resolution=timestamp_resolution, x_label=x_label, width=width, height=height, show_peaks=show_peaks)
+        _plot_resp_plotly(signals=signals, peaks=peaks, sampling_rate=sampling_rate, timestamp_resolution=timestamp_resolution, x_label=x_label, width=width, height=height, show_peaks=show_peaks)
     else:
         raise ValueError("Undefined method.")
 
-def plot_resp_matplotlib(signals:dict, peaks:dict=None, sampling_rate:float=None, timestamp_resolution:str='s', x_label= None, figsize=(18.5, 10.5), show_peaks=True):
+def _plot_resp_matplotlib(signals:dict, peaks:dict=None, sampling_rate:float=None, timestamp_resolution:str='s', x_label= None, figsize=(18.5, 10.5), show_peaks=True):
 
     # Create figure
     dim = len(signals)
@@ -76,7 +76,7 @@ def plot_resp_matplotlib(signals:dict, peaks:dict=None, sampling_rate:float=None
     fig.tight_layout()
     plt.show()        
 
-def plot_resp_plotly(signals:dict, peaks:dict=None, sampling_rate:float=None, timestamp_resolution='s', x_label=None, width= 1050, height=600, show_peaks=True):
+def _plot_resp_plotly(signals:dict, peaks:dict=None, sampling_rate:float=None, timestamp_resolution='s', x_label=None, width= 1050, height=600, show_peaks=True):
  
     # Create figure
     dim = len(signals)

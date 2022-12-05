@@ -29,7 +29,7 @@ FREQ_FEATURES = {
 }
 
 
-def get_freq_features(signals: ArrayLike, signal_names:ArrayLike, sampling_rate, prefix='acc') -> dict:
+def acc_freq_features(signals: ArrayLike, signal_names:ArrayLike, sampling_rate, prefix='acc') -> dict:
     """Calculates frequency-domain features.
 
     From 

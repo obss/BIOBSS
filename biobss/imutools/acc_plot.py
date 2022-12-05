@@ -70,14 +70,14 @@ def plot_acc(signals:dict, peaks:dict=None, sampling_rate:float=None, timestamps
             peaks = {}
 
     if method == 'matplotlib':
-        plot_acc_matplotlib(signals=signals, peaks=peaks, x_values=x_values, x_label=x_label, figsize=figsize, show_peaks=show_peaks)
+        _plot_acc_matplotlib(signals=signals, peaks=peaks, x_values=x_values, x_label=x_label, figsize=figsize, show_peaks=show_peaks)
 
     elif method == 'plotly':
-        plot_acc_plotly(signals=signals, peaks=peaks, x_values=x_values, x_label=x_label, width=width, height=height, show_peaks=show_peaks)
+        _plot_acc_plotly(signals=signals, peaks=peaks, x_values=x_values, x_label=x_label, width=width, height=height, show_peaks=show_peaks)
     else:
         raise ValueError("Undefined method.")
 
-def plot_acc_matplotlib(signals:dict, peaks:dict=None, x_values:ArrayLike=None, x_label:str='Sample', figsize=(18.5, 10.5), show_peaks=True):
+def _plot_acc_matplotlib(signals:dict, peaks:dict=None, x_values:ArrayLike=None, x_label:str='Sample', figsize=(18.5, 10.5), show_peaks=True):
 
     # Create figure
     dim = len(signals)
@@ -111,7 +111,7 @@ def plot_acc_matplotlib(signals:dict, peaks:dict=None, x_values:ArrayLike=None, 
     fig.tight_layout()
     plt.show()
 
-def plot_acc_plotly(signals:dict, peaks:dict=None, x_values:ArrayLike=None, x_label:str='Sample', width=1050, height=600, show_peaks=True):
+def _plot_acc_plotly(signals:dict, peaks:dict=None, x_values:ArrayLike=None, x_label:str='Sample', width=1050, height=600, show_peaks=True):
 
     # Create figure 
     dim = len(signals)    

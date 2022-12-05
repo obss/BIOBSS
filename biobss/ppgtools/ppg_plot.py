@@ -62,14 +62,14 @@ def plot_ppg(signals:dict, peaks:dict=None, sampling_rate:float=None, timestamps
             signals[signal_name] = normalize_signal(signal, method='minmax')
 
     if method == 'matplotlib':
-        plot_ppg_matplotlib(signals=signals, peaks=peaks, x_values=x_values, x_label=x_label, figsize=figsize, show_peaks=show_peaks)
+        _plot_ppg_matplotlib(signals=signals, peaks=peaks, x_values=x_values, x_label=x_label, figsize=figsize, show_peaks=show_peaks)
 
     elif method == 'plotly':
-        plot_ppg_plotly(signals=signals, peaks=peaks, x_values=x_values, x_label=x_label, width=width, height=height, show_peaks=show_peaks)
+        _plot_ppg_plotly(signals=signals, peaks=peaks, x_values=x_values, x_label=x_label, width=width, height=height, show_peaks=show_peaks)
     else:
         raise ValueError("Undefined method.")
 
-def plot_ppg_matplotlib(signals:dict, peaks:dict=None, x_values:ArrayLike=None, x_label:str='Sample', figsize=(18.5, 10.5), show_peaks=True):
+def _plot_ppg_matplotlib(signals:dict, peaks:dict=None, x_values:ArrayLike=None, x_label:str='Sample', figsize=(18.5, 10.5), show_peaks=True):
     
     # Create figure
     fig, axs = plt.subplots(figsize=figsize)
@@ -90,7 +90,7 @@ def plot_ppg_matplotlib(signals:dict, peaks:dict=None, x_values:ArrayLike=None, 
     fig.tight_layout()
     plt.show()
 
-def plot_ppg_plotly(signals:dict, peaks:dict=None, x_values:ArrayLike=None, x_label:str='Sample', width=800, height=440, show_peaks=True):
+def _plot_ppg_plotly(signals:dict, peaks:dict=None, x_values:ArrayLike=None, x_label:str='Sample', width=800, height=440, show_peaks=True):
     
     # Create figure    
     fig = make_subplots(rows=1, cols=1)

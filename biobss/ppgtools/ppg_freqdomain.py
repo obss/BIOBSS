@@ -20,7 +20,7 @@ FUNCTIONS_FREQ_SEGMENT= {
 }  
 
 
-def get_freq_features(sig: ArrayLike, sampling_rate: float, input_types: list=None, prefix: str='signal') -> dict:
+def ppg_freq_features(sig: ArrayLike, sampling_rate: float, input_types: list=None, prefix: str='signal') -> dict:
     """Calculates frequency-domain features
 
     Segment-based features:
