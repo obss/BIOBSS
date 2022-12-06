@@ -1,4 +1,4 @@
-from .eda_clean import *
+from .eda_filter import *
 from .eda_decompose import eda_decompose
 from .eda_features import *
 from .eda_freqdomain import *
