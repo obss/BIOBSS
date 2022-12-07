@@ -23,16 +23,23 @@ def filter_acc(sig: ArrayLike, sampling_rate: float, method: str='lowpass') -> A
 
     method = method.lower()
 
-    if method == 'lowpass':      
-        N = 2
-        btype = 'lowpass'
-        W2 = 10 / (sampling_rate/2)
-        warnings.warn(f"Default parameters will be used for filtering. {N}th order {method} filter with f2=10 Hz.")
-
-        sos = signal.butter(N, W2, btype, output='sos')
-        filtered_sig=signal.sosfiltfilt(sos, sig)
+    if method == 'lowpass': 
+        filtered_sig = _filter_acc_lowpass(sig=sig, sampling_rate=sampling_rate)
 
     else:
         raise ValueError(f"Undefined method: {method}.")
+
+    return filtered_sig
+
+
+def _filter_acc_lowpass(sig: ArrayLike, sampling_rate: float) -> ArrayLike:
+
+    N = 2
+    btype = 'lowpass'
+    W2 = 10 / (sampling_rate/2)
+    warnings.warn(f"Default parameters will be used for filtering. {N}th order lowpass filter with f2=10 Hz.")
+
+    sos = signal.butter(N, W2, btype, output='sos')
+    filtered_sig=signal.sosfiltfilt(sos, sig)
 
     return filtered_sig

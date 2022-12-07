@@ -132,7 +132,7 @@ def filter_resp_sig(resampling_rate: float=10, rsp_clean_method: str='khodadad20
     return filtered_resp
 
 
-def estimate_rr(resp_sig: ArrayLike, sampling_rate: float=10, method: str='peakdet', delta: float=0.001) -> float:
+def estimate_rr(resp_sig: ArrayLike, resampling_rate:float=10, method: str='peakdet', delta: float=0.001) -> float:
     """Estimates respiratory rate from the respiratory signal.
 
     Args:
@@ -145,33 +145,44 @@ def estimate_rr(resp_sig: ArrayLike, sampling_rate: float=10, method: str='peakd
     Returns:
         float: Estimated respiratory rate (breaths/minutes).
     """
-    if sampling_rate <= 0:
+    if resampling_rate <= 0:
         raise ValueError("Sampling rate must be greater than 0.")
 
     method = method.lower()
 
     if (method == 'peakdet'):
-        maxtab, mintab = signal_detectpeaks._peakdetection_peakdet(resp_sig, delta)
-
-        if (maxtab.size == 0) or (mintab.size == 0):
-            raise ValueError(
-                "No peaks or troughs found.Respiratory rate can not be estimated!")
-        else:
-            peaks_locs = maxtab[:, 0].astype(int)
-            intervals = abs(np.diff(peaks_locs))/sampling_rate  # seconds
-            mean_int = np.mean(intervals)
-            mean_rr = 60/mean_int  # br/minutes
-
+        mean_rr = _estimate_rr_peakdet(resp_sig, resampling_rate, delta=delta)
+ 
     elif (method == 'xcorr'):
-        rr_inst = nk.rsp_rate(
-            resp_sig, sampling_rate=sampling_rate, mod_type="xcorr")
-        mean_rr = rr_inst.mean()
+        mean_rr = _estimate_rr_xcorr(resp_sig, resampling_rate=resampling_rate)
 
     else:
         raise ValueError("The method should be one of 'peakdet' or 'xcorr'.")
 
     return mean_rr
 
+def _estimate_rr_peakdet(resp_sig: ArrayLike, resampling_rate: float=10, delta: float=0.001) -> float:
+
+    maxtab, mintab = signal_detectpeaks._peakdetection_peakdet(resp_sig, delta)
+
+    if (maxtab.size == 0) or (mintab.size == 0):
+        raise ValueError(
+            "No peaks or troughs found.Respiratory rate can not be estimated!")
+    else:
+        peaks_locs = maxtab[:, 0].astype(int)
+        intervals = abs(np.diff(peaks_locs))/resampling_rate  # seconds
+        mean_int = np.mean(intervals)
+        mean_rr = 60/mean_int  # br/minutes
+
+    return mean_rr
+
+def _estimate_rr_xcorr(resp_sig: ArrayLike, resampling_rate: float=10) -> float:
+
+    rr_inst = nk.rsp_rate(
+        resp_sig, sampling_rate=resampling_rate, method="xcorr")
+    mean_rr = rr_inst.mean()
+
+    return mean_rr
 
 def calc_rqi(resp_sig: ArrayLike, resampling_rate: float=10, rqi_method: list = ['autocorr', 'hjorth']) -> dict:
     """Calculates respiratory quality index for the respiratory signal. 
@@ -192,15 +203,7 @@ def calc_rqi(resp_sig: ArrayLike, resampling_rate: float=10, rqi_method: list = 
     rqindices = {}
 
     if 'autocorr' in rqi_method:
-        corr_coeff = []
-        sig = pd.Series(resp_sig)
-        lag_min = int(LAG_MIN*resampling_rate)  # seconds to samples
-        lag_max = int(LAG_MAX*resampling_rate)  # seconds to samples
-
-        for lag in range(lag_min, lag_max+1):
-            c = sig.autocorr(lag=lag)
-            corr_coeff.append(c)
-
+        corr_coeff = _calc_rqi_autocorr(resp_sig, resampling_rate)
         rqindices['autocorr'] = max(corr_coeff)
 
     if 'hjorth' in rqi_method:
@@ -208,6 +211,18 @@ def calc_rqi(resp_sig: ArrayLike, resampling_rate: float=10, rqi_method: list = 
 
     return rqindices
 
+def _calc_rqi_autocorr(resp_sig: ArrayLike, resampling_rate: float=10) -> dict:
+
+    corr_coeff = []
+    sig = pd.Series(resp_sig)
+    lag_min = int(LAG_MIN*resampling_rate)  # seconds to samples
+    lag_max = int(LAG_MAX*resampling_rate)  # seconds to samples
+
+    for lag in range(lag_min, lag_max+1):
+        c = sig.autocorr(lag=lag)
+        corr_coeff.append(c)
+
+    return corr_coeff
 
 def fuse_rr(rr_est: ArrayLike, rqi: ArrayLike=None, fusion_method: str='smartfusion') -> float:
     """Fuses respiratory rates calculated from different modulation types.
@@ -228,25 +243,37 @@ def fuse_rr(rr_est: ArrayLike, rqi: ArrayLike=None, fusion_method: str='smartfus
     fusion_method = fusion_method.lower()
     
     if fusion_method == 'smartfusion':
-        rr_std = np.std(rr_est)
-
-        if (rr_std <= 4):
-            rr_fused = np.mean(rr_est)
-        else:
-            rr_fused = ['invalid signal']
-
+        rr_fused = _fuse_rr_smartfusion(rr_est)
+        
     elif fusion_method == 'qualityfusion':
-        if rqi is not None:
-            if len(rr_est) != len(rqi):
-                raise ValueError("The lengths of 'rr_est' and 'rqi' arrays do not match!")
-            
-            rr_fused = np.sum(np.asarray(
-                rqi)*np.asarray(rr_est))/np.sum(rqi)
-        else:
-            raise ValueError("RQI values are required for the 'QualityFusion' method.'")
+        rr_fused = _fuse_rr_qualityfusion(rr_est, rqi)
 
     else:
         raise ValueError(
             "The method should be one of 'SmartFusion' and 'QualityFusion'.")
+
+    return rr_fused
+
+def _fuse_rr_smartfusion(rr_est: ArrayLike) -> float:
+    
+    rr_std = np.std(rr_est)
+
+    if (rr_std <= 4):
+        rr_fused = np.mean(rr_est)
+    else:
+        rr_fused = ['invalid signal']
+    
+    return rr_fused
+
+def _fuse_rr_qualityfusion(rr_est: ArrayLike, rqi: ArrayLike=None) -> float:
+
+    if rqi is not None:
+        if len(rr_est) != len(rqi):
+            raise ValueError("The lengths of 'rr_est' and 'rqi' arrays do not match!")
+        
+        rr_fused = np.sum(np.asarray(
+            rqi)*np.asarray(rr_est))/np.sum(rqi)
+    else:
+        raise ValueError("RQI values are required for the 'QualityFusion' method.'")
 
     return rr_fused

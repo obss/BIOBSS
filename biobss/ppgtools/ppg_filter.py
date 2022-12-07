@@ -24,16 +24,23 @@ def filter_ppg(sig: ArrayLike, sampling_rate: float, method: str='bandpass') -> 
     method = method.lower()
 
     if method == 'bandpass':
-        N = 2
-        btype = 'bandpass'
-        W1 = 0.5 / (sampling_rate/2)
-        W2 = 5 / (sampling_rate/2)
-        warnings.warn(f"Default parameters will be used for filtering. {N}th order {method} {btype} filter with f1=0.5 Hz and f2=5 Hz.")
-
-        sos = signal.butter(N, [W1,W2], btype, output='sos')
-        filtered_sig=signal.sosfiltfilt(sos, sig)
+        filtered_sig = _filter_ppg_bandpass(sig=sig, sampling_rate=sampling_rate)
 
     else:
         raise ValueError(f"Undefined method: {method}.")
+
+    return filtered_sig
+
+
+def _filter_ppg_bandpass(sig: ArrayLike, sampling_rate: float) -> ArrayLike:
+
+    N = 2
+    btype = 'bandpass'
+    W1 = 0.5 / (sampling_rate/2)
+    W2 = 5 / (sampling_rate/2)
+    warnings.warn(f"Default parameters will be used for filtering. {N}th order bandpass filter with f1=0.5 Hz and f2=5 Hz.")
+
+    sos = signal.butter(N, [W1,W2], btype, output='sos')
+    filtered_sig=signal.sosfiltfilt(sos, sig)
 
     return filtered_sig
