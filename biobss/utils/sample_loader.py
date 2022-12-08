@@ -23,7 +23,7 @@ def load_sample_data(data_type:str) -> tuple:
     if data_type == 'PPG_SHORT':
         sample_data, info = _load_sample_ppg(data_dir)
 
-    if data_type == 'PPG_LONG':
+    elif data_type == 'PPG_LONG':
         sample_data, info = _load_sample_ppg_long(data_dir)
 
     elif data_type == 'ECG':

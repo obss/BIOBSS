@@ -70,6 +70,7 @@ def _plot_eda_matplotlib(signals:dict, peaks:dict=None, x_values:ArrayLike=None,
     
     fig.supxlabel(x_label)
     fig.supylabel('Amplitude')
+    plt.title('EDA Signal')
 
     fig.tight_layout()
     plt.show()
@@ -88,7 +89,7 @@ def _plot_eda_plotly(signals:dict, peaks:dict=None, x_values:ArrayLike=None, x_l
         if signal_name not in peaks.keys():
             peaks[signal_name] = {}
 
-        create_signal_plot_plotly(fig, signal=signal, x_values=x_values, show_peaks=show_peaks, peaks=peaks[signal_name], plot_title=signal_name, signal_name=+ ' ' + signal_name, x_label=x_label, width=width, height=height, location=(i,1))
+        create_signal_plot_plotly(fig, signal=signal, x_values=x_values, show_peaks=show_peaks, peaks=peaks[signal_name], plot_title=' ', signal_name=signal_name + ' EDA' , x_label=x_label, width=width, height=height, location=(i,1))
     
         i += 1
  
