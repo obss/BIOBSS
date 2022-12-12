@@ -1,18 +1,18 @@
 from __future__ import annotations
-from time import time
 from .bio_data import Bio_Data
 from .bio_channel import Bio_Channel
 import pandas as pd
 import numpy as np
 import warnings
 import inspect
+from .event_channel import Event_Channel
 
 """generic signal process object"""
 
 
 class Bio_Process:
 
-    def __init__(self, process_method, inplace=True, prefix=None, return_index=None, argmap={}, **kwargs):
+    def __init__(self, process_method, inplace=True, prefix=None, return_index=None, argmap={},returns_event=False,event_args={}, **kwargs):
 
         self.process_method = process_method
         self.kwargs = kwargs
@@ -20,6 +20,8 @@ class Bio_Process:
         self.return_index = return_index
         self.argmap = argmap
         self.prefix = prefix
+        self.returns_event = returns_event
+        self.event_args=event_args
         if(self.inplace):
             self.prefix = None
         else:
@@ -72,6 +74,9 @@ class Bio_Process:
         return result
 
     def _process_results(self, signal: Bio_Channel, result):
+        if(self.returns_event):
+            result=self._process_event_results(signal,result)
+            return result
         if isinstance(result, Bio_Channel):
             return result
         elif isinstance(result, Bio_Data):
@@ -140,7 +145,51 @@ class Bio_Process:
            
         return output
         
+    def _process_event_results(self, signal, result):
+        timestamp = self.event_args.get("timestamp", signal.timestamp)
+        timestamp_resolution = self.event_args.get("timestamp_resolution", signal.timestamp_resolution)
+        indicator = self.event_args.get("indicator", 1)
+        is_signal = self.event_args.get("is_signal", False)
+        sampling_rate = self.event_args.get("sampling_rate", signal.sampling_rate)
 
+        dict_index = self.event_args.get("dict_index", None)
+        # If result is already an Event_Channel, simply return it
+        if isinstance(result, Event_Channel):
+            return result
+
+        # Extract the specified element from the result if it is a tuple, array, or list
+        if isinstance(result, tuple):
+            result = result[self.return_index]
+        elif isinstance(result, (np.ndarray, list)):
+            if self.return_index is not None:
+                result = result[self.return_index]
+            signal_name = self.event_args.get("signal_name", "Events_" + signal.signal_name)
+
+        # If result is a dictionary, extract the specified element and use it as the event data
+        if isinstance(result, dict):
+            if(isinstance(self.return_index,str)):
+                index=self.return_index
+            elif(dict_index is not None):
+                index=dict_index
+            else:
+                raise ValueError("If result is a dictionary, dict_index must be specified! in either in the event_args or as a return_index")
+            result = result[index]
+            signal_name = index
+
+        # If result is a Pandas Series, extract the values and use the series name as the event name
+        elif isinstance(result, pd.Series):
+            result = result.values
+            signal_name = self.event_args.get("signal_name", result.name)
+
+        # If result is a Pandas DataFrame, extract the specified column and use the column name as the event name
+        elif isinstance(result, pd.DataFrame):
+            result = result[self.return_index].values
+            signal_name = self.return_index
+            
+
+        # Create the Event_Channel object and return it
+        return Event_Channel(result, event_name=signal_name, timestamp_data=timestamp, timestamp_resolution=timestamp_resolution,
+                             indicator=indicator, is_signal=is_signal, sampling_rate=sampling_rate)
 
     def __str__(self) -> str:
         return self.process_method.__name__

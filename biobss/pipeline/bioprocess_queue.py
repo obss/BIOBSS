@@ -2,7 +2,7 @@ from __future__ import annotations
 from .bio_data import Bio_Data
 from .bio_channel import Bio_Channel
 from typing import Union
-
+from .event_channel import Event_Channel
 """ Process list object with add and iterate process objects"""
 
 
@@ -53,6 +53,9 @@ class Process_List():
                     elif(isinstance(process_result, Bio_Channel)):
                             bio_data.add_channel(
                                 process_result, c_name, modify_existed=True)
+                    elif(isinstance(process_result, Event_Channel)):
+                            bio_data.add_event_channel(
+                                process_result, modify_existed=True)                        
                     else:
                         pass
 
@@ -64,3 +67,4 @@ class Process_List():
             representation += "\t"+str(i+1)+": "+str(p)+"\n"
 
         return representation
+
