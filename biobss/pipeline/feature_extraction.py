@@ -10,7 +10,7 @@ from typing import Union
 
 class Feature():
 
-    def __init__(self, name, function, input_signals: dict,parameters={}, **kwargs):
+    def __init__(self, name, function, input_signals: dict,parameters={},input_type=np.ndarray,add_prefix_after=False, **kwargs):
 
         self.name = name
         self.function = function
@@ -18,6 +18,8 @@ class Feature():
         self.input_signals = input_signals
         self.kwargs=kwargs
         self.feature_output = pd.DataFrame()
+        self.input_type = input_type
+        self.add_prefix_after=add_prefix_after
 
     def run(self, data: Bio_Data) -> pd.DataFrame:
 
@@ -42,6 +44,14 @@ class Feature():
 
     def __str__(self) -> str:
         return self.name
+    
+    def _sanitize_parameters(self) -> dict:
+        redundant = []
+        for k in self.parameters:
+            if k not in self.function.__code__.co_varnames:
+                redundant.append(k)
+        for r in redundant:
+            self.parameters.pop(r)
 
     def __extract(self, channel_name: Union[str, list], prefix: str = '') -> pd.DataFrame:
         if(isinstance(channel_name, str)):
@@ -50,20 +60,28 @@ class Feature():
             self.parameters['prefix'] = prefix
             data = self.data[channel_name].channel
             
+            self._sanitize_parameters()
+            
             if(len(data.shape) < 2):
                 window_number = 1
             else:
                 window_number = data.shape[0]       
             if(window_number == 1):
-                feature_set.append(self.function(data, **self.parameters))
+                input= self.input_type(data)
+                feature_set.append(self.function(input, **self.parameters))
                 calculated_features = pd.DataFrame.from_dict(feature_set)
-                return calculated_features
+
             else:         
                 for i in range(window_number):
-                    feature_set.append(self.function(data[i], **self.parameters))
+                    input=self.input_type(data[i])
+                    feature_set.append(self.function(input, **self.parameters))
                 calculated_features = pd.DataFrame(feature_set, index=timestamps)
-                return calculated_features
+                
             
+            if(self.add_prefix_after):
+                calculated_features.columns = [prefix + c for c in calculated_features.columns]            
+            
+            return calculated_features
             raise ValueError("Feature extraction failed unexpectedly!")
         elif(isinstance(channel_name, list)):
             ts = []
