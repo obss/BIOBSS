@@ -121,10 +121,10 @@ def from_scr(signal: ArrayLike) -> dict:
     """
 
     scr_features = {}
-    scr_features.update(get_stat_features(signal, prefix="scr"))
-    scr_features.update(get_hjorth_features(signal, prefix="scr"))
-    scr_features.update(get_signal_features(signal, prefix="scr"))
-    scr_features.update(get_freq_features(signal, prefix="scr"))
+    scr_features.update(eda_stat_features(signal, prefix="scr"))
+    scr_features.update(eda_hjorth_features(signal, prefix="scr"))
+    scr_features.update(eda_signal_features(signal, prefix="scr"))
+    scr_features.update(eda_freq_features(signal, prefix="scr"))
 
     return scr_features
 
@@ -140,6 +140,6 @@ def from_scl(signal: ArrayLike) -> dict:
     """
 
     scl_features = {}
-    scl_features.update(get_stat_features(signal, prefix="scl"))
+    scl_features.update(eda_stat_features(signal, prefix="scl"))
 
     return scl_features
