@@ -5,8 +5,19 @@ from numpy.typing import ArrayLike
 import plotly.graph_objects as go
 from plotly_resampler import register_plotly_resampler
 
-def create_signal_plot_matplotlib(ax, signal:ArrayLike=None, x_values=None, show_peaks:bool=False, peaks:dict=None, plot_title="Signal Plot", signal_name="Signal", x_label='Sample'):
+def create_signal_plot_matplotlib(ax: plt.Axes, signal:ArrayLike=None, x_values=None, show_peaks:bool=False, peaks:dict=None, plot_title:str="Signal Plot", signal_name:str="Signal", x_label:str='Sample'):
+    """Generates plots for given signals using Matplotlib.
 
+    Args:
+        ax (plt.Axes): Axes to plot signal.
+        signal (ArrayLike, optional): Array of y-axis values. Defaults to None.
+        x_values (_type_, optional): Array of x-axis values. Defaults to None.
+        show_peaks (bool, optional): If True, peaks are plotted. Defaults to False.
+        peaks (dict, optional): Dictionary of peaks to be plotted. Defaults to None.
+        plot_title (str, optional): Plot title. Defaults to "Signal Plot".
+        signal_name (str, optional): Name of signal to be plotted. Defaults to "Signal".
+        x_label (str, optional): Label of x-axis. Defaults to 'Sample'.
+    """
     if (x_values is None):
         x_values = np.linspace(0, len(signal), len(signal))
                           
@@ -32,9 +43,25 @@ def create_signal_plot_matplotlib(ax, signal:ArrayLike=None, x_values=None, show
     
     ax.legend(legend, loc='center left', bbox_to_anchor=(1.0, 0.5))
     
+def create_signal_plot_plotly(fig: go.Figure, signal:ArrayLike=None, x_values:ArrayLike=None, show_peaks:bool=False, peaks:dict=None, plot_title:str="Signal Plot", signal_name:str="Signal", x_label:str='Sample', width:float=1050, height:float=600, location:tuple=None):
+    """Generates plots for given signals using Plotly.
 
-def create_signal_plot_plotly(fig, signal:ArrayLike=None, x_values:ArrayLike=None, show_peaks:bool=False, peaks:dict=None, plot_title="Signal Plot",signal_name="Signal", x_label='Sample', width=1050, height=600, location=None):
+    Args:
+        fig (go.Figure): Figure to plot signal.
+        signal (ArrayLike, optional): Array of y-axis values. Defaults to None.
+        x_values (ArrayLike, optional): Array of x-axis values. Defaults to None.
+        show_peaks (bool, optional): If True, peaks are plotted. Defaults to False.
+        peaks (dict, optional): Dictionary of peaks to be plotted. Defaults to None.
+        plot_title (str, optional): Plot title. Defaults to "Signal Plot".
+        signal_name (str, optional): Name of signal to be plotted. Defaults to "Signal".
+        x_label (str, optional): Label of x-axis. Defaults to 'Sample'.
+        width (float, optional): Figure width. Defaults to 1050.
+        height (float, optional): Figure height. Defaults to 600.
+        location (tuple, optional): Subplot location. Defaults to None.
 
+    Raises:
+        ValueError: If location is not provided.
+    """
     #adjust it
     limit=200000
     
@@ -46,7 +73,7 @@ def create_signal_plot_plotly(fig, signal:ArrayLike=None, x_values:ArrayLike=Non
         x_values = np.linspace(0, len(signal), len(signal))
 
     if(location is None):
-        raise ValueError('location must be specified')
+        raise ValueError('Location must be specified')
     
     fig.append_trace(go.Scatter(x=x_values, y=signal, name=signal_name), row=location[0], col=location[1])
     

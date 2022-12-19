@@ -1,14 +1,15 @@
 import numpy as np
 from numpy.typing import ArrayLike
 
+
 def create_timestamp_signal(resolution: str, length: float, start: float, rate: float) -> ArrayLike:
-    """Generates a timestamp array
+    """Generates a timestamp array.
 
     Args:
         resolution (str): Timestamp resolution. It can be 'ns', 'ms', 's' or 'min'.
-        length (float): Length of timestamp array to be generated
-        start (float): Starting time
-        rate (float): Rate of increment
+        length (float): Length of timestamp array to be generated.
+        start (float): Starting time.
+        rate (float): Rate of increment.
 
     Raises:
         ValueError: If starting time is less then zero.
@@ -37,8 +38,22 @@ def create_timestamp_signal(resolution: str, length: float, start: float, rate: 
     
     return timestamp
     
-    
-def check_timestamp(timestamp,timestamp_resolution,regularity_factor=1):
+def check_timestamp(timestamp: ArrayLike, timestamp_resolution: str, regularity_factor:int=1) -> bool:
+    """Checks if timestamp array...
+
+    Args:
+        timestamp (ArrayLike): Timestamp array.
+        timestamp_resolution (str): Timestamp resolution.
+        regularity_factor (int, optional): Regularity factor. Defaults to 1.
+
+    Raises:
+        ValueError: If timestamp resolution is not 'ns', 'ms', 's' or 'min'.
+        ValueError: If timestamp array is not monotonic.
+        ValueError: If timestamp array is not regularly spaced.
+
+    Returns:
+        bool: Decision
+    """
     
     if(timestamp_resolution == 'ns'):
             regularity_parameter = 1e-9
@@ -49,14 +64,14 @@ def check_timestamp(timestamp,timestamp_resolution,regularity_factor=1):
     elif(timestamp_resolution == 'min'):
             regularity_parameter = 60
     else:
-        raise ValueError('timestamp_resolution must be "ns","ms","s","min"')
+        raise ValueError('Timestamp_resolution must be "ns","ms","s","min".')
     
     regularity_parameter = regularity_parameter*regularity_factor
     
     if(np.any(np.diff(timestamp) < 0)):
-        raise ValueError('Timestamp must be monotonic')
+        raise ValueError('Timestamp must be monotonic.')
     if(np.diff(timestamp).std() > regularity_parameter):  # TODO: optimize this parameter
-        raise ValueError('Timestamp must be regularly spaced')
+        raise ValueError('Timestamp must be regularly spaced.')
     
     return True
 

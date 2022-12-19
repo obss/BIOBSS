@@ -3,7 +3,6 @@ from scipy import interpolate
 from numpy.typing import ArrayLike
 
 from biobss.common.signal_fft import *
-from biobss.common.signal_power import *
 from biobss.common.signal_psd import *
 
 F_INTERP = 4
