@@ -1,11 +1,11 @@
 from numpy.typing import ArrayLike
-from ..pipeline.bio_channel import Bio_Channel
+
 
 def normalize_signal(signal: ArrayLike, method: str='zscore') -> ArrayLike:
-    """Normalizes a signal
+    """Normalizes a signal.
 
     Args:
-        signal (ArrayLike): Signal to be normalized
+        signal (ArrayLike): Input signal.
         method (str, optional): Normalization method. Defaults to 'zscore'.
 
     Raises:
@@ -19,7 +19,5 @@ def normalize_signal(signal: ArrayLike, method: str='zscore') -> ArrayLike:
         return (signal-signal.mean())/signal.std()
     elif(method == 'minmax'):
         return (signal-signal.min())/(signal.max()-signal.min())
-
     else:
-        raise ValueError(
-            f"Unknown method '{method}', available values are [zscore, minmax].")
+        raise ValueError(f"Unknown method '{method}', available values are [zscore, minmax].")

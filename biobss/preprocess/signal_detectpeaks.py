@@ -68,7 +68,9 @@ def peak_detection(sig: ArrayLike, sampling_rate: float, method: str='peakdet', 
     return info
 
 def _peakdetection_peakdet(v: ArrayLike, delta: float, x: ArrayLike = None) -> ArrayLike:
-    """
+    """Detects signal peaks using the method 'peakdet'.
+    Reference: https://gist.github.com/endolith/250860
+    
     Converted from MATLAB script at http://billauer.co.il/peakdet.html
 
     Returns two arrays
@@ -140,13 +142,13 @@ def _peakdetection_peakdet(v: ArrayLike, delta: float, x: ArrayLike = None) -> A
     return np.array(maxtab), np.array(mintab)
 
 def _peakdetection_heartpy(sig: ArrayLike, sampling_rate: float) -> Any:
-
+    """Detects signal peaks using HeartPy."""
     wd, m = hp.process(sig, sample_rate=sampling_rate)
 
     return wd, m
 
 def _peakdetection_scipy(sig: ArrayLike) -> Any:
-
+    """Detects signal peaks using Scipy."""
     peaks_locs, _ =signal.find_peaks(sig)
 
     return peaks_locs

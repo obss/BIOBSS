@@ -2,17 +2,24 @@ import numpy as np
 from numpy.typing import ArrayLike
 from collections.abc import Iterable
 
-def segment_signal(signal: ArrayLike, window_size: float, step_size=1., sampling_rate=20.) -> ArrayLike:
+def segment_signal(signal: ArrayLike, sampling_rate:float, window_size: float, step_size= float) -> ArrayLike:
     """Generates segments from input signal.
 
     Args:
-        signal (1-D arraylike): Signal to be segmented into windows.
+        signal (ArrayLike): Signal to be segmented into windows.
+        sampling_rate (float): Sampling rate of the signal.
         window_size (float): Size of signal windows in seconds.
-        step_size (float, optional): Step Size in seconds. Defaults to 1.
-        sampling_rate (float, optional): Sampling rate of the signal. Defaults to 20.
+        step_size (_type_, optional): Step Size in seconds.
+
+    Raises:
+        ValueError: If sampling rate is not greater than 0.
+        ValueError: If signal is not an iterable.
+        Exception:  If type of window size or step size is not int or float.
+        Exception:  If window size or step size is not greater than 0.
+        Exception:  If window size is greater than the length of input signal. 
 
     Returns:
-        [2-D array]: [Collection of signal windows]
+        ArrayLike: Collection of signal windows.
     """
     # Verify the inputs
     if sampling_rate <= 0:
@@ -37,4 +44,5 @@ def segment_signal(signal: ArrayLike, window_size: float, step_size=1., sampling
     # Sliding window operation
     for i in range(num_frames):
         signal_out[i] = signal[i * step_size:i * step_size + window_size]
+        
     return signal_out

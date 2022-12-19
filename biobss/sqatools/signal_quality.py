@@ -3,6 +3,7 @@ import math
 from numpy.typing import ArrayLike
 from typing import Tuple
 
+
 #Constants to check for physiological viability and morphological features. 
 HR_MIN = 40
 HR_MAX = 180
@@ -21,13 +22,12 @@ def detect_flatline_clipping(sig: ArrayLike, threshold: float, clipping: bool=Fa
     """Detects flatlines and clipped parts of the signal.
 
     Args:
-        ppg_sig (ArrayLike): PPG signal to be analyzed.
+        sig (ArrayLike): Signal to be analyzed (ECG or PPG).
         threshold (float): Threshold value for clipping/flatline detection.
         clipping (bool, optional): True for clipping detection. Defaults to False.
         flatline (bool, optional): True for flatline detection. Defaults to False.
-        **kwargs (dict): Keyword arguments
 
-    Keyword Args:
+    Kwargs:
         duration (float): Mimimum duration of flat segments for flatline detection.
 
     Raises:
@@ -72,10 +72,10 @@ def detect_flatline_clipping(sig: ArrayLike, threshold: float, clipping: bool=Fa
 
     return info
 
-
 def _detect_flat_segments(binary_array: ArrayLike) -> list:
+    """ Detects flat segments in a signal.
+        From HeartPy: https://github.com/paulvangentcom/heartrate_analysis_python/blob/master/heartpy/preprocessing.py """
 
-    #Copied from HeartPy
     edges = np.where(np.diff(binary_array) > 1)[1]
     segments = []
 
@@ -93,7 +93,6 @@ def _detect_flat_segments(binary_array: ArrayLike) -> list:
 
     return segments
 
-
 def check_phys(peaks_locs: ArrayLike, sampling_rate: float) -> dict:
     """Checks for physiological viability.
 
@@ -103,8 +102,8 @@ def check_phys(peaks_locs: ArrayLike, sampling_rate: float) -> dict:
             For 10 seconds signal, it is 1.1; allowing for a single missing beat, it is 2.2 
 
     Args:
-        peaks_locs (ArrayLike): Peak locations
-        sampling_rate (float): Sampling rate of the PPG signal
+        peaks_locs (ArrayLike): Array of peak locations.
+        sampling_rate (float): Sampling rate of the input signal.
 
     Returns:
         dict: Dictionary of decisions.
@@ -138,7 +137,6 @@ def check_phys(peaks_locs: ArrayLike, sampling_rate: float) -> dict:
 
     return info
 
-
 def check_morph(peaks_locs: ArrayLike, peaks_amps: ArrayLike, troughs_locs: ArrayLike, troughs_amps: ArrayLike, sampling_rate: float) -> dict:
     """Checks for ranges of morphological features.
 
@@ -149,14 +147,14 @@ def check_morph(peaks_locs: ArrayLike, peaks_amps: ArrayLike, troughs_locs: Arra
     Rule 5: Variation in PWA: 25-400% (Pulse wave amplitude: a threshold which was set heuristically)
 
     Args:
-        peaks_locs (Array): Peak locations
-        peaks_amps (Array): Peak amplitudes
-        troughs_locs (Array): Trough locations
-        troughs_amps (Array): Trough amplitudes
-        sampling_rate (float): Sampling rate of the PPG signal.
+        peaks_locs (Array): Array of peak locations.
+        peaks_amps (Array): Array of peak amplitudes.
+        troughs_locs (Array): Array of trough locations.
+        troughs_amps (Array): Array of trough amplitudes.
+        sampling_rate (float): Sampling rate of the input signal.
 
     Returns:
-        dict: Dictionary of decisions
+        dict: Dictionary of decisions.
     """
     if sampling_rate <= 0:
         raise ValueError("Sampling rate must be greater than 0.")
@@ -217,9 +215,8 @@ def check_morph(peaks_locs: ArrayLike, peaks_amps: ArrayLike, troughs_locs: Arra
 
     return info
 
-
 def template_matching(sig: ArrayLike, peaks_locs: ArrayLike, corr_th: float=CORR_TH) -> Tuple[float,bool]:
-    """Applies template matching method for signal quality assessment
+    """Applies template matching method for signal quality assessment.
 
     Args:
         sig (ArrayLike): Signal to be analyzed.

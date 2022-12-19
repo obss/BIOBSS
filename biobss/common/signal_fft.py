@@ -7,11 +7,11 @@ def sig_fft(sig: ArrayLike, sampling_rate: float) -> tuple:
     """Calculates Fast Fourier Transform (FFT) of a signal.
 
     Args:
-        sig (ArrayLike): The signal to be analyzed.
+        sig (ArrayLike): Input signal.
         sampling_rate (float): Sampling frequency of the signal (Hz).
 
     Returns:
-        tuple: fft frequencies, fft amplitudes
+        tuple: FFT frequencies, FFT amplitudes
     """
     nfft=len(sig)  
     freq=fft.fftfreq(nfft,1/sampling_rate)
@@ -24,18 +24,17 @@ def sig_fft(sig: ArrayLike, sampling_rate: float) -> tuple:
     return freq, sigfft
 
 def fft_peaks(sigfft: ArrayLike, freq:ArrayLike, peakno: int, loc:bool=False) -> float:
-    """Detects peaks from the FFT of the signal. Returns peak amplitudes or peak locations (frequencies).
+    """Detects peaks from the FFT of the signal and returns the highest Mth (peakno) peak amplitude or peak location (frequency).
 
     Args:
-        sigfft (ArrayLike): fft array to be analyzed.
-        freq (ArrayLike): frequencies of the fft array.
+        sigfft (ArrayLike): Array of FFT amplitudes
+        freq (ArrayLike): Array of FFT frequencies
         peakno (int): Index of the peak to be returned, when sorted in descending order.
-        loc (bool, optional): If True, frequency value is returned. Defaults to False.
+        loc (bool, optional): If True, FFT frequency is returned. Defaults to False.
 
     Returns:
-        float: Amplitude of the peak or frequency at which peak occurred
+        float: Amplitude or location of the peak.
     """
-    
     locs_fft, _=signal.find_peaks(sigfft)
     peaks_fft=sigfft[locs_fft]
     freq_fft=freq[locs_fft]
