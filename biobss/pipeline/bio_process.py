@@ -12,63 +12,64 @@ from .event_channel import Event_Channel
 
 class Bio_Process:
 
-    def __init__(self, process_method, inplace=True, prefix=None, return_index=None, argmap={},returns_event=False,event_args={}, **kwargs):
+    def __init__(self, process_method,process_name, return_index=None, argmap={},returns_event=False,event_args={},*args, **kwargs):
 
         self.process_method = process_method
+        self.args=args
         self.kwargs = kwargs
-        self.inplace = inplace
         self.return_index = return_index
         self.argmap = argmap
-        self.prefix = prefix
         self.returns_event = returns_event
         self.event_args=event_args
-        if(self.inplace):
-            self.prefix = None
-        else:
-            self.prefix= prefix if prefix is not None else "processed_"
+        self.name = process_name
+        
 
-    def map_args(self, signal: Bio_Channel):
+    def map_args(self, signal: Bio_Channel,kwargs):
         for key in self.argmap.keys():
-            self.kwargs[self.argmap[key]] = signal.get_attribute(key)
+            kwargs[self.argmap[key]] = signal.get_attribute(key)
+        return kwargs
 
-    def process_args(self, signal: Bio_Channel):
-        self.kwargs.update({"sampling_rate": signal.sampling_rate})
-        self.kwargs.update({"timestamp_start": signal.timestamp_start})
-        self.kwargs.update({"timestamp": signal.timestamp})
-        self.kwargs.update({"name": signal.signal_name})
-        self.map_args(signal)        
+    def process_args(self, signal: Bio_Channel,kwargs):
+        kwargs.update({"sampling_rate": signal.sampling_rate})
+        kwargs.update({"timestamp_start": signal.timestamp_start})
+        kwargs.update({"timestamp": signal.timestamp})
+        kwargs.update({"name": signal.signal_name})
+        kwargs=self.map_args(signal,kwargs)      
         signature = inspect.signature(self.process_method)
         excess_args = []
-        for key in self.kwargs.keys():
+        for key in kwargs.keys():
             if key not in signature.parameters.keys():
                 excess_args.append(key)
         for e in excess_args:
-            self.kwargs.pop(e)
-        return self.kwargs
+            kwargs.pop(e)
+        return kwargs
 
-    def process(self, signal: Bio_Channel):
-        self.process_args(signal)
+    def process(self, signal: Bio_Channel, *args, **kwargs):
+        kwargs.update(self.kwargs)
+        args=args+self.args
+    
+        kwargs=self.process_args(signal,kwargs)
         has_return=False
         if("return" in self.process_method.__annotations__):
             if self.process_method.__annotations__["return"] in [Bio_Channel,Bio_Data]:
                 has_return = True                
         if(has_return):
-            result = self.process_method(signal, **self.kwargs)   
+            result = self.process_method(signal,*args, **kwargs)   
         else:
             if signal.channel.ndim == 1:
-                result = self.process_method(signal.channel, **self.kwargs)
+                result = self.process_method(signal.channel,*args, **kwargs)
             else:
                 try:
                     result = np.apply_along_axis(
-                        self.process_method, 1, signal.channel, **self.kwargs)
+                        self.process_method, 1, signal.channel,*args, **kwargs)
                 except:
                     warnings.warn(
                         "Vectorized method failed. Trying scalar method. It may be significantly slower.")
-                finally:
                     result = []
                     for i in range(signal.channel.shape[0]):
                         result.append(self.process_method(
-                            signal.channel[i], **self.kwargs))
+                            signal.channel[i],*args, **kwargs))
+
 
         result = self._process_results(signal, result)
         return result
@@ -91,7 +92,7 @@ class Bio_Process:
             output = Bio_Data()
 
             for c in result.columns:
-                out_name = self.prefix+"_"+c if self.prefix is not None else c
+                out_name = c
                 output.add_channel(result[c],
                                    channel_name=out_name,
                                    sampling_rate=signal.sampling_rate,
@@ -136,7 +137,7 @@ class Bio_Process:
             raise ValueError("Result must be a Data_Channel, pd.DataFrame, pd.Series, np.ndarray or list")
                 
         output= Bio_Channel(out_signal,
-                            name=self.prefix+out_name if self.prefix is not None else signal.signal_name,
+                            name=signal.signal_name,
                             sampling_rate=sampling_rate,
                             timestamp=timestamp,
                             timestamp_start=timestamp_start,

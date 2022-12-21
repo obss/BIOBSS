@@ -32,13 +32,13 @@ class Bio_Data:
         """
 
         if(isinstance(event_channel,Event_Channel)):
-            if(event_channel.event_names in self.events.keys()):
+            if(event_channel.event_name in self.events.keys()):
                 if(not modify_existed):
                     raise ValueError("Event channel already exists set modify_existed to True to modify")
                 else:
                     self.modify_event_channel(event_channel)
             else:
-                self.events[event_channel.event_names] = event_channel
+                self.events[event_channel.event_name] = event_channel
                 
         else:
             event_name = kwargs.get('event_name',None)
@@ -232,11 +232,14 @@ class Bio_Data:
         
         return self
 
-    def __getitem__(self, key: Union[str, int]) -> Bio_Channel:
+    def __getitem__(self, key: str) -> Bio_Channel:
         if(isinstance(key, str)):
-            return self.data[key]
-        elif(isinstance(key, int)):
-            return self.data[list(self.data.keys())[key]]
+            if(key in self.data.keys()):
+                return self.data[key]
+            elif(key in self.events.keys()):
+                return self.events[key]
+            else:
+                raise ValueError("Channel does not exist")
 
     def __setitem__(self, key, value):
         return self.modify_signal(value, key)
@@ -253,7 +256,7 @@ class Bio_Data:
             representation += " (" + str(v.channel.shape) + ")"
             representation += "\n"
         for k,v in self.events.items():
-            representation += "Event: " + k + " (" + str(len(v)) + " events)\n"
+            representation += "Event: " + k + "\n"
 
             
 
