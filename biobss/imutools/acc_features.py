@@ -1,5 +1,4 @@
 import numpy as np
-from numpy.typing import ArrayLike
 from typing import Callable
 
 from biobss.imutools.acc_freqdomain import *
@@ -18,14 +17,14 @@ def get_domain_function(domain:str) -> Callable:
         raise ValueError("Unknown domain:", domain)   
 
     
-def get_acc_features(signals: ArrayLike, signal_names: ArrayLike, sampling_rate: float, prefix: str="acc", feature_types: ArrayLike=['Freq','Stat','Corr'], magnitude: bool=False) -> dict:
-    """Calculates ACC features and returns a dictionary.
+def get_acc_features(signals: list, signal_names: list, sampling_rate: float, feature_types: list=['Freq','Stat','Corr'], magnitude: bool=False) -> dict:
+    """Calculates ACC features.
 
     Args:
-        signals (dict): Dictionary of ACC signals for different axes.
+        signals (list): List of ACC signals for different axes.
+        signal_names (list): List of ACC signal names for different axes. It must have the same order with the signals.
         sampling_rate (float): Sampling rate of the ACC signals (Hz).
-        prefix (str, optional): Prefix. Defaults to "acc".
-        feature_types (ArrayLike, optional): Feature types to be calculated. It can be a list of 'Freq', 'Stat' and 'Corr'. Defaults to ['Freq','Stat','Corr'].
+        feature_types (list, optional): Feature types to be calculated. It can be a list of 'Freq', 'Stat' and 'Corr'. Defaults to ['Freq','Stat','Corr'].
         magnitude (bool, optional): If True, features are also calculated for magnitude signal. Defaults to False.
 
     Raises:
@@ -33,7 +32,7 @@ def get_acc_features(signals: ArrayLike, signal_names: ArrayLike, sampling_rate:
         ValueError: If feature type is invalid.
 
     Returns:
-        dict: Dictionary of calculated features.
+        dict: Dictionary of ACC features.
     """
     data = dict(zip(signal_names, signals))
 
@@ -44,7 +43,6 @@ def get_acc_features(signals: ArrayLike, signal_names: ArrayLike, sampling_rate:
     valid_types=['Freq','Stat','Corr']
 
     features={}
-    
     for domain in feature_types:
         if domain not in valid_types:
             raise ValueError("invalid feature type: " + domain)
@@ -53,7 +51,6 @@ def get_acc_features(signals: ArrayLike, signal_names: ArrayLike, sampling_rate:
 
                 domain_function = get_domain_function(domain)
                 features.update(domain_function(signals=signals,signal_names=signal_names,sampling_rate=sampling_rate))
-
                 if magnitude:
                     sum=0
                     for sig in data.values():

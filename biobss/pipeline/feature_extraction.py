@@ -79,7 +79,7 @@ class Feature():
                 
             
             if(self.add_prefix_after):
-                calculated_features.columns = [prefix + c for c in calculated_features.columns]            
+                calculated_features.columns = [prefix + "_" + c for c in calculated_features.columns]            
             
             return calculated_features
             raise ValueError("Feature extraction failed unexpectedly!")

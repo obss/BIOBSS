@@ -4,6 +4,7 @@ from plotly.subplots import make_subplots
 from ..timetools import *
 from ..plottools import *
 
+
 def plot_acc(signals:dict, peaks:dict=None, sampling_rate:float=None, timestamps:ArrayLike=None, timestamp_resolution:str=None, method:str='matplotlib', show_peaks:bool=True, figsize:tuple=(18.5, 10.5), width:float=1050, height:float=600):
     """Generates plots for ACC signal(s).
 
@@ -71,18 +72,16 @@ def plot_acc(signals:dict, peaks:dict=None, sampling_rate:float=None, timestamps
 
     if method == 'matplotlib':
         _plot_acc_matplotlib(signals=signals, peaks=peaks, x_values=x_values, x_label=x_label, figsize=figsize, show_peaks=show_peaks)
-
     elif method == 'plotly':
         _plot_acc_plotly(signals=signals, peaks=peaks, x_values=x_values, x_label=x_label, width=width, height=height, show_peaks=show_peaks)
     else:
         raise ValueError("Undefined method.")
 
-def _plot_acc_matplotlib(signals:dict, peaks:dict=None, x_values:ArrayLike=None, x_label:str='Sample', figsize=(18.5, 10.5), show_peaks=True):
-
+def _plot_acc_matplotlib(signals:dict, peaks:dict=None, x_values:ArrayLike=None, x_label:str='Sample', figsize:tuple=(18.5, 10.5), show_peaks:bool=True):
+    """Generates plots for ACC signals using Matplotlib."""
     # Create figure
     dim = len(signals)
     fig, axs = plt.subplots(dim, sharex=True, sharey=True, figsize=figsize)
-    #fig.set_size_inches(*figsize)
 
     if dim == 1:
         axs = np.array([axs])
@@ -97,22 +96,18 @@ def _plot_acc_matplotlib(signals:dict, peaks:dict=None, x_values:ArrayLike=None,
         axis_peaks = peaks[axis_name]
 
         for signal_name, signal in axis_signals.items():
-
             if signal_name not in axis_peaks.keys():
                 axis_peaks[signal_name] = {}
-
-            create_signal_plot_matplotlib(ax=axs[i], signal=signal, x_values=x_values, show_peaks=show_peaks, peaks=axis_peaks[signal_name], plot_title=axis_name, signal_name=axis_name + ' ' + signal_name, x_label=x_label)
-                
+            create_signal_plot_matplotlib(ax=axs[i], signal=signal, x_values=x_values, show_peaks=show_peaks, peaks=axis_peaks[signal_name], plot_title=axis_name, signal_name=axis_name + ' ' + signal_name, x_label=x_label)    
         i += 1
 
     fig.supxlabel(x_label)
     fig.supylabel('Amplitude')
-
     fig.tight_layout()
     plt.show()
 
-def _plot_acc_plotly(signals:dict, peaks:dict=None, x_values:ArrayLike=None, x_label:str='Sample', width=1050, height=600, show_peaks=True):
-
+def _plot_acc_plotly(signals:dict, peaks:dict=None, x_values:ArrayLike=None, x_label:str='Sample', width:float=1050, height:float=600, show_peaks:bool=True):
+    """Generates plots for ACC signals using Plotly."""
     # Create figure 
     dim = len(signals)    
     fig = make_subplots(rows=dim, cols=1, shared_xaxes=True, x_title=x_label, y_title='Amplitude')
@@ -127,12 +122,9 @@ def _plot_acc_plotly(signals:dict, peaks:dict=None, x_values:ArrayLike=None, x_l
         axis_peaks = peaks[axis_name]
 
         for signal_name, signal in axis_signals.items():
-
             if signal_name not in axis_peaks.keys():
                 axis_peaks[signal_name] = {}
-
             create_signal_plot_plotly(fig, signal=signal, x_values=x_values, show_peaks=show_peaks, peaks=axis_peaks[signal_name], plot_title=axis_name, signal_name=axis_name + ' ' + signal_name, x_label=x_label, width=width, height=height, location=(i,1))                    
- 
         i += 1
  
     fig.update_layout({'title': {'text': 'ACC Signals', 'x':0.45, 'y': 0.9}})

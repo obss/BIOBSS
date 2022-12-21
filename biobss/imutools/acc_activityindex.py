@@ -1,4 +1,3 @@
-from typing import Dict, List
 import numpy as np
 from numpy.typing import ArrayLike
 import warnings
@@ -12,16 +11,17 @@ DATA_TO_METRIC = {'PIM':['FXYZ_modified','UFM_modified','UFNM','FMpost_modified'
                   'MAD':['UFXYZ','FXYZ','UFM','UFNM','FMpost','FMpre'], 
                   'ENMO':['UFM'], 
                   'HFEN':['SpecialXYZ','SpecialM'], 
-                  'AI': ['UFXYZ','FXYZ']}
+                  'AI': ['UFXYZ','FXYZ']
+                  }
     
 METRIC_FUNCTIONS = {'PIM': lambda sig, dim, sampling_rate, _0, _1, triaxial: _calc_pim(sig, dim, sampling_rate, triaxial),
-                      'ZCM': lambda sig, dim, _0, threshold, _1, triaxial: _calc_zcm(sig, dim, threshold, triaxial),
-                      'TAT': lambda sig, dim, sampling_rate, threshold, _0, triaxial: _calc_tat(sig, dim, sampling_rate, threshold, triaxial),
-                      'MAD': lambda sig, dim, _0, _1, _2, triaxial: _calc_mad(sig, dim, triaxial),
-                      'ENMO': lambda sig, _0, _1, _2, _3, _4: _calc_enmo(sig),
-                      'HFEN': lambda sig, dim, _0, _1, _2, triaxial: _calc_hfen(sig, dim, triaxial),
-                      'AI': lambda sig, _0, _1, _2, baseline_variance, _4: _calc_ai(sig, baseline_variance)
-                     }
+                    'ZCM': lambda sig, dim, _0, threshold, _1, triaxial: _calc_zcm(sig, dim, threshold, triaxial),
+                    'TAT': lambda sig, dim, sampling_rate, threshold, _0, triaxial: _calc_tat(sig, dim, sampling_rate, threshold, triaxial),
+                    'MAD': lambda sig, dim, _0, _1, _2, triaxial: _calc_mad(sig, dim, triaxial),
+                    'ENMO': lambda sig, _0, _1, _2, _3, _4: _calc_enmo(sig),
+                    'HFEN': lambda sig, dim, _0, _1, _2, triaxial: _calc_hfen(sig, dim, triaxial),
+                    'AI': lambda sig, _0, _1, _2, baseline_variance, _4: _calc_ai(sig, baseline_variance)
+                    }
 
 DATASET_FUNCTIONS = {'UFXYZ': lambda sig_x,sig_y,sig_z,sampling_rate: generate_dataset(sig_x,sig_y,sig_z,sampling_rate,False,None,False,False,False),
                      'UFM': lambda sig_x,sig_y,sig_z,sampling_rate: generate_dataset(sig_x,sig_y,sig_z,sampling_rate,False,None,True,False,False),
@@ -37,8 +37,22 @@ DATASET_FUNCTIONS = {'UFXYZ': lambda sig_x,sig_y,sig_z,sampling_rate: generate_d
                     }
 
 
-def calc_activity_index(accx: ArrayLike, accy: ArrayLike, accz: ArrayLike, signal_length: float, sampling_rate: float, metric: str, input_types: list=None, threshold:List=None, baseline_variance:List=None, triaxial:bool=False) -> Dict:
-    """Calculates the given activity index for the desired input types.
+def calc_activity_index(accx: ArrayLike, accy: ArrayLike, accz: ArrayLike, signal_length: float, sampling_rate: float, metric: str, input_types: list=None, threshold:list=None, baseline_variance:list=None, triaxial:bool=False) -> dict:
+    """Calculates the given activity index for the desired input types. 
+    
+    Definitions of the activity indices are:
+    Proportional Integration Method (PIM): Integration of the acceleration signal for a given epoch.
+    Zero Crossing Method (ZCM) : Number of times the acceleration signal crosses a threshold. 
+    Time Above Threshold (TAT) : Length of timw that the acceleration signal is above a threshold.
+    Mean Amplitude Deviation (MAD) : Mean absolute deviation of magnitude of acceleration values for a given epoch.
+    Euclidian Norm Minus One (ENMO) : Mean  positive deviation of magnitude of acceleration values from 1g. Note that, for the magnitudes lower than 1g,
+           the deviation is replaced with 0.
+    High-pass Filtered Euclidian (HFEN) : Mean magnitude of highpass filtered acceleration values.
+    Activity Index (AI) : Sqare root of the mean deviation of the variance of acceleration signals from the systematic noise variance for three axes. 
+            Note that, if the mean deviation is negative, it is replaced with 0. 
+
+        Reference:  Maczák B, Vadai G, Dér A, Szendi I, Gingl Z (2021) Detailed analysis and comparison of different activity metrics. PLOS ONE 16(12): e0261718.
+                    https://doi.org/10.1371/journal.pone.0261718
 
     Args:
         accx (ArrayLike): Acceleration vector for the x-axis.
@@ -47,27 +61,30 @@ def calc_activity_index(accx: ArrayLike, accy: ArrayLike, accz: ArrayLike, signa
         signal_length (float): Signal length in seconds.
         sampling_rate (float): Sampling rate of the acceleration signal(s).
         input_types (list): Type of dataset. Depends on the preprocessing methods applied on the raw acceleration data.
-            UFXYZ : [accx, accy, accz]
-            FXYZ : filter_signal([accx, accy, accz])
-            FMpre : magnitude(filter_signal([accx, accy, accz]))    
-            UFM : magnitude([accx, accy, accz])
-            UFNM : normalize(magnitude([accx, accy, accz]))
-            FMpost : filter_signal(magnitude([accx, accy, accz]))
-            Special : filter_special([accx, accy, accz])
-            FXYZ_modified = absolute(FXYZ)
-            FMpost_modified = absolute(FMpost)
-            UFM_modified = absolute (UFM - integral(gravity))
+
+            UFXYZ : Unfiltered acceleration signals ([accx, accy, accz]).
+            UFM : Magnitude of unfiltered acceleration signals (magnitude([accx, accy, accz])).
+            UFM_modified = Modified magnitude of unfiltered acceleration signals (absolute(UFM - integral(gravity))).
+            UFNM : Normalized magnitude of unfiltered acceleration signals (normalize(magnitude([accx, accy, accz]))).
+            FXYZ : Filtered acceleration signals (filter_signal([accx, accy, accz])).
+            FXYZ_modified = Modified filtered acceleration signals (absolute(FXYZ)).
+            FMpre : Magnitude of filtered acceleration signals  (magnitude(filter_signal([accx, accy, accz]))).  
+            SpecialXYZ : Filtered acceleration signals (special filter parameters).
+            SpecialM : Magnitude of filtered acceleration signals (special filter parameters).            
+            FMpost : Filtered magnitude of acceleration signals (filter_signal(magnitude([accx, accy, accz]))).
+            FMpost_modified = Modified filtered magnitude of acceleration signals (absolute(FMpost)).
+            
         metric (str): The activity index to be calculated.
-        threshold (List, optional): Threshold level in g. This parameter is required for the 'ZCM' and 'TAT' metrics. Defaults to None.
-        baseline_variance (List, optional): Baseline variance, corresponding to the variance of acceleration signal at rest (no movement).
-                                             This parameter is required for the 'AI' metric. Defaults to None.
+        threshold (list, optional): Threshold level in g. This parameter is required for the 'ZCM' and 'TAT' metrics. Defaults to None.
+        baseline_variance (list, optional): Baseline variance, corresponding to the variance of acceleration signal at rest (no movement).
+                                            This parameter is required for the 'AI' metric. Defaults to None.
         triaxial (bool, optional): Parameter to decide if triaxial metrics should be combined into a single metric or not. Defaults to False.
 
     Raises:
         ValueError: If the input type is not one of valid types for the desired metric.
 
     Returns:
-        Dict: A dictionary of calculated metric for the desired input types.
+        dict: A dictionary of calculated metric for the desired input types.
     """
     if not (len(accx) == len(accy) == len(accz)):
         raise ValueError("Length of input arrays (accx,accy,accz) must match!")
@@ -95,7 +112,7 @@ def calc_activity_index(accx: ArrayLike, accy: ArrayLike, accz: ArrayLike, signa
             dim=int(np.size(sig)/(signal_length*sampling_rate))
 
             if metric in ['ZCM', 'TAT'] and threshold is None:
-                warnings.warn("Threshold level is required for this activity index, but not provided. Standard deviation of the signal will be used as threshold.")
+                warnings.warn(f"Threshold level is required to calculate {metric}, but not provided. Standard deviation of the signal will be used as threshold.")
                 threshold = _calc_threshold(sig, dim, input_type)
 
             act = metric_function(sig, dim, sampling_rate, threshold, baseline_variance, triaxial)
@@ -114,16 +131,17 @@ def generate_dataset(accx: ArrayLike, accy:ArrayLike, accz:ArrayLike, sampling_r
     """Generates datasets by applying appropriate preprocessing steps to the raw acceleration signals.
 
         The datasets are:
-            UFXYZ : [accx, accy, accz]
-            FXYZ : filter_signal([accx, accy, accz])
-            FMpre : magnitude(filter_signal([accx, accy, accz]))    
-            UFM : magnitude([accx, accy, accz])
-            UFNM : normalize(magnitude([accx, accy, accz]))
-            FMpost : filter_signal(magnitude([accx, accy, accz]))
-            Special : filter_special([accx, accy, accz])
-            FXYZ_modified = absolute(FXYZ)
-            FMpost_modified = absolute(FMpost)
-            UFM_modified = absolute (UFM - integral(gravity))
+            UFXYZ : Unfiltered acceleration signals ([accx, accy, accz]).
+            UFM : Magnitude of unfiltered acceleration signals (magnitude([accx, accy, accz])).
+            UFM_modified = Modified magnitude of unfiltered acceleration signals (absolute(UFM - integral(gravity))).
+            UFNM : Normalized magnitude of unfiltered acceleration signals (normalize(magnitude([accx, accy, accz]))).
+            FXYZ : Filtered acceleration signals (filter_signal([accx, accy, accz])).
+            FXYZ_modified = Modified filtered acceleration signals (absolute(FXYZ)).
+            FMpre : Magnitude of filtered acceleration signals  (magnitude(filter_signal([accx, accy, accz]))).  
+            SpecialXYZ : Filtered acceleration signals (special filter parameters).
+            SpecialM : Magnitude of filtered acceleration signals (special filter parameters).            
+            FMpost : Filtered magnitude of acceleration signals (filter_signal(magnitude([accx, accy, accz]))).
+            FMpost_modified = Modified filtered magnitude of acceleration signals (absolute(FMpost)).
 
     Args:
         accx (ArrayLike): Acceleration vector for the x-axis.
@@ -196,20 +214,8 @@ def generate_dataset(accx: ArrayLike, accy:ArrayLike, accz:ArrayLike, sampling_r
 
     return sig
 
-def _calc_threshold(sig: ArrayLike, dim: int, input_type:str) -> List:
-    """Calculates the threshold level in "g", as standard deviation of the signal (It is calculated as "SD+g" for the 'UFM' dataset.)
-
-    Args:
-        sig (ArrayLike): Preprocessed acceleration signal(s).
-        dim (int): Input dimension
-        input_type (str): Type of dataset 
-
-    Raises:
-        ValueError: If the dimension is invalid.
-
-    Returns:
-        List: List of calculated threshold level(s).
-    """
+def _calc_threshold(sig: ArrayLike, dim: int, input_type:str) -> list:
+    """Calculates the threshold level in "g", as standard deviation of the signal (It is calculated as "SD+g" for the 'UFM' dataset.)."""
     
     if dim == 1:
         th = np.std(sig[0])
@@ -230,33 +236,12 @@ def _calc_threshold(sig: ArrayLike, dim: int, input_type:str) -> List:
     return threshold
 
 def _calc_magnitude(sig_x: ArrayLike, sig_y: ArrayLike, sig_z: ArrayLike) -> ArrayLike :
-    """Calculates the magnitude signal from the axial acceleration signals.
+    """Calculates the magnitude signal from the axial acceleration signals."""
 
-    Args:
-        sig_x (ArrayLike): Acceleration vector for the x-axis.
-        sig_y (ArrayLike): Acceleration vector for the y-axis.
-        sig_z (ArrayLike): Acceleration vector for the y-axis.
-
-    Returns:
-        ArrayLike: Magnitude signal.
-    """
     return np.sqrt(np.square(sig_x) + np.square(sig_y) + np.square(sig_z)) #acc signals should be in "g"
 
 def _calc_pim(sig: ArrayLike, dim: int, sampling_rate: float, triaxial:bool) -> list:
-    """Calculates activity index using Proportional Integration Method (PIM).
-
-    Args:
-        sig (ArrayLike): List of acceleration signal(s).
-        dim (int): Input dimension
-        sampling_rate (float): Sampling rate of the acceleration signal(s).
-        triaxial (bool): Parameter to decide if triaxial metrics should be combined into a single metric or not
-
-    Raises:
-        ValueError: If the dimension is invalid.
-
-    Returns:
-        list: Calculated PIM value(s).
-    """
+    """Calculates activity index using Proportional Integration Method (PIM)."""
     
     if dim == 1:
         pim = [np.sum(sig[0]) / sampling_rate]
@@ -274,22 +259,8 @@ def _calc_pim(sig: ArrayLike, dim: int, sampling_rate: float, triaxial:bool) -> 
  
     return pim
         
-def _calc_zcm(sig: ArrayLike, dim: int, threshold: float, triaxial:bool) -> list:
-    """Calculates activity index using Zero Crossing Method (ZCM).
-
-    Args:
-        sig (ArrayLike): List of acceleration signal(s).
-        dim (int): Input dimension
-        threshold (float): Threshold level in "g".
-        triaxial (bool): Parameter to decide if triaxial metrics should be combined into a single metric or not
-
-    Raises:
-        ValueError: If the threshold level is not provided.
-        ValueError: If the dimension is invalid. 
-
-    Returns:
-        list: Calculated ZCM value(s).
-    """
+def _calc_zcm(sig: ArrayLike, dim: int, threshold: list, triaxial:bool) -> list:
+    """Calculates activity index using Zero Crossing Method (ZCM)."""
     
     if threshold is None:
         raise ValueError('Threshold value is required for this metric.')
@@ -321,23 +292,8 @@ def _calc_zcm(sig: ArrayLike, dim: int, threshold: float, triaxial:bool) -> list
         
     return zcm
 
-def _calc_tat(sig: ArrayLike, dim: int, sampling_rate: float, threshold: float, triaxial:bool) -> List:
-    """Calculates activity index using Time Above Threshold Method (TAT).
-
-    Args:
-        sig (ArrayLike): List of acceleration signal(s).
-        dim (int): Input dimension
-        sampling_rate (float): Sampling rate of the acceleration signal(s).
-        threshold (float): Threshold level in "g".
-        triaxial (bool): Parameter to decide if triaxial metrics should be combined into a single metric or not
-
-    Raises:
-        ValueError: If the threshold level is not provided.
-        ValueError: If the dimension is invalid. 
-
-    Returns:
-        List: Calculated TAT value(s).
-    """
+def _calc_tat(sig: ArrayLike, dim: int, sampling_rate: float, threshold: list, triaxial:bool) -> list:
+    """Calculates activity index using Time Above Threshold Method (TAT)."""
 
     if threshold is None:
         raise ValueError('Threshold value is required for this metric.')
@@ -359,20 +315,8 @@ def _calc_tat(sig: ArrayLike, dim: int, sampling_rate: float, threshold: float, 
         
     return tat
 
-def _calc_mad(sig: ArrayLike, dim: int, triaxial:bool) -> List:
-    """Calculates activity index using Mean Amplitude Deviation Method (MAD).
-
-    Args:
-        sig (ArrayLike): List of acceleration signal(s).
-        dim (int): Input dimension
-        triaxial (bool): Parameter to decide if triaxial metrics should be combined into a single metric or not
-
-    Raises:
-        ValueError: If the dimension is invalid.
-
-    Returns:
-        List: Calculated MAD value(s).
-    """
+def _calc_mad(sig: ArrayLike, dim: int, triaxial:bool) -> list:
+    """Calculates activity index using Mean Amplitude Deviation Method (MAD)."""
 
     if dim == 1:
         mad = [np.sum(np.abs(sig[0] - np.mean(sig[0]))) / len(sig[0])]
@@ -389,34 +333,15 @@ def _calc_mad(sig: ArrayLike, dim: int, triaxial:bool) -> List:
         
     return mad   
 
-def _calc_enmo(sig: ArrayLike) -> List:
-    """Calculates activity index using Euclidian Norm Minus One Method (ENMO).
-
-    Args:
-        sig (ArrayLike): List of acceleration signal(s).
-
-    Returns:
-        List: Calculated ENMO value(s).
-    """
+def _calc_enmo(sig: ArrayLike) -> list:
+    """Calculates activity index using Euclidian Norm Minus One Method (ENMO)."""
 
     enmo = [np.sum(sig[0][sig[0] >= 1]) / len(sig[0])]
 
     return enmo
 
-def _calc_hfen(sig: ArrayLike, dim: int, triaxial:bool) -> List:
-    """Calculates activity index using High-pass Filtered Euclidian Norm (HFEN).
-
-    Args:
-        sig (ArrayLike): List of acceleration signal(s).
-        dim (int): Input dimension
-        triaxial (bool): Parameter to decide if triaxial metrics should be combined into a single metric or not
-
-    Raises:
-        ValueError: If the dimension is invalid. 
-
-    Returns:
-        List: Calculated HFEN value(s).
-    """
+def _calc_hfen(sig: ArrayLike, dim: int, triaxial:bool) -> list:
+    """Calculates activity index using High-pass Filtered Euclidian Norm (HFEN)."""
 
     if dim == 1:    
         hfen = [np.sum(sig[0]) / len(sig[0])]
@@ -433,19 +358,8 @@ def _calc_hfen(sig: ArrayLike, dim: int, triaxial:bool) -> List:
         
     return hfen
 
-def _calc_ai(sig: ArrayLike, baseline_variance: float) -> List:
-    """Calculates activity index using Activity Index Method (AI).
-
-    Args:
-        sig (ArrayLike): List of acceleration signal(s).
-        baseline_variance (float): Baseline variance, corresponding to the variance of acceleration signal at rest (no movement).
-
-    Raises:
-        ValueError: If the baseline variance level is not provided.
-
-    Returns:
-        List: Calculated AI value(s).
-    """
+def _calc_ai(sig: ArrayLike, baseline_variance: list) -> list:
+    """Calculates activity index using Activity Index Method (AI)."""
 
     if baseline_variance is None:
         raise ValueError('Baseline variance is required for this metric.')

@@ -1,6 +1,6 @@
 import numpy as np
 from scipy import stats, signal
-from numpy.typing import ArrayLike
+
 
 STAT_FEATURES = {
     "mean": lambda sig: np.mean(sig),
@@ -19,15 +19,14 @@ STAT_FEATURES = {
     "skew": lambda sig: stats.skew(sig),
     "kurtosis": lambda sig: stats.kurtosis(sig),
     "energy": lambda sig: np.sum(sig**2)/100,
-    "momentum": lambda sig: stats.moment(sig, 2),
-}
+    "momentum": lambda sig: stats.moment(sig, 2)
+    }
 
-
-def acc_stat_features(signals: ArrayLike, signal_names:ArrayLike, sampling_rate, prefix:str="acc") -> dict:
+def acc_stat_features(signals: list, signal_names:list, sampling_rate:float) -> dict:
     """Calculates statistical features.
 
     From https://towardsdatascience.com/feature-engineering-on-time-series-data-transforming-signal-data-of-a-smartphone-accelerometer-for-72cbe34b8a60
-
+    
     mean: mean of the signal amplitude
     std: standard deviation of the signal amplitude
     mad: mean absolute deviation of the signal amplitude
@@ -45,22 +44,20 @@ def acc_stat_features(signals: ArrayLike, signal_names:ArrayLike, sampling_rate,
     kurtosis: Kurtosis of the signal
     energy: signal energy (the mean of sum of squares of the values in a window)
     momentum: Signal momentum
-    
-    Args:
-        sig (ArrayLike): Input signal
-        prefix (str): Prefix. Defaults to 'acc'.
 
+    Args:
+        signals (list): List of input signal(s).
+        signal_names (list): List of signal name(s).
+        sampling_rate (float): Sampling rate of the ACC signal(s) (Hz).
+        
     Returns:
-        dict: Dictionary of statistical features
+        dict: Dictionary of statistical features.
     """
     data = dict(zip(signal_names, signals))
-
     features_stat={}
 
     for signal_name, signal in data.items():
-
         for key,func in STAT_FEATURES.items():
             features_stat["_".join([signal_name, key])]=func(signal)
-
 
     return features_stat

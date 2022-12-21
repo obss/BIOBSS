@@ -1,21 +1,20 @@
 from scipy.stats import pearsonr
 import itertools
-from numpy.typing import ArrayLike
 
 
-def acc_corr_features(signals: ArrayLike, signal_names: ArrayLike, prefix: str="signal", **kwargs) -> dict:
-    """Calculates correlation features for N signals
-
+def acc_corr_features(signals: list, signal_names: list, sampling_rate:float) -> dict:
+    """Calculates correlation features for ACC signals.
         For example:
         accx_accy_corr: correlation coefficient for x and y axes
         accx_accz_corr: correlation coefficient for x and z axes
         accy_accz_corr: correlation coefficient for y and z axes
-
     Args:
-        signals (dict): Dictionary of signals for different axes.
+        signals (list): List of input signals.
+        signal_names (list): List of signal names. It must have the same order with signal array.
+        sampling_rate (float): Sampling rate of the ACC signal(s) (Hz).
 
     Returns:
-        dict: Dictionary of correlation features
+        dict: Dictionary of correlation features. 
     """
 
     data = dict(zip(signal_names, signals))
