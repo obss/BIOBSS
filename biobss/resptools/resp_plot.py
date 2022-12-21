@@ -41,13 +41,12 @@ def plot_resp(signals:dict, peaks:dict=None, sampling_rate:float=None, timestamp
     else:
         raise ValueError("Undefined method.")
 
-def _plot_resp_matplotlib(signals:dict, peaks:dict=None, sampling_rate:float=None, timestamp_resolution:str='s', x_label= None, figsize=(18.5, 10.5), show_peaks=True):
-
+def _plot_resp_matplotlib(signals:dict, peaks:dict=None, sampling_rate:float=None, timestamp_resolution:str='s', x_label= None, figsize:tuple=(18.5, 10.5), show_peaks:bool=True):
+    """Generates plots for respiration signal(s) using Matplotlib."""
     # Create figure
     dim = len(signals)
     fig, axs = plt.subplots(dim, figsize=figsize)
-    #fig.set_size_inches(*figsize)
-
+    
     if dim == 1:
         axs = np.array([axs])
 
@@ -72,12 +71,11 @@ def _plot_resp_matplotlib(signals:dict, peaks:dict=None, sampling_rate:float=Non
 
     fig.supxlabel(x_label)
     fig.supylabel('Amplitude')
-
     fig.tight_layout()
     plt.show()        
 
-def _plot_resp_plotly(signals:dict, peaks:dict=None, sampling_rate:float=None, timestamp_resolution='s', x_label=None, width= 1050, height=600, show_peaks=True):
- 
+def _plot_resp_plotly(signals:dict, peaks:dict=None, sampling_rate:float=None, timestamp_resolution='s', x_label=None, width:float= 1050, height:float=600, show_peaks:bool=True):
+    """Generates plots for respiration signal(s) using Plotly.""" 
     # Create figure
     dim = len(signals)
     fig = make_subplots(rows=dim, cols=1, shared_xaxes=True, x_title=x_label, y_title='Amplitude')
@@ -96,10 +94,8 @@ def _plot_resp_plotly(signals:dict, peaks:dict=None, sampling_rate:float=None, t
         if signal_name not in peaks.keys():
             peaks[signal_name] = {}
 
-        create_signal_plot_plotly(fig, signal=y_values, x_values=x_values, show_peaks=show_peaks, peaks=peaks[signal_name], plot_title=signal_name,signal_name=signal_name, x_label=x_label, location=(i,1))                      
-     
+        create_signal_plot_plotly(fig, signal=y_values, x_values=x_values, show_peaks=show_peaks, peaks=peaks[signal_name], plot_title=signal_name,signal_name=signal_name, width=width, height=height, x_label=x_label, location=(i,1))                      
         i += 1
 
     fig.update_layout({'title': {'text': 'Respiration Signal(s)', 'x':0.45, 'y': 0.9}})
-    
     fig.show()

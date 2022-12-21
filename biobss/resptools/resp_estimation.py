@@ -7,12 +7,12 @@ from numpy.typing import ArrayLike
 from biobss.preprocess import signal_detectpeaks
 from biobss.common import signal_hjorth
 
+
 # These constants are defined considering the respiration range (6-60 breaths/min)
 LAG_MIN = 1.33 # Period of respiration cycle for upper limit of respiration range (seconds).
 LAG_MAX = 10 # Period of respiration cycle for lower limit of respiration range (seconds).
 
-
-def extract_resp_sig(peaks_locs: ArrayLike, peaks_amp: ArrayLike, troughs_amp: ArrayLike, sampling_rate: float, mod_type: list=['AM','FM','BW'], resampling_rate: float=10) -> dict:
+def extract_resp_sig(peaks_locs: ArrayLike, peaks_amp: ArrayLike, troughs_amp: ArrayLike, sampling_rate: float, mod_type: list=['AM','FM','BW'], resampling_rate: float=10.0) -> dict:
     """Extracts the respiratory signal(s) using the modulations resulted from respiratory activity and returns a dictionary of the respiratory signal(s).
 
     Args:
@@ -41,40 +41,36 @@ def extract_resp_sig(peaks_locs: ArrayLike, peaks_amp: ArrayLike, troughs_amp: A
     rs_ratio = int(sampling_rate/resampling_rate)
 
     if 'AM' in mod_type:
-        # Extracts the respiratory signal using amplitude modulation
+        #Extracts the respiratory signal using amplitude modulation
         am = peaks_amp-troughs_amp[:-1]
         am_x = peaks_locs
-        am_respsignal, am_xrs = _interpolate_and_resample(
-            am, am_x, peaks_locs, rs_ratio, -1)
+        am_respsignal, am_xrs = _interpolate_and_resample(am, am_x, peaks_locs, rs_ratio, -1)
 
         info['am_y'] = am_respsignal
         info['am_x'] = am_xrs
 
     if 'FM' in mod_type:
-        # Extracts the respiratory signal using frequency modulation
+        #Extracts the respiratory signal using frequency modulation
         fm = np.diff(peaks_locs)/sampling_rate
         fm_x = peaks_locs[:-1]
-        fm_respsignal, fm_xrs = _interpolate_and_resample(
-            fm, fm_x, peaks_locs, rs_ratio, -2)
+        fm_respsignal, fm_xrs = _interpolate_and_resample(fm, fm_x, peaks_locs, rs_ratio, -2)
 
         info['fm_y'] = fm_respsignal
         info['fm_x'] = fm_xrs
 
     if 'BW' in mod_type:
-        # Extracts the respiratory signal using baseline wander
+        #Extracts the respiratory signal using baseline wander
         bw = (peaks_amp+troughs_amp[:-1])/2
         bw_x = peaks_locs
-        bw_respsignal, bw_xrs = _interpolate_and_resample(
-            bw, bw_x, peaks_locs, rs_ratio, -1)
+        bw_respsignal, bw_xrs = _interpolate_and_resample(bw, bw_x, peaks_locs, rs_ratio, -1)
 
         info['bw_y'] = bw_respsignal
         info['bw_x'] = bw_xrs
 
     return info
 
-
-def _interpolate_and_resample(sig, sig_x, peaks_locs, rs_ratio, offset):
-    # Helper function for extracting respiratory signals.
+def _interpolate_and_resample(sig:ArrayLike, sig_x:ArrayLike, peaks_locs:ArrayLike, rs_ratio:float, offset:int):
+    """Interpolates and resamples respiratory signals."""
 
     sig_interp = sp.interpolate.interp1d(sig_x, sig)
     num_x = peaks_locs[offset]-peaks_locs[0]+1
@@ -85,8 +81,7 @@ def _interpolate_and_resample(sig, sig_x, peaks_locs, rs_ratio, offset):
 
     return respsig, resp_x
 
-
-def filter_resp_sig(resampling_rate: float=10, rsp_clean_method: str='khodadad2018', **kwargs) -> dict:
+def filter_resp_sig(resampling_rate: float=10.0, rsp_clean_method: str='khodadad2018', **kwargs) -> dict:
     """Filters extracted respiratory signal(s) and returns a dictionary of cleaned signal(s). Uses 'rsp_clean' function from the Neurokit2 library.
 
     Args:
@@ -131,12 +126,11 @@ def filter_resp_sig(resampling_rate: float=10, rsp_clean_method: str='khodadad20
 
     return filtered_resp
 
-
-def estimate_rr(resp_sig: ArrayLike, resampling_rate:float=10, method: str='peakdet', delta: float=0.001) -> float:
+def estimate_rr(resp_sig: ArrayLike, resampling_rate:float=10.0, method: str='peakdet', delta: float=0.001) -> float:
     """Estimates respiratory rate from the respiratory signal.
 
     Args:
-        resp_sig (Array): Respiratory signal.
+        resp_sig (ArrayLike): Respiratory signal.
         sampling_rate (float): Sampling rate of the respiratory signal (resampling rate, Hz). Defaults to 10.
         method (str): Method used for respiratory rate estimation. Can be one of 'peakdet' or 'xcorr'. Defaults to 'peakdet'. 
                       Uses 'rsp_rate' function from the Neurokit2 library if the method is 'xcorr'.
@@ -161,30 +155,30 @@ def estimate_rr(resp_sig: ArrayLike, resampling_rate:float=10, method: str='peak
 
     return mean_rr
 
-def _estimate_rr_peakdet(resp_sig: ArrayLike, resampling_rate: float=10, delta: float=0.001) -> float:
+def _estimate_rr_peakdet(resp_sig: ArrayLike, resampling_rate: float=10.0, delta: float=0.001) -> float:
+    """Estimates respiratory rate using 'peakdet' method."""
 
     maxtab, mintab = signal_detectpeaks._peakdetection_peakdet(resp_sig, delta)
 
     if (maxtab.size == 0) or (mintab.size == 0):
-        raise ValueError(
-            "No peaks or troughs found.Respiratory rate can not be estimated!")
+        raise ValueError("No peaks or troughs found.Respiratory rate can not be estimated!")
     else:
         peaks_locs = maxtab[:, 0].astype(int)
-        intervals = abs(np.diff(peaks_locs))/resampling_rate  # seconds
+        intervals = abs(np.diff(peaks_locs))/resampling_rate  #seconds
         mean_int = np.mean(intervals)
         mean_rr = 60/mean_int  # br/minutes
 
     return mean_rr
 
-def _estimate_rr_xcorr(resp_sig: ArrayLike, resampling_rate: float=10) -> float:
+def _estimate_rr_xcorr(resp_sig: ArrayLike, resampling_rate: float=10.0) -> float:
+    """Estimates raspiratory rate using 'xcorr' method."""
 
-    rr_inst = nk.rsp_rate(
-        resp_sig, sampling_rate=resampling_rate, method="xcorr")
+    rr_inst = nk.rsp_rate(resp_sig, sampling_rate=resampling_rate, method="xcorr")
     mean_rr = rr_inst.mean()
 
     return mean_rr
 
-def calc_rqi(resp_sig: ArrayLike, resampling_rate: float=10, rqi_method: list = ['autocorr', 'hjorth']) -> dict:
+def calc_rqi(resp_sig: ArrayLike, resampling_rate: float=10.0, rqi_method: list = ['autocorr', 'hjorth']) -> dict:
     """Calculates respiratory quality index for the respiratory signal. 
 
     Args:
@@ -207,16 +201,17 @@ def calc_rqi(resp_sig: ArrayLike, resampling_rate: float=10, rqi_method: list = 
         rqindices['autocorr'] = max(corr_coeff)
 
     if 'hjorth' in rqi_method:
-        rqindices['hjorth'] = signal_hjorth.calculate_complexity(resp_sig)[0]
+        rqindices['hjorth'] = signal_hjorth.hjorth_complexity_mobility(resp_sig)[0]
 
     return rqindices
 
-def _calc_rqi_autocorr(resp_sig: ArrayLike, resampling_rate: float=10) -> dict:
+def _calc_rqi_autocorr(resp_sig: ArrayLike, resampling_rate: float=10.0) -> dict:
+    """Calculates respiratory quality index using autocorrelation method."""
 
     corr_coeff = []
     sig = pd.Series(resp_sig)
-    lag_min = int(LAG_MIN*resampling_rate)  # seconds to samples
-    lag_max = int(LAG_MAX*resampling_rate)  # seconds to samples
+    lag_min = int(LAG_MIN*resampling_rate)  #seconds to samples
+    lag_max = int(LAG_MAX*resampling_rate)  #seconds to samples
 
     for lag in range(lag_min, lag_max+1):
         c = sig.autocorr(lag=lag)
@@ -255,7 +250,7 @@ def fuse_rr(rr_est: ArrayLike, rqi: ArrayLike=None, fusion_method: str='smartfus
     return rr_fused
 
 def _fuse_rr_smartfusion(rr_est: ArrayLike) -> float:
-    
+    """Fuses respiratory rate estimations using 'SmartFusion' method."""    
     rr_std = np.std(rr_est)
 
     if (rr_std <= 4):
@@ -266,6 +261,7 @@ def _fuse_rr_smartfusion(rr_est: ArrayLike) -> float:
     return rr_fused
 
 def _fuse_rr_qualityfusion(rr_est: ArrayLike, rqi: ArrayLike=None) -> float:
+    """Fuses respiratory rate estimations using 'QualityFusion' method."""
 
     if rqi is not None:
         if len(rr_est) != len(rqi):

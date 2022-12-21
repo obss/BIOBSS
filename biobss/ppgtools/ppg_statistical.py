@@ -7,7 +7,8 @@ from biobss.common.signal_entropy import *
 
 #Statistical features
 FEATURES_STAT_CYCLE = {
-'std_peaks': lambda _0,_1,peaks_locs,_2,_3: np.std(peaks_locs),
+'mean_peaks': lambda _0,peaks_amp,_1,_2,_3: np.mean(peaks_amp),
+'std_peaks': lambda _0,peaks_amp,_1,_2,_3: np.std(peaks_amp),
 }
 
 FEATURES_STAT_SEGMENT = {
@@ -22,7 +23,7 @@ FEATURES_STAT_SEGMENT = {
 'entropy': lambda sig: calculate_shannon_entropy(sig),
 }
 
-def ppg_stat_features(sig: ArrayLike, sampling_rate: float, input_types: list, prefix: str='signal', **kwargs) -> dict:
+def ppg_stat_features(sig: ArrayLike, sampling_rate: float, input_types: list, prefix: str='ppg', **kwargs) -> dict:
     """Calculates statistical features.
 
     Cycle-based features: 

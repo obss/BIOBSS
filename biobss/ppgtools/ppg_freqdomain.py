@@ -1,11 +1,7 @@
-import numpy as np
-from scipy import fft 
-from scipy import signal
 from numpy.typing import ArrayLike
 
 from biobss.common.signal_fft import *
 from biobss.common.signal_psd import *
-from biobss.common.signal_power import *
 
 #Frequency domain features
 FUNCTIONS_FREQ_SEGMENT= {
@@ -20,7 +16,7 @@ FUNCTIONS_FREQ_SEGMENT= {
 }  
 
 
-def ppg_freq_features(sig: ArrayLike, sampling_rate: float, input_types: list=None, prefix: str='signal') -> dict:
+def ppg_freq_features(sig: ArrayLike, sampling_rate: float, input_types: list=None, prefix: str='ppg') -> dict:
     """Calculates frequency-domain features
 
     Segment-based features:
@@ -30,8 +26,8 @@ def ppg_freq_features(sig: ArrayLike, sampling_rate: float, input_types: list=No
     f_2: The frequency at which the second peak from the fft of the signal occurred
     p_3: The amplitude of the third peak from the fft of the signal
     f_3: The frequency at which the third peak from the fft of the signal occurred
-    pow: Power of the signal at a given range of frequencies
-    rpow: Ratio of the powers of the signal at given ranges of frequencies
+    pow: Power of the signal at a given range of frequencies ([0,2] Hz). 
+    rpow: Ratio of the powers of the signal at given ranges of frequencies ([0,2.25] Hz/[0,5] Hz).
 
     Args:
         sig (ArrayLike): Signal
