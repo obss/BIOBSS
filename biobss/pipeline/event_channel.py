@@ -22,7 +22,7 @@ class Event_Channel():
         self.indicator = indicator
         self.is_signal = is_signal
         self.sampling_rate = sampling_rate
-        self.events = events
+        self.channel = events
         self.event_name = event_name
         
         if(isinstance(event_name,str)):
@@ -38,7 +38,7 @@ class Event_Channel():
 
     def _handle_events(self):
         try:
-            if(np.shape(self.events)[0]==1):
+            if(np.ndim(self.channel)<2):
                 self.windowed = False
             else:
                 self.windowed = True
@@ -53,11 +53,11 @@ class Event_Channel():
                 raise ValueError("Timestamp data must be provided for event: "+self.event_name)
             if(self.windowed):
                 timestamp_data = []
-                for i in range(len(self.events)):
-                    timestamp_data.append(self.timestamp_data[i][self.events[i]])
+                for i in range(len(self.channel)):
+                    timestamp_data.append(self.timestamp_data[i][self.channel[i]])
                 self.timestamp_data = timestamp_data
             else:
-                self.timestamp_data = self.timestamp_data[self.events]
+                self.timestamp_data = self.timestamp_data[self.channel]
 
 
     def _handle_signal_events(self):
@@ -66,18 +66,18 @@ class Event_Channel():
             events=[]
             if(self.timestamp_data is None):
                 raise ValueError("Timestamp data must be provided for windowed events")
-            for i in range(len(self.events)):
-                e = np.where(self.events[i]==self.indicator)
+            for i in range(len(self.channel)):
+                e = np.where(self.channel[i]==self.indicator)
                 events.append(e)
-            self.events = events  
+            self.channel = events  
  
         elif(not self.windowed):
             events=[]
             if(self.timestamp_data is None):
-                self.timestamp_data = timestamp_tools.create_timestamp_signal(self.timestamp_resolution,len(self.events),0,self.sampling_rate) 
-            self.events = np.where(self.events==self.indicator)
-            self.events = list(self.events)
-            self.timestamp_data = list(self.timestamp_data[self.events])
+                self.timestamp_data = timestamp_tools.create_timestamp_signal(self.timestamp_resolution,len(self.channel),0,self.sampling_rate) 
+            self.channel = np.where(self.channel==self.indicator)
+            self.channel = list(self.channel)
+            self.timestamp_data = list(self.timestamp_data[self.channel])
                   
         else:
             raise ValueError("There is a problem creating with event. Event Channel name: "+self.event_name)

@@ -13,47 +13,58 @@ class Feature_Queue():
     def __init__(self,name="Feature_Queue"):
         self.extraction_list = []
         self.input_signals=[]
-        self.output_signals=[]
         self.kwargs=[]
         self.args=[]
         self.name = name
         self.processed_index = 0
+        self.windowed = False
         
 
     def add_feature(self, feature: Feature, input_signals=None,*args,**kwargs):
-        self.feature_queue[feature.name] = feature
-        self.extraction_list.append(Feature)
-        self._process_io(input_signals)
-        if(isinstance(kwargs,dict)):
-            self.kwargs.append(kwargs)
-        elif(kwargs is None):
-            self.kwargs.append({})
-        else:
-            raise ValueError("kwargs must be a dictionary or None")
+        self.extraction_list.append(feature)
+        self.kwargs.append(kwargs)
         self.args.append(args)
+        if(isinstance(input_signals,(str,list,dict))):
+            if(isinstance(input_signals,list)):
+                if(not all(isinstance(o, str) for o in input_signals)):
+                    raise ValueError("If input signals is a list, all elements must be strings")                
+            
+            self.input_signals.append(input_signals)
+        else:
+            raise ValueError("Input signals must be a string, list or dictionary")
         
-    def run_process_queue(self, bio_data: Bio_Data,feature_set:pd.DataFrame) -> Bio_Data:
+        
+    def run_feature_queue(self, bio_data: Bio_Data,feature_set:pd.DataFrame) -> Bio_Data:
 
         bio_data = bio_data.copy()
-        feature_data=copy(feature_set)
         for i in range(len(self.extraction_list)):
-            feature_data.update = self.run_next(bio_data,feature_data)
-        return feature_data
+            res= self.run_next(bio_data)
+            if(feature_set.empty):
+                feature_set=res
+            else:
+                feature_set=feature_set.join(res)
+        return feature_set
     
-    def run_next(self,bio_data:Bio_Data,feature_set:pd.DataFrame):      
+    
+    def run_next(self,bio_data:Bio_Data):      
         bio_data=bio_data.copy()
         inputs = self.input_signals[self.processed_index]
         args=self.args[self.processed_index]
         kwargs=self.kwargs[self.processed_index]
         
-        if(isinstance(inputs,dict)):
-            for key in inputs.keys():
-                kwargs.update({key:bio_data[inputs[key]]})
-        elif(isinstance(inputs,list)):
-            for i in inputs:
-                args=([bio_data[i]],)+args
-        elif(isinstance(inputs,str)):
-            args=(bio_data[inputs],)+args
+        if(not self.windowed):
+            if(isinstance(inputs,dict)):
+                for key in inputs.keys():
+                    kwargs.update({key:bio_data[inputs[key].channel]})
+            elif(isinstance(inputs,list)):
+                inputs=inputs[::-1]
+                for i in inputs:
+                    args=(bio_data[i].channel,)+args
+            elif(isinstance(inputs,str)):
+                args=(bio_data[inputs].channel,)+args
+            
+        else:
+            pass
             
         result=self.extraction_list[self.processed_index].process(*args,**kwargs)       
 

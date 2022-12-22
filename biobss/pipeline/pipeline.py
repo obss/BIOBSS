@@ -9,6 +9,7 @@ import pandas as pd
 from numpy.typing import ArrayLike
 from .feature_extraction import Feature
 from copy import copy
+from .feature_queue import Feature_Queue
 
 """a biological signal processing object with preprocessing and postprocessing steps"""
 
@@ -20,7 +21,6 @@ class Bio_Pipeline:
         windowed_process=False,
         window_size=None,
         step_size=None,
-        features_list=[],
     ):
         if windowed_process:
             self.windowed = True
@@ -37,7 +37,7 @@ class Bio_Pipeline:
         self.process_queue = Process_List(name="Process_Queue")
         self.postprocess_queue = Process_List(name="Postprocess_Queue")
         self.features = pd.DataFrame()
-        self.feature_list = features_list
+        self.feature_list = Feature_Queue()
 
     def set_input(
         self,
@@ -118,19 +118,14 @@ class Bio_Pipeline:
                 sampling_rate=channel.sampling_rate,
                 timestamp_resolution=channel.timestamp_resolution
             )
-
+        self.feature_list.windowed = True
         self.segmented = True
 
     def extract_features(self):
-        for f in self.feature_list:
-            self.calculate_feature(f)
+        self.features = self.feature_list.run_feature_queue(self.data,self.features)
 
-    def add_feature_step(self, feature: Feature):
-        self.feature_list.append(feature)
-
-    def calculate_feature(self, feature: Feature):
-        self.features = pd.concat(
-            [self.features, feature.run(self.data)], axis=1)
+    def add_feature_step(self, feature: Feature,input_signals,*args,**kwargs):
+        self.feature_list.add_feature(feature,input_signals,*args,**kwargs)
 
     def run_pipeline(self):        
         try:

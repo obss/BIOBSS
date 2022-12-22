@@ -239,7 +239,7 @@ class Bio_Data:
             elif(key in self.events.keys()):
                 return self.events[key]
             else:
-                raise ValueError("Channel does not exist")
+                raise ValueError("Channel: "+ key +" does not exist!")
 
     def __setitem__(self, key, value):
         return self.modify_signal(value, key)
