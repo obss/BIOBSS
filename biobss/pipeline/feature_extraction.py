@@ -36,17 +36,6 @@ class Feature():
             kwargs.pop(e)
         return kwargs
 
-
-    def _process_results(self,results):
-        if(isinstance(results,pd.DataFrame)):
-            return results
-        
-        elif(isinstance(results,np.ndarray)):
-            return pd.DataFrame(results)        
-        elif(isinstance(results,dict)):
-            return pd.DataFrame(results,orient='index')
-        
-        return results
     def __extract(self, *args,**kwargs) -> pd.DataFrame:
         
         result = self.function(*args,**kwargs)

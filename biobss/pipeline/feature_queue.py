@@ -37,12 +37,16 @@ class Feature_Queue():
     def run_feature_queue(self, bio_data: Bio_Data,feature_set:pd.DataFrame) -> Bio_Data:
 
         bio_data = bio_data.copy()
+        self.feature_set=feature_set
         for i in range(len(self.extraction_list)):
             res= self.run_next(bio_data)
+            res= self._process_results(res)
             if(feature_set.empty):
                 feature_set=res
             else:
                 feature_set=feature_set.join(res)
+            self.processed_index+=1
+            
         return feature_set
     
     
@@ -66,20 +70,78 @@ class Feature_Queue():
         else:
             pass
             
-        result=self.extraction_list[self.processed_index].process(*args,**kwargs)       
-
-        self.processed_index+=1
+            
+        result=self.extraction_list[self.processed_index].process(*args,**kwargs)      
         return result
         
-    def _process_io(self,input_signals):
+    def _process_results(self,results,key=None):
+        
+        if(not self.windowed):
+            return self._process_results_single(results)
+        else:
+            return self.process_results_windowed(results)     
+               
+    def _process_results_single(self,results,key=None):
+        
+        if(isinstance(results,pd.DataFrame)):
+            return results
+        elif(isinstance(results,pd.Series)):
+            if(results.name is None):
+                if(key is None):
+                    key=self.generate_keys(1)
+                else:
+                    results.name=key
+            return pd.DataFrame(results)
+        elif(isinstance(results,np.ndarray)):
+            if(key is None):
+                n_columns = results.shape[1]
+                key =self.generate_keys(n_columns)
+                if(n_columns==1):
+                    key=[key]
+            else:
+                return pd.DataFrame(results,columns=key)
+        elif(isinstance(results,(int,float))):
+            if(key is None):
+                key = self.generate_keys(1)
+            return pd.DataFrame([results],columns=[key])
+        
+        elif(isinstance(results,(list,tuple))):
+            if(key is None):
+                key = self.generate_keys(len(results))
+                if(len(results)==1):
+                    key=[key]
+            return pd.DataFrame(results,columns=key)
+        elif(results is None):
+            warn("Feature returned None")
+            return pd.DataFrame()
+        elif(isinstance(results,dict)):
+            if(any(isinstance(v, (list, tuple, np.ndarray,dict)) for v in results.values())):
+                results_deeper = {}
+                for k,v in results.items():
+                    results_deeper[k]=self._process_results_single(v,k)
+                results = pd.concat(results_deeper,axis=0)
+                results_val = results.values
+                results_cols = results.columns
+                temp = pd.DataFrame([np.ones(len(results_cols))],columns = results_cols,dtype=object)
+                for i in range(len(results_cols)):
+                    temp.iloc[0,i]=results_val[i]
+                return temp
+            else:
+                return pd.DataFrame([results])     
+        else:
+            raise ValueError("Feature returned an invalid type")
+    
 
-            if(not isinstance(input_signals, (str,list,dict))):
-                raise ValueError("input_signals must be a string, list of strings, or dictionary")
-            if(isinstance(input_signals, list)):
-                if(not all(isinstance(o, str) for o in input_signals)):
-                    raise ValueError("input_signals must be a string or a list of strings")
-            elif(isinstance(input_signals,dict)):
-                if(not all(isinstance(o, str) for o in input_signals.values())):
-                    raise ValueError("input_signals must be a string or a list of strings")
+    
+    
+    def process_results_windowed(self,results):
+        
                 
-            self.input_signals.append(input_signals)
+        return 
+    
+    def generate_keys(self,n):
+        
+        feature_name = self.extraction_list[self.processed_index].name
+        keys = [feature_name+"_"+str(i) for i in range(n)]
+        return keys
+        
