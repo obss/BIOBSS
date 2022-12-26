@@ -122,7 +122,7 @@ class Bio_Pipeline:
         self.segmented = True
 
     def extract_features(self):
-        self.features = self.feature_list.run_feature_queue(self.data,self.features)
+        self.features = self.feature_list.run_feature_queue(self.data)
 
     def add_feature_step(self, feature: Feature,input_signals,*args,**kwargs):
         self.feature_list.add_feature(feature,input_signals,*args,**kwargs)

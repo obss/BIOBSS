@@ -81,5 +81,13 @@ class Event_Channel():
                   
         else:
             raise ValueError("There is a problem creating with event. Event Channel name: "+self.event_name)
+        
+        
+    @property
+    def windows(self):
+        if(self.windowed):
+            return len(self.channel)
+        else:
+            return 1
 
         
