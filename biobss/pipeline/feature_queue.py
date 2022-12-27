@@ -49,6 +49,7 @@ class Feature_Queue():
         return result
     
     def run_single(self, inputs, args, kwargs, bio_data, index=None):
+        input_keys = self._get_input_keys(inputs)
         if isinstance(inputs, dict):
             for key, value in inputs.items():
                 kwargs[key] = bio_data[value].channel[index] if index else bio_data[value].channel
@@ -60,13 +61,42 @@ class Feature_Queue():
             args = (bio_data[inputs].channel[index] if index is not None else bio_data[inputs].channel,) + args
         else:
             raise ValueError("Inputs must be a string, list, or dictionary.")
+        
+        timestamps = []
+        for k in input_keys:
+            timestamps.append(bio_data[k].get_timestamp()[index] if index is not None else bio_data[k].get_timestamp())
+        timestamps = np.array(timestamps)
+        if(not np.all(timestamps == timestamps[0])):
+            raise ValueError("Timestamps must be the same for all input signals.")
+        
         result = self.extraction_list[self.processed_index].process(*args, **kwargs)
         result = self._process_results_single(result)
+        result.index = [timestamps[0]]
         return result
         
     def run_windowed(self,inputs,args,kwargs,bio_data):
         n_windows = []
         results = [] # list of results for each window, to be concatenated
+
+        input_keys = self._get_input_keys(inputs)            
+        for key in input_keys:
+            n_windows.append(bio_data[key].windows)
+        n_windows = min(n_windows)
+        
+        timestamps = []
+        for key in input_keys:
+            timestamps.append(bio_data[key].get_timestamp())
+            
+        if(not np.all(timestamps == timestamps[0], axis=1).all()):
+            raise ValueError("Timestamps must be the same for all input signals.")    
+            
+        for i in range(n_windows):
+            results.append(self.run_single(inputs,args,kwargs,bio_data,i))
+        results = pd.concat(results)
+        return results
+        
+    
+    def _get_input_keys(self,inputs):
         if(isinstance(inputs,dict)):
             input_keys = list(inputs.keys())
         elif(isinstance(inputs,str)):
@@ -75,16 +105,9 @@ class Feature_Queue():
             input_keys = inputs
         else:
             raise ValueError("Inputs must be a string, list, or dictionary.")
-            
-        for key in input_keys:
-            n_windows.append(bio_data[key].windows)
-        n_windows = min(n_windows)
-        for i in range(n_windows):
-            results.append(self.run_single(inputs,args,kwargs,bio_data,i))
-        results = pd.concat(results)
-        return results
         
-        return results
+        return input_keys
+        
     def _process_results(self, results):
         if(isinstance(results, pd.DataFrame)):
             return results

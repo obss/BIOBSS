@@ -24,6 +24,7 @@ class Event_Channel():
         self.sampling_rate = sampling_rate
         self.channel = events
         self.event_name = event_name
+        self.window_timestamps = None
         
         if(isinstance(event_name,str)):
             self.event_name=event_name
@@ -53,11 +54,17 @@ class Event_Channel():
                 raise ValueError("Timestamp data must be provided for event: "+self.event_name)
             if(self.windowed):
                 timestamp_data = []
+                window_timestamps = []
                 for i in range(len(self.channel)):
+                    window_timestamps.append([self.timestamp_data[i][0],self.timestamp_data[i][-1]])
                     timestamp_data.append(self.timestamp_data[i][self.channel[i]])
                 self.timestamp_data = timestamp_data
+                self.window_timestamps = window_timestamps
             else:
                 self.timestamp_data = self.timestamp_data[self.channel]
+                self.window_timestamps = [self.timestamp_data[0],self.timestamp_data[-1]]
+                
+        
 
 
     def _handle_signal_events(self):
@@ -81,6 +88,22 @@ class Event_Channel():
                   
         else:
             raise ValueError("There is a problem creating with event. Event Channel name: "+self.event_name)
+        
+    def get_timestamp(self, ts_point="start") -> np.ndarray:
+
+        if(not self.windowed):
+            out = self.timestamp_data[0]
+        else:
+            if(not ts_point in ["start", "end", "mid"]):
+                raise ValueError(
+                    'ts_point must be "start","end","mid", Please specify a valid timestamp point')
+            if(ts_point == "start"):
+                out = np.array(self.window_timestamps)[:,0]
+            elif(ts_point == "end"):
+                out = np.array(self.window_timestamps)[:,1]
+            elif(ts_point == "mid"):
+                out = np.array(self.window_timestamps)[:,:].mean(axis=1)
+        return out
         
         
     @property
