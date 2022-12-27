@@ -36,7 +36,7 @@ class Feature():
             kwargs.pop(e)
         return kwargs
 
-    def __extract(self, *args,**kwargs) -> pd.DataFrame:
+    def __extract(self, *args,**kwargs):
         
         result = self.function(*args,**kwargs)
         return result    

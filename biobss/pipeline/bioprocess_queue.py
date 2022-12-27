@@ -4,6 +4,7 @@ from .bio_channel import Bio_Channel
 from typing import Union
 from .event_channel import Event_Channel
 """ Process list object with add and iterate process objects"""
+from warnings import warn
 
 
 class Process_List():
@@ -47,26 +48,38 @@ class Process_List():
                 kwargs.update({key:bio_data[inputs[key]]})
         elif(isinstance(inputs,list)):
             for i in inputs:
-                args=([bio_data[i]],)+args
+                args=(bio_data[i],)+args
         elif(isinstance(inputs,str)):
             args=(bio_data[inputs],)+args
             
         result=self.process_list[self.processed_index].process(*args,**kwargs)    
         if(isinstance(result, Bio_Channel)):
             if(not isinstance(self.output_signals[self.processed_index],str)):
-                raise ValueError("Single channel output must be a string")
+                if(len(self.output_signals[self.processed_index])!=1):
+                    raise ValueError("Single channel output must be a string")
+                else:
+                    self.output_signals[self.processed_index]=self.output_signals[self.processed_index][0]
             result.signal_name=self.output_signals[self.processed_index]
             bio_data.add_channel(result)
         elif(isinstance(result, Event_Channel)):
             if(not isinstance(self.output_signals[self.processed_index],str)):
-                raise ValueError("Single channel output must be a string")
+                if(len(self.output_signals[self.processed_index])!=1):
+                    raise ValueError("Single channel output must be a string")
+                else:
+                    self.output_signals[self.processed_index]=self.output_signals[self.processed_index][0]
             result.signal_name=self.output_signals[self.processed_index]
             bio_data.add_event_channel(result)
         elif(isinstance(result, Bio_Data)):
-            if(len(self.output_signals[self.processed_index])!=result.n_channels):
-                raise ValueError("Output Bio_Data must have the same number of channels as the output_signals list")
-            for i in range(result.n_channels):
-                result[i].signal_name=self.output_signals[self.processed_index][i]
+            if(not isinstance(self.output_signals[self.processed_index],dict)):
+                warn("If output of the process is Bio_Data, output signals argument must be a dictionary or it will bi ignored")
+            else:
+                if(len(self.output_signals[self.processed_index].values())!=result.channel_count):
+                    raise ValueError("Output Bio_Data must have the same number of channels as the output_signals list")
+            if(isinstance(self.output_signals[self.processed_index],dict)):
+                for i in range(result.channel_count):
+                    result[self.output_signals[self.processed_index].values()[i].keys()].signal_name=self.output_signals[self.processed_index].values()[i]
+            else:
+                pass
             bio_data.join(result)
             
         self.processed_index+=1
@@ -81,8 +94,12 @@ class Process_List():
             if(not all(isinstance(o, str) for o in output_signals)):
                 raise ValueError("output_signals must be a string or a list of strings")
             output_signals = output_signals
+        elif(isinstance(output_signals,dict)):
+            if(not all(isinstance(o, str) for o in output_signals.values())):
+                raise ValueError("output_signals must be a string or a list of strings")
+            output_signals = output_signals
         else:
-            raise ValueError("output_signals must be a string or a list of strings")
+            raise ValueError("output_signals must be a string or a list of strings, or a dictionary with string values")
                 
         self.output_signals.append(output_signals)
         

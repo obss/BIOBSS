@@ -104,7 +104,7 @@ class Bio_Process:
         sampling_rate=0
         timestamp=0
         timestamp_start=0
-        timestap_resolution=signal.timestamp_resolution       
+        timestamp_resolution=signal.timestamp_resolution       
         
         if(isinstance(result,(np.ndarray,list))):
             if(self.return_index is not None):
@@ -113,26 +113,26 @@ class Bio_Process:
             if(len(result)!=len(signal.channel)):
                 sampling_rate=len(result)/signal.signal_duration
                 timestamp_start=signal.timestamp[0]
-                timestap_resolution=signal.timestamp_resolution
+                timestamp_resolution=signal.timestamp_resolution
                 warnings.warn("Inplace process method returned a different length signal. Sampling rate and timestamp will be updated.")
             else:
                 sampling_rate=signal.sampling_rate
                 timestamp=signal.timestamp
                 timestamp_start=signal.timestamp_start
-                timestap_resolution=signal.timestamp_resolution
+                timestamp_resolution=signal.timestamp_resolution
         elif(isinstance(result,pd.Series)):
             out_signal=result.values
             out_name=result.name
             if(len(result)!=len(signal.channel)):
                 sampling_rate=len(result)/signal.signal_duration
                 timestamp_start=signal.timestamp[0]
-                timestap_resolution=signal.timestamp_resolution
+                timestamp_resolution=signal.timestamp_resolution
                 warnings.warn("Inplace process method returned a different length signal. Sampling rate and timestamp will be updated.")
             else:
                 sampling_rate=signal.sampling_rate
                 timestamp=signal.timestamp
                 timestamp_start=signal.timestamp_start
-                timestap_resolution=signal.timestamp_resolution
+                timestamp_resolution=signal.timestamp_resolution
         else:
             raise ValueError("Result must be a Data_Channel, pd.DataFrame, pd.Series, np.ndarray or list")
                 
@@ -141,7 +141,7 @@ class Bio_Process:
                             sampling_rate=sampling_rate,
                             timestamp=timestamp,
                             timestamp_start=timestamp_start,
-                            timestamp_resolution=timestap_resolution)
+                            timestamp_resolution=timestamp_resolution)
                 
            
         return output

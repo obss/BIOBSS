@@ -240,6 +240,7 @@ class Bio_Data:
                 return self.events[key]
             else:
                 raise ValueError("Channel: "+ key +" does not exist!")
+            
 
     def __setitem__(self, key, value):
         return self.modify_signal(value, key)
