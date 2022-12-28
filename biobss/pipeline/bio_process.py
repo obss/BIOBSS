@@ -45,6 +45,7 @@ class Bio_Process:
         return kwargs
 
     def process(self, signal: Bio_Channel, *args, **kwargs):
+        signal = signal.copy()
         kwargs.update(self.kwargs)
         args=args+self.args
     
