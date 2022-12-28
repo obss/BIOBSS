@@ -100,15 +100,15 @@ class Bio_Pipeline:
         for ch in self.data.get_channel_names():
             channel = self.data[ch]
             windowed = preprocess.segment_signal(
-                channel.channel,
-                self.window_size,
-                self.step_size,
+                signal=channel.channel,
+                window_size=self.window_size,
+                step_size=self.step_size,
                 sampling_rate=channel.sampling_rate,
             )
             timestamps = preprocess.segment_signal(
-                channel.timestamp,
-                self.window_size,
-                self.step_size,
+                signal=channel.timestamp,
+                window_size=self.window_size,
+                step_size=self.step_size,
                 sampling_rate=channel.sampling_rate,
             )
             self.data.modify_signal(

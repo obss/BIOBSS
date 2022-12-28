@@ -18,12 +18,14 @@ class Feature_Queue():
         self.windowed = False
         self.processed_index = 0
         self.feature_set = pd.DataFrame()
+        self.prefix = []
         
-    def add_feature(self, feature, input_signals=None, *args, **kwargs):
+    def add_feature(self, feature, input_signals=None,feature_prefix = None , *args, **kwargs):
         self.extraction_list.append(feature)
         self.input_signals.append(input_signals)
         self.args.append(args)
         self.kwargs.append(kwargs)
+        self.prefix.append(feature_prefix)
         
     def run_feature_queue(self, bio_data: Bio_Data ,reset = False) -> pd.DataFrame:
         bio_data = bio_data.copy()
@@ -31,6 +33,8 @@ class Feature_Queue():
             self.reset()
         for i in range(len(self.extraction_list)):
             res = self.run_next(bio_data)
+            if(self.prefix[i] is not None):
+                res.columns = [self.prefix[i] + "_" + c for c in res.columns]
             self.feature_set = pd.concat([self.feature_set, res], axis=1)
             self.processed_index += 1
         
@@ -202,6 +206,8 @@ class Feature_Queue():
                 results_val = results.values
                 results_cols = results.columns
                 temp = pd.DataFrame([np.ones(len(results_cols))],columns = results_cols,dtype=object)
+                if(np.shape(results_val)[1]==len(results_cols) and np.shape(results_val)[0]!=len(results_cols)):
+                    results_val = results_val.transpose()
                 for i in range(len(results_cols)):
                     temp.iloc[0,i]=results_val[i]
                 return temp
