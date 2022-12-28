@@ -1,3 +1,5 @@
+"""Refactor this class"""
+
 from __future__ import annotations
 import numpy as np
 import copy as copy
@@ -6,7 +8,7 @@ from numpy.typing import ArrayLike
 from .bio_channel import Bio_Channel
 from typing import Union
 import warnings
-
+from .event_channel import Event_Channel
 
 class Bio_Data:
     """ Biological signal data class"""
@@ -14,7 +16,38 @@ class Bio_Data:
     def __init__(self):
         """Initialize a Bio_Data object"""
 
-        self.data = {}  # Data_Channel objects
+        self.data = {}  # Data_Channel and Event_Channel objects
+        self.events = {}  # Event_Channel objects
+        
+    def add_event_channel(self, event_channel: Union[Event_Channel,ArrayLike], modify_existed: bool = False , **kwargs):
+        """ Add an event channel to the Bio_Data object
+
+        Args:
+            event_channel (Event_Channel): Event channel object to be added
+            modify_existed (bool, optional): Whether to modify the existed channel or create new channel. Defaults to False.
+
+        Raises:
+            ValueError: If event_channel is not an Event_Channel object
+            ValueError: If event_channel name already exists
+        """
+
+        if(isinstance(event_channel,Event_Channel)):
+            if(event_channel.event_name in self.events.keys()):
+                if(not modify_existed):
+                    raise ValueError("Event channel already exists set modify_existed to True to modify")
+                else:
+                    self.modify_event_channel(event_channel)
+            else:
+                self.events[event_channel.event_name] = event_channel
+                
+        else:
+            event_name = kwargs.get('event_name',None)
+            timestamp_data = kwargs.get('timestamp_data',None)
+            timestamp_resolution = kwargs.get('timestamp_resolution','ms')
+            indicator = kwargs.get('indicator',1)
+            is_signal = kwargs.get('is_signal',False)
+            sampling_rate = kwargs.get('sampling_rate',None)            
+            self.events[event_name] = Event_Channel(event_channel,event_name,timestamp_data,timestamp_resolution,indicator,is_signal,sampling_rate)
 
     def add_channel(
         self,
@@ -176,15 +209,38 @@ class Bio_Data:
                     timestamp_start=other.data[channel_name].timestamp_start,
                     timestamp_resolution=other.data[channel_name].timestamp_resolution,
                 )
+                
+        for channel_name in other.events.keys():
+            if channel_name not in self.data.keys():
+                self.add_event_channel(
+                    event=other.events[channel_name].events,
+                    channel_name=channel_name,
+                    timestamp=other.events[channel_name].timestamp,
+                    timestamp_start=other.events[channel_name].timestamp_start,
+                    timestamp_resolution=other.events[channel_name].timestamp_resolution,
+                )
+            else:
+                self.add_event_channel(
+                    event=other.events[channel_name].events,
+                    channel_name=channel_name,
+                    timestamp=other.events[channel_name].timestamp,
+                    timestamp_start=other.events[channel_name].timestamp_start,
+                    timestamp_resolution=other.events[channel_name].timestamp_resolution,
+                    modify_existed=True
+                )
 
         
         return self
 
-    def __getitem__(self, key: Union[str, int]) -> Bio_Channel:
+    def __getitem__(self, key: str) -> Bio_Channel:
         if(isinstance(key, str)):
-            return self.data[key]
-        elif(isinstance(key, int)):
-            return self.data[list(self.data.keys())[key]]
+            if(key in self.data.keys()):
+                return self.data[key]
+            elif(key in self.events.keys()):
+                return self.events[key]
+            else:
+                raise ValueError("Channel: "+ key +" does not exist!")
+            
 
     def __setitem__(self, key, value):
         return self.modify_signal(value, key)
@@ -200,6 +256,10 @@ class Bio_Data:
             representation += " (" + str(v.windows) + " windows)"
             representation += " (" + str(v.channel.shape) + ")"
             representation += "\n"
+        for k,v in self.events.items():
+            representation += "Event: " + k + "\n"
+
+            
 
         return representation
 

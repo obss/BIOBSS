@@ -8,7 +8,6 @@ from ..timetools import timestamp_tools
 class Bio_Channel():
     """ Biological signal channel class
     """
-
     def __init__(self, signal: ArrayLike, name: str, sampling_rate: float, timestamp=None, timestamp_resolution=None, timestamp_start=0, verbose=False,unit=None):
 
         # Docstring
@@ -31,50 +30,15 @@ class Bio_Channel():
             ValueError: if signal and timestamp resolution do not match
         # End Docstring        
         """
-        
 
         # initialize channel data
         self.channel = np.array(signal)
         self.timestamp_resolution = timestamp_resolution
-        # initialize sampling rate
-
-        if(sampling_rate < 0):
-            raise ValueError('Sampling rate must be greater than 0')
-        self.sampling_rate = sampling_rate
-
-        # initialize timestamp
-
-        if(timestamp is not None):
-            timestamp = np.array(timestamp)
-            if(timestamp_resolution is None):
-                raise ValueError('Timestamp resolution must be provided if timestamp is provided')
-            if(timestamp.shape != signal.shape):
-                raise ValueError(timestamp.shape, signal.shape,
-                                 'Timestamp must match signal dimensions')
-            if(timestamp_tools.check_timestamp(timestamp, timestamp_resolution)):
-                self.timestamp = timestamp
-                if(verbose):
-                    print("Input is set with timestamp resolution of " +
-                          str(timestamp_resolution))
-            else:
-                raise ValueError('Timestamp is not valid')
-        else:
-            if(timestamp_resolution is None):
-                timestamp_resolution = "ms"
-                self.timestamp_resolution = timestamp_resolution
-            if(signal.ndim > 1):
-                raise ValueError(
-                    'Timestamp must be provided for multi-channel signals')
-            self.timestamp = timestamp_tools.create_timestamp_signal(
-                timestamp_resolution, len(signal), timestamp_start, sampling_rate)
-            self.timestamp_start = timestamp_start
-            if(verbose):
-                print("Input is set with timestamp resolution of " +
-                      str(timestamp_resolution))
-        self.timestamp_start = timestamp_start
-
-        # initialize signal name
+        self.verbose = verbose
         self.signal_name = name
+
+        self._initialize_sampling_rate(sampling_rate)        
+        self._initialize_timestamp(timestamp,timestamp_resolution, timestamp_start, sampling_rate)
 
         # initialize signal duration and windows
         if(len(signal.shape) < 2):
@@ -83,6 +47,41 @@ class Bio_Channel():
         else:
             self.signal_duration = signal.shape[1]/sampling_rate
             self.windows = signal.shape[0]
+            
+    def _initialize_sampling_rate(self, sampling_rate: float):
+        if(sampling_rate < 0):
+            raise ValueError('Sampling rate must be greater than 0')
+        self.sampling_rate = sampling_rate
+            
+    def _initialize_timestamp(self,timestamp, timestamp_resolution: str, timestamp_start: float,sampling_rate: float):
+        if(timestamp is not None):
+            timestamp = np.array(timestamp)
+            if(timestamp_resolution is None):
+                raise ValueError('Timestamp resolution must be provided if timestamp is provided')
+            if(timestamp.shape != self.channel.shape):
+                raise ValueError(timestamp.shape, self.channel.shape,
+                                 'Timestamp must match signal dimensions')
+            if(timestamp_tools.check_timestamp(timestamp, timestamp_resolution)):
+                self.timestamp = timestamp
+                if(self.verbose):
+                    print("Input is set with timestamp resolution of " +
+                          str(timestamp_resolution))
+            else:
+                raise ValueError('Timestamp is not valid')
+        else:
+            if(timestamp_resolution is None):
+                timestamp_resolution = "ms"
+                self.timestamp_resolution = timestamp_resolution
+            if(self.channel.ndim > 1):
+                raise ValueError(
+                    'Timestamp must be provided for multi-channel signals')
+            self.timestamp = timestamp_tools.create_timestamp_signal(
+                timestamp_resolution, len(self.channel), timestamp_start, self.sampling_rate)
+            self.timestamp_start = timestamp_start
+            if(self.verbose):
+                print("Input is set with timestamp resolution of " +
+                      str(timestamp_resolution))
+        self.timestamp_start = timestamp_start
 
     def copy(self):
         """Returns a copy of the Bio_Channel object
@@ -124,7 +123,6 @@ class Bio_Channel():
     def __str__(self) -> str:
         return str(self.channel)
     
-    
     def get_attribute(self, __name: str):
         if(__name == "channel"):
             return np.array(self.channel)
@@ -155,3 +153,4 @@ class Bio_Channel():
         representation += " (" + str(self.channel.dtype) + ")"
         representation += self.__str__()
         return representation
+

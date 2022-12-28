@@ -1,118 +1,48 @@
 from __future__ import annotations
 from distutils.log import warn
-from sqlite3 import Timestamp
-from symbol import parameters
 from .bio_data import Bio_Data
 import pandas as pd
 import numpy as np
 from typing import Union
+import inspect
 
 
 class Feature():
 
-    def __init__(self, name, function, input_signals: dict,parameters={},input_type=np.ndarray,add_prefix_after=False, **kwargs):
+    def __init__(self, name, function, *args, **kwargs):
 
         self.name = name
         self.function = function
-        self.parameters = parameters
-        self.input_signals = input_signals
+        self.args = args
         self.kwargs=kwargs
-        self.feature_output = pd.DataFrame()
-        self.input_type = input_type
-        self.add_prefix_after=add_prefix_after
+    
+    def process(self,*args,**kwargs) -> pd.DataFrame:
 
-    def run(self, data: Bio_Data) -> pd.DataFrame:
+        args=args+self.args
+        kwargs.update(self.kwargs)
+        kwargs=self._process_args(**kwargs)
+        feature_output = self.__extract(*args,**kwargs)
+        return feature_output
 
-        self.parameters.update(self.kwargs)
-        redundant = []
-        for k in self.parameters:
-            if k not in self.function.__code__.co_varnames:
-                redundant.append(k)
-        for r in redundant:
-            self.parameters.pop(r)
 
-        if(not isinstance(data, Bio_Data)):
-            raise ValueError(
-                'Feature extraction must be run on a Bio_Data object')
+    def _process_args(self,**kwargs):
+             
+        signature = inspect.signature(self.function)
+        excess_args = []
+        for key in kwargs.keys():
+            if key not in signature.parameters.keys():
+                excess_args.append(key)
+        for e in excess_args:
+            kwargs.pop(e)
+        return kwargs
 
-        self.data = data
-
-        for input_prefix, input in self.input_signals.items():
-            self.feature_output = pd.concat(
-                [self.feature_output, self.__extract(input, input_prefix)], axis=1)
-        return self.feature_output
+    def __extract(self, *args,**kwargs):
+        
+        result = self.function(*args,**kwargs)
+        return result    
+    
+    
+    
 
     def __str__(self) -> str:
         return self.name
-    
-    def _sanitize_parameters(self) -> dict:
-        redundant = []
-        for k in self.parameters:
-            if k not in self.function.__code__.co_varnames:
-                redundant.append(k)
-        for r in redundant:
-            self.parameters.pop(r)
-
-    def __extract(self, channel_name: Union[str, list], prefix: str = '') -> pd.DataFrame:
-        if(isinstance(channel_name, str)):
-            timestamps = self.data[channel_name].get_timestamp()
-            feature_set = []
-            self.parameters['prefix'] = prefix
-            data = self.data[channel_name].channel
-            
-            self._sanitize_parameters()
-            
-            if(len(data.shape) < 2):
-                window_number = 1
-            else:
-                window_number = data.shape[0]       
-            if(window_number == 1):
-                input= self.input_type(data)
-                feature_set.append(self.function(input, **self.parameters))
-                calculated_features = pd.DataFrame.from_dict(feature_set)
-
-            else:         
-                for i in range(window_number):
-                    input=self.input_type(data[i])
-                    feature_set.append(self.function(input, **self.parameters))
-                calculated_features = pd.DataFrame(feature_set, index=timestamps)
-                
-            
-            if(self.add_prefix_after):
-                calculated_features.columns = [prefix + "_" + c for c in calculated_features.columns]            
-            
-            return calculated_features
-            raise ValueError("Feature extraction failed unexpectedly!")
-        elif(isinstance(channel_name, list)):
-            ts = []
-            for c in channel_name:
-                ts.append(self.data[c].get_timestamp())
-
-            ts = np.array(ts)
-            if(np.any(ts-ts[0])):
-                raise ValueError('All channels must have the same timestamp')
-
-            timestamps = self.data[channel_name[0]].get_timestamp()
-            feature_set = []
-            self.parameters['prefix'] = prefix
-            if(len(self.data[channel_name[0]].channel.shape) < 2):
-                window_number = 1
-            else:
-                window_number = self.data[channel_name[0]].channel.shape[0]
-            data_ = []
-            for c in channel_name:
-                data_.append(self.data[c].channel)
-            data_ = np.array(data_)
-            if(window_number!=1):
-                for i in range(window_number):
-                    feature_set.append(self.function(
-                        data_[:, i], **self.parameters))
-                calculated_features = pd.DataFrame(feature_set,index=timestamps)    
-            else:
-                timestamps=[timestamps[-1]]
-                feature_set.append(self.function(
-                        data_[:,], **self.parameters))
-
-                calculated_features = pd.DataFrame.from_dict(feature_set)
-                
-            return calculated_features
