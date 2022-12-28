@@ -12,3 +12,5 @@ from . import timetools
 from . import plottools
 from . import sqatools
 from . import utils
+
+__version__ = "0.1.0"

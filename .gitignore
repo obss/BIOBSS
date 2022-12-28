@@ -162,11 +162,8 @@ biobss.egg-info/*
 build/*
 .eggs/*
 .vscode/*
-Empatica_files/*
-Polar_files/*
 .ipynb_checkpoints/*
 
-*.csv
 
 
 
