@@ -93,14 +93,30 @@ class Feature_Queue():
 
         input_keys = self._get_input_keys(inputs)
         for key in input_keys:
-            n_windows.append(bio_data[key].windows)
+            if(isinstance(key,str)):
+                n_windows.append(bio_data[key].windows)
+            elif(isinstance(key,list)):
+                input_windows = []
+                for k in key:
+                    input_windows.append(bio_data[k].windows)
+                if(not np.any(input_windows != input_windows[0])):
+                    raise ValueError("All input signals must have the same number of windows.")
+                else:
+                    n_windows.append(input_windows[0])
+                
         n_windows = min(n_windows)
 
         timestamps = []
         for key in input_keys:
-            timestamps.append(bio_data[key].get_timestamp())
+            if(isinstance(key,str)):
+                timestamps.append(bio_data[key].get_timestamp())
+            elif(isinstance(key,list)):
+                for k in key:
+                    timestamps.append(bio_data[k].get_timestamp())
+            else:
+                raise ValueError("Inputs must be a string or list")
 
-        if(not np.all(timestamps == timestamps[0], axis=1).all()):
+        if(not np.all(timestamps == timestamps[0], axis=0).all()):
             raise ValueError(
                 "Timestamps must be the same for all input signals.")
 
@@ -243,5 +259,7 @@ class Feature_Queue():
         timestamps = np.array(timestamps)
         if(np.any(timestamps[0] != timestamps)):
            raise ValueError("Timestamps must be the same for all input signals.")
-          
+        
+        if(np.ndim(timestamps) > 1):
+            timestamps = timestamps[:,0]          
         return np.array(input_args),timestamps
