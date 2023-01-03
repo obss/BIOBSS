@@ -12,27 +12,36 @@ from biobss.common import signal_hjorth
 LAG_MIN = 1.33 # Period of respiration cycle for upper limit of respiration range (seconds).
 LAG_MAX = 10 # Period of respiration cycle for lower limit of respiration range (seconds).
 
-def extract_resp_sig(peaks_locs: ArrayLike, peaks_amp: ArrayLike, troughs_amp: ArrayLike, sampling_rate: float, mod_type: list=['AM','FM','BW'], resampling_rate: float=10.0) -> dict:
+def extract_resp_sig(sig:ArrayLike, peaks_locs: ArrayLike, troughs_locs: ArrayLike, sampling_rate: float, mod_type: list=['AM','FM','BW'], resampling_rate: float=10.0) -> dict:
     """Extracts the respiratory signal(s) using the modulations resulted from respiratory activity and returns a dictionary of the respiratory signal(s).
 
     Args:
-        peaks_locs (ArrayLike): PPG signal peak locations.
-        peaks_amp (ArrayLike): PPG signal peak amplitudes.
-        troughs_amp (ArrayLike): PPG signal trough amplitudes
-        sampling_rate (float): Sampling rate of the PPG signal (Hz).
+        sig (ArrayLike): Input signal (PPG or ECG).
+        peaks_locs (ArrayLike): Input signal peak locations.
+        troughs_locs (ArrayLike): Input signal trough locations.
+        sampling_rate (float): Sampling rate of the input signal.
         mod_type (list, optional): Modulation type: 'AM' for amplitude modulation, 'FM' for frequency modulation, 'BW' for baseline wander. Defaults to ['AM','FM','BW'].
         resampling_rate (float, optional): Sampling rate of the extracted respiratory signal. Defaults to 10 (Hz).
+
+    Raises:
+        ValueError: If sampling rate is not greater than 0.
+        ValueError: If resampling rate is not greater than 0.
+        ValueError: If lengths of peak and trough location arrays do not match!
 
     Returns:
         dict: Dictionary of extracted respiratory signals.
     """
+
     if sampling_rate <= 0:
         raise ValueError("Sampling rate must be greater than 0.")
 
     if resampling_rate <= 0:
         raise ValueError("Resampling rate must be greater than 0.")
 
-    if (len(peaks_locs) != len(peaks_amp)) or (len(peaks_amp) != len(troughs_amp)-1):
+    peaks_amp = sig[peaks_locs]
+    troughs_amp = sig[troughs_locs]
+
+    if (len(peaks_locs) != len(troughs_locs)-1):
         raise ValueError("Lengths of input arrays do not match!")
 
     mod_type = [x.upper() for x in mod_type]

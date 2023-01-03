@@ -2,7 +2,7 @@ from numpy.typing import ArrayLike
 
 from biobss.sqatools.signal_quality import *
 
-def ecg_sqa(ecg_sig: ArrayLike, sampling_rate:float, methods: list, **kwargs) -> dict:
+def sqa_ecg(ecg_sig: ArrayLike, sampling_rate:float, methods: list, **kwargs) -> dict:
     """Assesses quality of ECG signal by applying rules based on morphological information.
 
     Args:

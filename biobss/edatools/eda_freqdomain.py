@@ -38,6 +38,9 @@ def eda_freq_features(sig: ArrayLike, prefix:str="eda") -> dict:
     freqs, psd = signal.welch(sig_fft, return_onesided=False)
 
     for k, f in FREQ_FEATURES.items():
-        sig_features["_".join([prefix, k])] = f(psd, freqs)
+        try:
+            sig_features["_".join([prefix, k])] = f(psd, freqs)
+        except:
+            sig_features["_".join([prefix, k])] = np.nan
 
     return sig_features

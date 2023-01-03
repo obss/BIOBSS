@@ -40,6 +40,9 @@ def eda_stat_features(signal: ArrayLike, prefix:str="signal") -> dict:
     s_features = {}
 
     for k, f in STAT_FEATURES.items():
-        s_features["_".join([prefix, k])] = f(signal)
+        try:
+            s_features["_".join([prefix, k])] = f(signal)
+        except:
+            s_features["_".join([prefix, k])] = np.nan
 
     return s_features

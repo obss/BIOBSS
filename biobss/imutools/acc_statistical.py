@@ -58,6 +58,9 @@ def acc_stat_features(signals: list, signal_names:list, sampling_rate:float) -> 
 
     for signal_name, signal in data.items():
         for key,func in STAT_FEATURES.items():
-            features_stat["_".join([signal_name, key])]=func(signal)
+            try:
+                features_stat["_".join([signal_name, key])]=func(signal)
+            except:
+                features_stat["_".join([signal_name, key])]=np.nan
 
     return features_stat

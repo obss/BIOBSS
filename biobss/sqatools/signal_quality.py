@@ -137,7 +137,7 @@ def check_phys(peaks_locs: ArrayLike, sampling_rate: float) -> dict:
 
     return info
 
-def check_morph(peaks_locs: ArrayLike, peaks_amps: ArrayLike, troughs_locs: ArrayLike, troughs_amps: ArrayLike, sampling_rate: float) -> dict:
+def check_morph(sig:ArrayLike, peaks_locs: ArrayLike, troughs_locs: ArrayLike, sampling_rate: float) -> dict:
     """Checks for ranges of morphological features.
 
     Rule 1: Systolic phase duration(rise time): 0.08 to 0.49 s
@@ -159,14 +159,11 @@ def check_morph(peaks_locs: ArrayLike, peaks_amps: ArrayLike, troughs_locs: Arra
     if sampling_rate <= 0:
         raise ValueError("Sampling rate must be greater than 0.")
 
-    if len(peaks_locs) != len(peaks_amps):
-        raise ValueError("Lengths of peak location and peak amplitude arrays do not match!")
-
-    if len(troughs_locs) != len(troughs_amps):
-        raise ValueError("Lengths of trough location and peak amplitude arrays do not match!")
-
     if len(peaks_locs) != len(troughs_locs) - 1:
         raise ValueError("Number of peaks and troughs are not compatible!")
+
+    peaks_amps = sig[peaks_locs]
+    troughs_amps = sig[troughs_locs]
 
     info={}
 

@@ -1,5 +1,6 @@
 from scipy.stats import pearsonr
 import itertools
+import numpy as np
 
 
 def acc_corr_features(signals: list, signal_names: list, sampling_rate:float) -> dict:
@@ -22,6 +23,9 @@ def acc_corr_features(signals: list, signal_names: list, sampling_rate:float) ->
     
     corr_list = {}
     for i in comb:
-        corr_list["_".join(i) + "_corr"] = pearsonr(data[i[0]], data[i[1]])[0]
+        try:
+            corr_list["_".join(i) + "_corr"] = pearsonr(data[i[0]], data[i[1]])[0]
+        except:
+            corr_list["_".join(i) + "_corr"] = np.nan
 
     return corr_list

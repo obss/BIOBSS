@@ -77,7 +77,10 @@ def acc_freq_features(signals: list, signal_names:list, sampling_rate:float) -> 
         f, pxx = sig_psd(sig=signal, sampling_rate=sampling_rate, method='welch')
     
         for key,func in FREQ_FEATURES.items():
-            features_freq["_".join([signal_name, key])]=func(sigfft,freq,pxx,f)
+            try:
+                features_freq["_".join([signal_name, key])]=func(sigfft,freq,pxx,f)
+            except:
+                features_freq["_".join([signal_name, key])]=np.nan
         
     return features_freq
 

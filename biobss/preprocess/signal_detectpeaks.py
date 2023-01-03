@@ -36,31 +36,25 @@ def peak_detection(sig: ArrayLike, sampling_rate: float, method: str='peakdet', 
 
         maxtab, mintab = _peakdetection_peakdet(sig, delta)
         info["Peak_locs"] = maxtab[:, 0].astype(int)
-        info["Peaks"] = maxtab[:, 1]
         info["Trough_locs"] = mintab[:, 0].astype(int)
-        info["Troughs"] = mintab[:, 1]
 
     elif method == 'heartpy':
 
         wd_p = _peakdetection_heartpy(sig, sampling_rate)
         info["Peak_locs"] = wd_p['peaklist']
-        info["Peaks"] = sig[wd_p['peaklist']]
 
         sig_t = max(sig)-sig
         wd_t = _peakdetection_heartpy(sig_t, sampling_rate)
         info["Trough_locs"] = wd_t['peaklist']
-        info["Troughs"] = sig[wd_t['peaklist']]
 
     elif method == 'scipy':
 
         peaks_locs = _peakdetection_scipy(sig)
         info["Peak_locs"] = peaks_locs
-        info["Peaks"] = sig[peaks_locs]
 
         sig_t = max(sig)-sig
         troughs_locs = _peakdetection_scipy(sig_t)
         info["Trough_locs"] = troughs_locs
-        info["Troughs"] = sig[troughs_locs]
 
     else:
         raise ValueError("Method should be one of 'peakdet' ,'heartpy' and 'scipy'.")

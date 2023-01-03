@@ -64,7 +64,10 @@ def hrv_freq_features(ppi: ArrayLike, sampling_rate:int, prefix: str='hrv') -> d
     
     features_freq={}
     for key,func in FEATURES_FREQ.items():
-        features_freq["_".join([prefix, key])]=func(pxx,fxx)
+        try:
+            features_freq["_".join([prefix, key])]=func(pxx,fxx)
+        except:
+            features_freq["_".join([prefix, key])]=np.nan
 
     return features_freq
 

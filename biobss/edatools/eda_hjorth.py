@@ -16,7 +16,14 @@ def eda_hjorth_features(sig: ArrayLike, prefix="eda") -> dict:
     """
 
     h_features = {}
-    h_features[prefix + "_activity"] = hjorth_activity(sig)
-    h_features[prefix + "_complexity"], h_features[prefix + "_mobility"] = hjorth_complexity_mobility(sig)
+    try:
+        h_features[prefix + "_activity"] = hjorth_activity(sig)
+    except:
+        h_features[prefix + "_activity"] = np.nan
+
+    try:
+        h_features[prefix + "_complexity"], h_features[prefix + "_mobility"] = hjorth_complexity_mobility(sig)
+    except:
+        h_features[prefix + "_complexity"], h_features[prefix + "_mobility"] = np.nan, np.nan
 
     return h_features

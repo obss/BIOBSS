@@ -48,7 +48,7 @@ FEATURES_WAVES = {
 
 }
 
-def from_Rpeaks(sig: ArrayLike, peaks_locs: ArrayLike, sampling_rate: float, prefix: str='ecg') -> dict:
+def from_Rpeaks(sig: ArrayLike, peaks_locs: ArrayLike, sampling_rate: float, prefix: str='ecg', average:bool=False) -> dict:
     """Calculates R-peak-based ECG features and returns a dictionary of features for each heart beat.
 
         'a_R': Amplitude of R peak
@@ -65,6 +65,7 @@ def from_Rpeaks(sig: ArrayLike, peaks_locs: ArrayLike, sampling_rate: float, pre
         peaks_locs (ArrayLike): ECG R-peak locations.
         sampling_rate (float): Sampling rate of the ECG signal (Hz).
         prefix (str, optional): Prefix for the feature. Defaults to 'ecg'.
+        average (bool, optional): If True, averaged features are returned. Defaults to False.
 
     Returns:
         dict: Dictionary of ECG features.
@@ -76,12 +77,32 @@ def from_Rpeaks(sig: ArrayLike, peaks_locs: ArrayLike, sampling_rate: float, pre
     for m in range(1, len(peaks_locs)-2):
         features={}
         for key,func in FEATURES_RPEAKS.items():
-            features["_".join([prefix, key])]=func(sig, sampling_rate, peaks_locs=peaks_locs, beatno=m)
+            try:
+                features["_".join([prefix, key])]=func(sig, sampling_rate, peaks_locs=peaks_locs, beatno=m)
+            except:
+                features["_".join([prefix, key])]=np.nan
         features_rpeaks[m] = features
-        
-    return features_rpeaks
+   
+    if average:
+        features_avr = {}
 
-def from_waves(sig: ArrayLike, R_peaks: ArrayLike, fiducials: dict, sampling_rate: float, prefix: str='ecg') -> dict:
+        features_ = {}
+        for subdict in features_rpeaks.values():
+            for key, value in subdict.items():
+                if key not in features_:
+                    features_[key] = [value]
+                else:
+                    features_[key].append(value)
+
+        for k in features_.keys():
+            features_avr[k] = np.mean(features_[k])    
+
+        return features_avr
+
+    else:
+        return features_rpeaks
+
+def from_waves(sig: ArrayLike, R_peaks: ArrayLike, fiducials: dict, sampling_rate: float, prefix: str='ecg', average:bool=False) -> dict:
     """Calculates ECG features from the given fiducials and returns a dictionary of features.
 
         't_PR': Time between P and R peak locations
@@ -122,7 +143,8 @@ def from_waves(sig: ArrayLike, R_peaks: ArrayLike, fiducials: dict, sampling_rat
         fiducials (dict): Dictionary of fiducial locations (keys: "ECG_P_Peaks", "ECG_Q_Peaks", "ECG_S_Peaks", "ECG_T_Peaks").        
         sampling_rate (float): Sampling rate of the ECG signal (Hz).
         prefix (str, optional): Prefix for the feature. Defaults to 'ecg'.
-
+        average (bool, optional): If True, averaged features are returned. Defaults to False.
+        
     Raises:
         ValueError: If sampling rate is not greater than 0. 
 
@@ -163,10 +185,30 @@ def from_waves(sig: ArrayLike, R_peaks: ArrayLike, fiducials: dict, sampling_rat
     for m in range(len(R_peaks)):
         features={}
         for key,func in feature_list.items():
-            features["_".join([prefix, key])]=func(sig, sampling_rate, P_peaks, Q_peaks, R_peaks, S_peaks, T_peaks, beatno=m)
+            try:
+                features["_".join([prefix, key])]=func(sig, sampling_rate, P_peaks, Q_peaks, R_peaks, S_peaks, T_peaks, beatno=m)
+            except:
+                features["_".join([prefix, key])]=np.nan
         features_waves[m] = features
   
-    return features_waves
+    if average:
+        features_avr = {}
+
+        features_ = {}
+        for subdict in features_waves.values():
+            for key, value in subdict.items():
+                if key not in features_:
+                    features_[key] = [value]
+                else:
+                    features_[key].append(value)
+
+        for k in features_.keys():
+            features_avr[k] = np.mean(features_[k])    
+
+        return features_avr
+
+    else:
+        return features_waves
 
 
 def _get_RR_interval(peaks_locs:ArrayLike, sampling_rate:float, beatno:int, interval:int=0) -> float:

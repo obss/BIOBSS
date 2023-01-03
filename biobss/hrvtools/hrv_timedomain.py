@@ -60,7 +60,10 @@ def hrv_time_features(ppi: ArrayLike, sampling_rate:int, prefix: str='hrv') -> d
         
     features_time={}
     for key,func in FEATURES_TIME.items():
-        features_time["_".join([prefix, key])]=func(ppi)
+        try:
+            features_time["_".join([prefix, key])]=func(ppi)
+        except:
+            features_time["_".join([prefix, key])]=np.nan
 
     return features_time
 

@@ -31,7 +31,10 @@ def eda_signal_features(signal: ArrayLike, prefix="signal") -> dict:
     signal = signal.flatten()
     s_features = {}
     for k, f in SIGNAL_FEATURES.items():
-        s_features["_".join([prefix, k])] = f(signal)
+        try:
+            s_features["_".join([prefix, k])] = f(signal)
+        except:
+            s_features["_".join([prefix, k])] = np.nan
 
     return s_features
 

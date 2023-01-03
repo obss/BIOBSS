@@ -39,7 +39,10 @@ def hrv_nl_features(ppi: ArrayLike, sampling_rate:int, prefix: str='hrv') -> dic
     features_nl={}
 
     for key,func in FEATURES_NL.items():
-        features_nl["_".join([prefix, key])]=func(ppi)
+        try:
+            features_nl["_".join([prefix, key])]=func(ppi)
+        except:
+            features_nl["_".join([prefix, key])]=np.nan
 
     return features_nl
 
