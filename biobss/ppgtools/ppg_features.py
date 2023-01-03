@@ -17,7 +17,7 @@ def get_domain_function(domain:str) -> Callable:
     else:
         raise ValueError("Unknown domain:", domain)   
 
-def get_ppg_features(sig: ArrayLike, sampling_rate:float, input_types: list=['cycle', 'segment'], feature_domain: dict={'cycle':['Time','Stat'], 'segment':['Stat','Freq','Time']}, prefix: str='ppg', **kwargs) -> dict:
+def get_ppg_features(sig: ArrayLike, sampling_rate:float, fiducials: dict=None, input_types: list=['cycle', 'segment'], feature_domain: dict={'cycle':['Time','Stat'], 'segment':['Stat','Freq','Time']}, prefix: str='ppg', **kwargs) -> dict:
     """Calculates PPG features.
 
     Args:
@@ -43,8 +43,8 @@ def get_ppg_features(sig: ArrayLike, sampling_rate:float, input_types: list=['cy
     if 'cycle' in input_types:
         feature_domain['cycle'] = [x.capitalize() for x in feature_domain['cycle']]
 
-        if all(k in kwargs.keys() for k in ('peaks_locs', 'peaks_amp', 'troughs_locs', 'troughs_amp')):
-            features_cycle = from_cycles(sig, sampling_rate=sampling_rate, peaks_locs=kwargs['peaks_locs'], peaks_amp=kwargs['peaks_amp'], troughs_locs=kwargs['troughs_locs'], troughs_amp=kwargs['troughs_amp'], feature_types=feature_domain['cycle'], prefix=prefix)   
+        if all(k in kwargs.keys() for k in ('peaks_locs', 'troughs_locs')):
+            features_cycle = from_cycles(sig, sampling_rate=sampling_rate, fiducials=fiducials, peaks_locs=kwargs['peaks_locs'], troughs_locs=kwargs['troughs_locs'], feature_types=feature_domain['cycle'], prefix=prefix)   
             features.update(features_cycle)
         else:
             raise ValueError("Missing keyword arguments for the input_type: 'cycle'!")
@@ -57,7 +57,7 @@ def get_ppg_features(sig: ArrayLike, sampling_rate:float, input_types: list=['cy
 
     return features
 
-def from_cycles(sig: ArrayLike, peaks_locs: ArrayLike, peaks_amp: ArrayLike, troughs_locs: ArrayLike ,troughs_amp: ArrayLike ,sampling_rate: float, feature_types: ArrayLike=['Time','Stat'], prefix: str='ppg') -> dict:
+def from_cycles(sig: ArrayLike, peaks_locs: ArrayLike, troughs_locs: ArrayLike, sampling_rate: float, fiducials:dict=None, feature_types: ArrayLike=['Time','Stat'], prefix: str='ppg') -> dict:
     """Calculates cycle-based PPG features.
 
     Args:
@@ -85,13 +85,17 @@ def from_cycles(sig: ArrayLike, peaks_locs: ArrayLike, peaks_amp: ArrayLike, tro
     feature_types = [x.capitalize() for x in feature_types]
 
     valid_types=['Time','Stat'] 
+
+    peaks_amp = sig[peaks_locs]
+    troughs_amp = sig[troughs_locs]
+
     features={}
     for domain in feature_types:
         if domain not in valid_types:
             raise ValueError("Invalid feature type: " + domain)
         else:
             domain_function = get_domain_function(domain)
-            features.update(domain_function(sig=sig, sampling_rate=sampling_rate, input_types=['cycle'], prefix=prefix, peaks_locs=peaks_locs, peaks_amp=peaks_amp, troughs_locs=troughs_locs, troughs_amp=troughs_amp))
+            features.update(domain_function(sig=sig, sampling_rate=sampling_rate, fiducials=fiducials, input_types=['cycle'], prefix=prefix, peaks_locs=peaks_locs, peaks_amp=peaks_amp, troughs_locs=troughs_locs, troughs_amp=troughs_amp))
 
     return features
 

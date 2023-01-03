@@ -16,7 +16,7 @@ FUNCTIONS_FREQ_SEGMENT= {
 }  
 
 
-def ppg_freq_features(sig: ArrayLike, sampling_rate: float, input_types: list=None, prefix: str='ppg') -> dict:
+def ppg_freq_features(sig: ArrayLike, sampling_rate: float, input_types: list, fiducials:dict=None, prefix: str='ppg') -> dict:
     """Calculates frequency-domain features
 
     Segment-based features:
@@ -56,7 +56,10 @@ def ppg_freq_features(sig: ArrayLike, sampling_rate: float, input_types: list=No
             
             features_freq={}
             for key,func in FUNCTIONS_FREQ_SEGMENT.items():
-                features_freq["_".join([prefix, key])]=func(sigfft,freq,pxx,f)
+                try:
+                    features_freq["_".join([prefix, key])]=func(sigfft,freq,pxx,f)
+                except:
+                    features_freq["_".join([prefix, key])]=np.nan
 
         else:
             raise ValueError("Undefined type for frequency domain.")

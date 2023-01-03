@@ -5,7 +5,7 @@ from typing import Tuple
 
 from biobss.sqatools.signal_quality import *
 
-def ppg_sqa(ppg_sig: ArrayLike, sampling_rate:float, methods: list, **kwargs) -> dict:
+def sqa_ppg(ppg_sig: ArrayLike, sampling_rate:float, methods: list, **kwargs) -> dict:
     """Assesses quality of PPG signal by applying rules based on morphological information.
 
     Args:
@@ -25,24 +25,43 @@ def ppg_sqa(ppg_sig: ArrayLike, sampling_rate:float, methods: list, **kwargs) ->
     for method in methods:
 
         if method == 'flatline':
-            info = detect_flatline_clipping(sig=ppg_sig, threshold=kwargs['flatline_threshold'], flatline=True, duration=kwargs['duration'])
-            results['Flatline segments']=info['Flatline segments']
+            if ('flatline_threshold' in kwargs) and ('duration' in kwargs):
+                info = detect_flatline_clipping(sig=ppg_sig, threshold=kwargs['flatline_threshold'], flatline=True, duration=kwargs['duration'])
+                results['Flatline segments']=info['Flatline segments']
+            else:
+                raise ValueError(f"Missing keyword arguments 'flatline_threshold' and/or 'duration' for the selected method: {method}.")
 
         elif method == 'clipping':
-            info = detect_flatline_clipping(sig=ppg_sig, threshold=kwargs['clipping_threshold'], clipping=True)
-            results['Clipped segments']=info['Clipped segments']
+            if 'clipping_threshold' in kwargs:
+                info = detect_flatline_clipping(sig=ppg_sig, threshold=kwargs['clipping_threshold'], clipping=True)
+                results['Clipped segments']=info['Clipped segments']
+            else:
+                raise ValueError(f"Missing keyword argument 'clipping_threshold' for the selected method: {method}.")
 
         elif method == 'physiological':
-            info = check_phys(peaks_locs=kwargs['peaks_locs'], sampling_rate=sampling_rate)
-            results['Physiological']=info
+            if 'peaks_locs' in kwargs:
+                info = check_phys(peaks_locs=kwargs['peaks_locs'], sampling_rate=sampling_rate)
+                results['Physiological']=info
+            else:
+                raise ValueError(f"Missing keyword arguments 'peaks_locs' for the selected method: {method}.")
 
         elif method == 'morphological':
-            info = check_morph(peaks_locs=kwargs['peaks_locs'],peaks_amps=kwargs['peaks_amp'],troughs_locs=kwargs['troughs_locs'],troughs_amps=kwargs['troughs_amp'],sampling_rate=sampling_rate)
-            results['Morphological']=info
+            if ('peaks_locs' in kwargs) and ('troughs_locs' in kwargs):
+                info = check_morph(sig=ppg_sig, peaks_locs=kwargs['peaks_locs'], troughs_locs=kwargs['troughs_locs'], sampling_rate=sampling_rate)
+                results['Morphological']=info
+            else:
+                raise ValueError(f"Missing keyword arguments 'peaks_locs' and/or 'troughs_locs' for the selected method: {method}.")
 
         elif method == 'template':
-            info = template_matching(sig=ppg_sig,peaks_locs=kwargs['peaks_locs'])
-            results['Template matching']=info
+            if 'peaks_locs' in kwargs:
+                if 'corr_th' in kwargs:
+                    info = template_matching(sig=ppg_sig,peaks_locs=kwargs['peaks_locs'], corr_th=kwargs['corr_th'])
+                else:
+                    info = template_matching(sig=ppg_sig,peaks_locs=kwargs['peaks_locs'])
+
+                results['Template matching']=info
+            else:
+                raise ValueError(f"Missing keyword arguments 'peaks_locs' for the selected method: {method}.")
 
         else:
             raise ValueError("Undefined method for PPG signal quality assessment!")

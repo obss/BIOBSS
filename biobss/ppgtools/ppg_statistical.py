@@ -23,7 +23,7 @@ FEATURES_STAT_SEGMENT = {
 'entropy': lambda sig: calculate_shannon_entropy(sig),
 }
 
-def ppg_stat_features(sig: ArrayLike, sampling_rate: float, input_types: list, prefix: str='ppg', **kwargs) -> dict:
+def ppg_stat_features(sig: ArrayLike, sampling_rate: float, input_types: list, fiducials:dict=None, prefix: str='ppg', **kwargs) -> dict:
     """Calculates statistical features.
 
     Cycle-based features: 
@@ -62,11 +62,21 @@ def ppg_stat_features(sig: ArrayLike, sampling_rate: float, input_types: list, p
 
         if type=='cycle':
             for key,func in FEATURES_STAT_CYCLE.items():
-                features_stat["_".join([prefix, key])]=func(sig,kwargs['peaks_amp'],kwargs['peaks_locs'],kwargs['troughs_locs'], sampling_rate)
+                if all(k in kwargs.keys() for k in ('peaks_locs', 'troughs_locs')):
+                    peaks_amp = sig[kwargs['peaks_locs']]
+                    try:
+                        features_stat["_".join([prefix, key])]=func(sig,peaks_amp,kwargs['peaks_locs'],kwargs['troughs_locs'], sampling_rate)
+                    except:
+                        features_stat["_".join([prefix, key])]=np.nan
+                else:
+                    raise ValueError("Missing keyword arguments for the input_type: 'cycle'!")
         
         elif type=='segment':
-            for key,func in FEATURES_STAT_SEGMENT.items():           
-                features_stat["_".join([prefix, key])]=func(sig)
+            for key,func in FEATURES_STAT_SEGMENT.items():
+                try:           
+                    features_stat["_".join([prefix, key])]=func(sig)
+                except:
+                    features_stat["_".join([prefix, key])]=np.nan
 
         else: 
             raise ValueError("Type should be 'cycle' or 'segment'.")
