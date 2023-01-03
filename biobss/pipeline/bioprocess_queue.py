@@ -71,7 +71,7 @@ class Process_List():
             bio_data.add_event_channel(result)
         elif(isinstance(result, Bio_Data)):
             if(not isinstance(self.output_signals[self.processed_index],dict)):
-                warn("If output of the process is Bio_Data, output signals argument must be a dictionary or it will bi ignored")
+                warn("If output of the process is Bio_Data, output signals argument must be a dictionary or it will be ignored")
             else:
                 if(len(self.output_signals[self.processed_index].values())!=result.channel_count):
                     raise ValueError("Output Bio_Data must have the same number of channels as the output_signals list")

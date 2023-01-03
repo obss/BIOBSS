@@ -56,7 +56,10 @@ class Feature_Queue():
         timestamps = None
         if isinstance(inputs, dict):
             for key, value in inputs.items():
-                kwargs[key] = bio_data[value].channel[index] if index else bio_data[value].channel
+                if(isinstance(value,str)):
+                    kwargs[key] = bio_data[value].channel[index] if index else bio_data[value].channel
+                elif(isinstance(value,list)):
+                    kwargs[key] = [bio_data[v].channel[index] if index else bio_data[v].channel for v in value]
         elif isinstance(inputs, list):
             inputs = inputs[::-1]
             for i in inputs:
@@ -74,8 +77,8 @@ class Feature_Queue():
         if(timestamps is None):
             timestamps = []
             for k in input_keys:
-                timestamps.append(bio_data[k].get_timestamp()[
-                                index] if index is not None else bio_data[k].get_timestamp())
+                timestamps.append(bio_data[k].get_window_timestamps(window=index)
+                                  if index is not None else bio_data[k].get_window_timestamps())
         timestamps = np.array(timestamps)
         if(not np.all(timestamps == timestamps[0])):
             raise ValueError(
@@ -127,7 +130,7 @@ class Feature_Queue():
 
     def _get_input_keys(self, inputs):
         if(isinstance(inputs, dict)):
-            input_keys = list(inputs.keys())
+            input_keys = list(inputs.values())
         elif(isinstance(inputs, str)):
             input_keys = [inputs]
         elif(isinstance(inputs, list)):
@@ -251,10 +254,10 @@ class Feature_Queue():
                 raise ValueError("Inputs must be a list of strings.")
             if(index is not None):
                 input_args.append(bio_data[i].channel[index])
-                timestamps.append(bio_data[i].get_timestamp()[index])
+                timestamps.append(bio_data[i].get_window_timestamps()[index])
             else:
                 input_args.append(bio_data[i].channel)
-                timestamps.append(bio_data[i].get_timestamp())
+                timestamps.append(bio_data[i].get_window_timestamps())
 
         timestamps = np.array(timestamps)
         if(np.any(timestamps[0] != timestamps)):

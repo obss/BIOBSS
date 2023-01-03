@@ -64,6 +64,11 @@ def acc_freq_features(signals: list, signal_names:list, sampling_rate:float) -> 
     Returns:
         dict: Dictionary of frequency domain features.
     """
+    if(np.ndim(signals) == 1):
+        signals = [signals]        
+    if(isinstance(signal_names, str)):
+        signal_names = [signal_names]
+        
     data = dict(zip(signal_names, signals))
     features_freq={}
     

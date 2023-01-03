@@ -119,6 +119,26 @@ class Bio_Channel():
                     self.timestamp[:, int(len(self.timestamp[0])/2)])
 
         return out
+    
+    def get_window_timestamps(self, window = 0, ts_point="start") -> np.ndarray:
+
+        if(self.windows == 1):
+            return self.timestamp[0]
+        if(len(self.timestamp.shape) == 1):
+            out = np.array(self.timestamp)
+        else:
+            if(not ts_point in ["start", "end", "mid"]):
+                raise ValueError(
+                    'ts_point must be "start","end","mid", Please specify a valid timestamp point')
+            if(ts_point == "start"):
+                out = np.array([self.timestamp[window, 0]])
+            elif(ts_point == "end"):
+                out = np.array([self.timestamp[window, -1]])
+            elif(ts_point == "mid"):
+                out = np.array(
+                    [self.timestamp[window, int(len(self.timestamp[window])/2)]])
+
+        return out
 
     def __str__(self) -> str:
         return str(self.channel)

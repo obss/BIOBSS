@@ -34,6 +34,10 @@ def get_acc_features(signals: list, signal_names: list, sampling_rate: float, fe
     Returns:
         dict: Dictionary of ACC features.
     """
+    if(np.ndim(signals) == 1):
+        signals = [signals]        
+    if(isinstance(signal_names, str)):
+        signal_names = [signal_names]
     data = dict(zip(signal_names, signals))
 
     if sampling_rate <= 0:

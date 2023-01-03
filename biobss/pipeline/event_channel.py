@@ -61,8 +61,9 @@ class Event_Channel():
                 self.timestamp_data = timestamp_data
                 self.window_timestamps = window_timestamps
             else:
-                self.timestamp_data = self.timestamp_data[self.channel]
                 self.window_timestamps = [self.timestamp_data[0],self.timestamp_data[-1]]
+                self.timestamp_data = self.timestamp_data[self.channel]
+
                 
         
 
@@ -92,7 +93,7 @@ class Event_Channel():
     def get_timestamp(self, ts_point="start") -> np.ndarray:
 
         if(not self.windowed):
-            out = self.timestamp_data[0]
+            out = self.window_timestamps[0]
         else:
             if(not ts_point in ["start", "end", "mid"]):
                 raise ValueError(
@@ -105,7 +106,21 @@ class Event_Channel():
                 out = np.array(self.window_timestamps)[:,:].mean(axis=1)
         return out
         
-        
+    def get_window_timestamps(self,window=0,ts_point="start") -> np.ndarray:
+        if(not self.windowed):
+            out = np.array([self.window_timestamps[0]])
+        else:
+            if(not ts_point in ["start", "end", "mid"]):
+                raise ValueError(
+                    'ts_point must be "start","end","mid", Please specify a valid timestamp point')
+            if(ts_point == "start"):
+                out = np.array([self.window_timestamps[window][0]])
+            elif(ts_point == "end"):
+                out = np.array([self.window_timestamps[window][1]])
+            elif(ts_point == "mid"):
+                out = np.array([self.window_timestamps[window]]).mean(axis=1)
+                
+        return out
     @property
     def windows(self):
         if(self.windowed):

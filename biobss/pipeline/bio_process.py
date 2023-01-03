@@ -115,7 +115,7 @@ class Bio_Process:
                 sampling_rate=len(result)/signal.signal_duration
                 timestamp_start=signal.timestamp[0]
                 timestamp_resolution=signal.timestamp_resolution
-                warnings.warn("Inplace process method returned a different length signal. Sampling rate and timestamp will be updated.")
+                warnings.warn("Inplace process method returned a different length signal. Sampling rate and timestamp will be updated.: "+str(self.process_method.__name__))
             else:
                 sampling_rate=signal.sampling_rate
                 timestamp=signal.timestamp
@@ -128,14 +128,14 @@ class Bio_Process:
                 sampling_rate=len(result)/signal.signal_duration
                 timestamp_start=signal.timestamp[0]
                 timestamp_resolution=signal.timestamp_resolution
-                warnings.warn("Inplace process method returned a different length signal. Sampling rate and timestamp will be updated.")
+                warnings.warn("Inplace process method returned a different length signal. Sampling rate and timestamp will be updated. :"+str(self.process_method.__name__))
             else:
                 sampling_rate=signal.sampling_rate
                 timestamp=signal.timestamp
                 timestamp_start=signal.timestamp_start
                 timestamp_resolution=signal.timestamp_resolution
         else:
-            raise ValueError("Result must be a Data_Channel, pd.DataFrame, pd.Series, np.ndarray or list")
+            raise ValueError("Result must be a Data_Channel, pd.DataFrame, pd.Series, np.ndarray or list :"+str(self.process_method.__name__))
                 
         output= Bio_Channel(out_signal,
                             name=signal.signal_name,
