@@ -27,7 +27,7 @@ FREQ_FEATURES = {
     "max_freq": lambda sigfft, freq, _0, _1: fft_peaks(sigfft,freq,1,loc=True),
 }
 
-def acc_freq_features(signals: list, signal_names:list, sampling_rate:float) -> dict:
+def acc_freq_features(signals: list, signal_names:list, sampling_rate:float, magnitude:bool=False) -> dict:
     """Calculates frequency-domain features for ACC signal(s).
 
     From:
@@ -60,6 +60,7 @@ def acc_freq_features(signals: list, signal_names:list, sampling_rate:float) -> 
         signals (list): List of input signal(s).
         signal_names (list): List of signal name(s).
         sampling_rate (float): Sampling rate of the ACC signal(s).
+        magnitude (bool, optional): If True, features are also calculated for magnitude signal. Defaults to False.
 
     Returns:
         dict: Dictionary of frequency domain features.
@@ -68,10 +69,18 @@ def acc_freq_features(signals: list, signal_names:list, sampling_rate:float) -> 
         signals = [signals]        
     if(isinstance(signal_names, str)):
         signal_names = [signal_names]
-        
+
     data = dict(zip(signal_names, signals))
+
+    if magnitude:
+        sum=0
+        for sig in signals:
+            sum += np.square(sig)
+        
+        magn=np.sqrt(sum)
+        data['magn'] = magn
+
     features_freq={}
-    
     for signal_name, signal in data.items():
         freq, sigfft = sig_fft(sig=signal, sampling_rate=sampling_rate)
         f, pxx = sig_psd(sig=signal, sampling_rate=sampling_rate, method='welch')

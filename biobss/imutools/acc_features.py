@@ -38,6 +38,7 @@ def get_acc_features(signals: list, signal_names: list, sampling_rate: float, fe
         signals = [signals]        
     if(isinstance(signal_names, str)):
         signal_names = [signal_names]
+        
     data = dict(zip(signal_names, signals))
 
     if sampling_rate <= 0:
@@ -51,19 +52,16 @@ def get_acc_features(signals: list, signal_names: list, sampling_rate: float, fe
         if domain not in valid_types:
             raise ValueError("invalid feature type: " + domain)
         else:
-            if domain in ['Freq', 'Stat']:
+            domain_function = get_domain_function(domain)
+            features.update(domain_function(signals=signals,signal_names=signal_names,sampling_rate=sampling_rate))
 
-                domain_function = get_domain_function(domain)
-                features.update(domain_function(signals=signals,signal_names=signal_names,sampling_rate=sampling_rate))
+            if domain in ['Freq', 'Stat']:
                 if magnitude:
                     sum=0
                     for sig in data.values():
                         sum += np.square(sig)
                     magn=np.sqrt(sum)
                     features.update(domain_function(signals=[magn],signal_names=['magn'],sampling_rate=sampling_rate))                
-            else: 
-                domain_function = get_domain_function(domain)
-                features.update(domain_function(signals=signals,signal_names=signal_names,sampling_rate=sampling_rate))
 
     return features
 

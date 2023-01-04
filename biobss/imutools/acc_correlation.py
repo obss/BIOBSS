@@ -17,6 +17,10 @@ def acc_corr_features(signals: list, signal_names: list, sampling_rate:float) ->
     Returns:
         dict: Dictionary of correlation features. 
     """
+    if(np.ndim(signals) == 1):
+        signals = [signals]        
+    if(isinstance(signal_names, str)):
+        signal_names = [signal_names]
 
     data = dict(zip(signal_names, signals))
     comb = list(itertools.combinations(signal_names, 2))
