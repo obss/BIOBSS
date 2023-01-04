@@ -18,10 +18,10 @@ def test_num_peaks(load_sample_ppg):
 
 
     assert len(info_peakdet['Peak_locs']) == 13
-    assert sum(info_peakdet['Peaks']) == pytest.approx(13.2572, 0.01)
+    assert sum(sig[info_peakdet['Peak_locs']]) == pytest.approx(13.2572, 0.01)
     #assert len(info_heartpy['Peak_locs']) == 
     #assert sum(info_heartpy['Peaks']) == 
     assert len(info_scipy['Peak_locs']) == 16
-    assert sum(info_scipy['Peaks']) == pytest.approx(16.22889, 0.01)
+    assert sum(sig[info_scipy['Peak_locs']]) == pytest.approx(16.22889, 0.01)
 
       

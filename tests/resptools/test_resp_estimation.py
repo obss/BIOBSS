@@ -11,9 +11,7 @@ def test_signal_lengths(load_sample_ppg, ppg_peaks, ppg_onsets):
     sig = np.asarray(data['PPG'])
     fs = info['sampling_rate']
 
-    peaks = sig[ppg_peaks]
-    onsets = sig[ppg_onsets]
-    info=extract_resp_sig(peaks_locs=ppg_peaks,peaks_amp=peaks,troughs_amp=onsets,sampling_rate=fs,mod_type=['AM','FM','BW'],resampling_rate=10)
+    info=extract_resp_sig(sig=sig,peaks_locs=ppg_peaks,troughs_locs=ppg_onsets,sampling_rate=fs,mod_type=['AM','FM','BW'],resampling_rate=10)
     
     x_am=info['am_x']
     x_fm=info['fm_x']

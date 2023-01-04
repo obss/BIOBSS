@@ -17,7 +17,7 @@ def test_num_features(load_sample_acc):
 
     features = get_acc_features(signals=[accx,accy,accz], signal_names=['ACCx','ACCy','ACCz'], sampling_rate=fs, magnitude=True)
 
-    assert len(features) == 109
+    assert len(features) == 147
 
 
     

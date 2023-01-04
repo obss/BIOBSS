@@ -98,7 +98,7 @@ def ppg_peaks():
 
 @pytest.fixture(scope='package')
 def ppg_onsets():
-    return np.asarray([ 49, 105, 159, 209, 259, 306, 355, 402, 453, 503, 552, 606])
+    return np.asarray([ 48, 104, 157, 207, 257, 305, 352, 400, 452, 501, 551, 605])
 
 @pytest.fixture(scope='package')
 def ecg_Rpeaks():
@@ -106,15 +106,38 @@ def ecg_Rpeaks():
 
 @pytest.fixture(scope='package')
 def ecg_fiducials():
-    fiducials = {'ECG_P_Peaks': [61, 225, 390, 555, 726, 894, 1061, 1223, 1388, 1552, 1720, 1882, 2047, 2214, 2382],
-                    'ECG_Q_Peaks': [79, 247, 408, 573, 750, 915, 1077, 1238, 1406, 1571, 1735, 1900, 2065, 2226, 2401],
-                    'ECG_S_Peaks': [102,267,438,660,766,956,1107,1305,1453,1615,1826,1922,2156,2324,2492],
-                    'ECG_T_Peaks': [148, 316, 474, 689, 813, 981, 1146, 1361, 1475, 1639, 1855, 1966, 2184, 2332, 2524],
-                    'ECG_P_Onsets': [51, 215, 378, 544, 715, 883, 1049, 1211, 1377, 1542, 1708, 1871, 2036, 2202, 2371],
-                    'ECG_T_Offsets': [164, 329, 490, 696, 827, 998, 1165, 1367, 1491, 1654, 1861, 1983, 2191, 2337, 2525]
-    }
-    return fiducials
+    fiducials_ecg = {'ECG_P_Peaks': np.asarray([61, 225, 390, 555, 726, 894, 1061, 1223, 1388, 1552, 1720, 1882, 2047, 2214, 2382]),
+                    'ECG_Q_Peaks': np.asarray([79, 247, 408, 573, 750, 915, 1077, 1238, 1406, 1571, 1735, 1900, 2065, 2226, 2401]),
+                    'ECG_S_Peaks': np.asarray([102,267,438,660,766,956,1107,1305,1453,1615,1826,1922,2156,2324,2492]),
+                    'ECG_T_Peaks': np.asarray([148, 316, 474, 689, 813, 981, 1146, 1361, 1475, 1639, 1855, 1966, 2184, 2332, 2524]),
+                    'ECG_P_Onsets': np.asarray([51, 215, 378, 544, 715, 883, 1049, 1211, 1377, 1542, 1708, 1871, 2036, 2202, 2371]),
+                    'ECG_T_Offsets': np.asarray([164, 329, 490, 696, 827, 998, 1165, 1367, 1491, 1654, 1861, 1983, 2191, 2337, 2525])}
+    return fiducials_ecg
 
 @pytest.fixture(scope='package')
 def ppg_irregular():
     return np.asarray([0, 5, 60, 117, 130, 169, 219, 270, 290, 317, 364, 413, 464, 514, 563, 618, 630])
+
+@pytest.fixture(scope='package')
+def ppg_fiducials():
+    fiducials_ppg = {'S_waves': np.asarray([62, 118, 170, 221, 271, 318, 365, 414, 465, 515, 564, 619]),
+                    'O_waves': np.asarray([48, 104, 157, 207, 257, 305, 352, 400, 452, 501, 551, 605]),
+                    'N_waves':np.asarray([72, 128, 180, 232, 281, 327, 375, 424, 475, 523, 573]),
+                    'D_waves':np.asarray([77, 133, 185, 236, 285, 332, 379, 428, 479, 527, 577])}
+    return fiducials_ppg
+
+@pytest.fixture(scope='package')
+def vpg_fiducials():
+    fiducials_vpg = {'w_waves':np.asarray([55, 112, 164, 214, 265, 312, 359, 408, 459, 509, 558, 613]),
+                    'y_waves':np.asarray([69, 123, 176, 228, 276, 323, 370, 421, 471, 520, 569]),
+                    'z_waves':np.asarray([76, 132, 184, 235, 285, 331, 378, 428, 478, 527, 576])}
+    return fiducials_vpg
+
+@pytest.fixture(scope='package')
+def apg_fiducials():
+    fiducials_apg = {'a_waves':np.asarray([51, 109, 160, 211, 261, 309, 355, 404, 455, 505, 554, 609]),
+                    'b_waves':np.asarray([58, 115, 167, 218, 268, 315, 362, 411, 462, 512, 561, 616]),
+                    'c_waves':np.asarray([64, 128, 180, 232, 281, 327, 375, 424, 475, 523, 573]),                              
+                    'd_waves':np.asarray([65, 128, 180, 232, 281, 327, 375, 424, 475, 523, 573]),
+                    'e_waves':np.asarray([72, 128, 180, 232, 281, 327, 375, 424, 475, 523, 573])}
+    return fiducials_apg
