@@ -11,13 +11,31 @@ def sqa_ppg(ppg_sig: ArrayLike, sampling_rate:float, methods: list, **kwargs) ->
     Args:
         ppg_sig (ArrayLike): Signal to be analyzed.
         sampling_rate (float): Sampling rate of the PPG signal (Hz).
-        methods (list): Methods to be applied.
+        methods (list): Methods to be applied. It can be a list of 'flatline', 'clipping', 'physiological' and 'template'.
+            'flatline': Detects beginning and end of flat segments.
+            'clipping': Detects beginning and end of clipped segments.
+            'physiological': Checks for physiological viability.
+            'morphological': Checks for morphological limits.
+            'template': Applies template matching method.
+
+    Kwargs:
+        threshold_pos (float): Threshold value for clipping detection.
+        threshold_neg (float, optional):
+        change_threshold (float): Threshold value for flatline detection.
+        min_duration (float): Mimimum duration of flat segments for flatline detection.
+        peaks_locs (float): R peak locations (sample).
+        corr_th (float): Threshold for the correlation coefficient above which the signal is considered to be valid. Defaults to CORR_TH.
 
     Raises:
         ValueError: If method is undefined.
+        ValueError: If 'change_threshold' and/or 'min_duration' is missing and the method 'flatline' is selected.
+        ValueError: If 'threshold_pos' is missing and the method 'clipping' is selected.
+        ValueError: If 'peaks_locs' is missing and the method 'physiological' is selected.
+        ValueError: If 'peaks_locs' and/or 'troughs_locs' is missing and the method 'morphological' is selected.
+        ValueError: If 'peaks_locs' is missing and the method 'template' is selected.
 
     Returns:
-        dict: Dictionary of boolean results of the applied rules.
+        dict: Dictionary of results for the applied methods. 
     """
 
     results = {}
@@ -25,18 +43,22 @@ def sqa_ppg(ppg_sig: ArrayLike, sampling_rate:float, methods: list, **kwargs) ->
     for method in methods:
 
         if method == 'flatline':
-            if ('flatline_threshold' in kwargs) and ('duration' in kwargs):
-                info = detect_flatline_clipping(sig=ppg_sig, threshold=kwargs['flatline_threshold'], flatline=True, duration=kwargs['duration'])
-                results['Flatline segments']=info['Flatline segments']
+            if ('change_threshold' in kwargs) and ('min_duration' in kwargs):
+                flatline_segments = detect_flatline_segments(sig=ppg_sig, change_threshold=kwargs['change_threshold'], min_duration=kwargs['min_duration'])
+                results['Flatline segments']=flatline_segments
             else:
-                raise ValueError(f"Missing keyword arguments 'flatline_threshold' and/or 'duration' for the selected method: {method}.")
+                raise ValueError(f"Missing keyword arguments 'change_threshold' and/or 'min_duration' for the selected method: {method}.")
 
         elif method == 'clipping':
-            if 'clipping_threshold' in kwargs:
-                info = detect_flatline_clipping(sig=ppg_sig, threshold=kwargs['clipping_threshold'], clipping=True)
-                results['Clipped segments']=info['Clipped segments']
+            if 'threshold_pos' in kwargs:
+                if 'threshold_neg' in kwargs:
+                    clipped_segments = detect_clipped_segments(sig=ppg_sig, threshold_pos=kwargs['threshold_pos'], threshold_neg=kwargs['threshold_neg'])
+                else:
+                    clipped_segments = detect_clipped_segments(sig=ppg_sig, threshold_pos=kwargs['threshold_pos'])
+
+                results['Clipped segments']=clipped_segments
             else:
-                raise ValueError(f"Missing keyword argument 'clipping_threshold' for the selected method: {method}.")
+                raise ValueError(f"Missing keyword argument 'threshold_pos' for the selected method: {method}.")
 
         elif method == 'physiological':
             if 'peaks_locs' in kwargs:
