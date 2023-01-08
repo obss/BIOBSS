@@ -20,23 +20,25 @@ def ppg_freq_features(sig: ArrayLike, sampling_rate: float, input_types: list, f
     """Calculates frequency-domain features
 
     Segment-based features:
-    p_1: The amplitude of the first peak from the fft of the signal
-    f_1: The frequency at which the first peak from the fft of the signal occurred
-    p_2: The amplitude of the second peak from the fft of the signal
-    f_2: The frequency at which the second peak from the fft of the signal occurred
-    p_3: The amplitude of the third peak from the fft of the signal
-    f_3: The frequency at which the third peak from the fft of the signal occurred
-    pow: Power of the signal at a given range of frequencies ([0,2] Hz). 
-    rpow: Ratio of the powers of the signal at given ranges of frequencies ([0,2.25] Hz/[0,5] Hz).
+        p_1: The amplitude of the first peak from the fft of the signal
+        f_1: The frequency at which the first peak from the fft of the signal occurred
+        p_2: The amplitude of the second peak from the fft of the signal
+        f_2: The frequency at which the second peak from the fft of the signal occurred
+        p_3: The amplitude of the third peak from the fft of the signal
+        f_3: The frequency at which the third peak from the fft of the signal occurred
+        pow: Power of the signal at a given range of frequencies ([0,2] Hz). 
+        rpow: Ratio of the powers of the signal at given ranges of frequencies ([0,2.25] Hz/[0,5] Hz).
 
     Args:
-        sig (ArrayLike): Signal
-        sampling_rate (float): Sampling rate
-        type (str): Type of feature calculation, should be 'segment'. Defaults to None.
-        prefix (str, optional): Prefix for signal type. Defaults to 'signal'.
+        sig (ArrayLike): Signal to be analyzed.
+        sampling_rate (float): Sampling rate of the signal (Hz).
+        input_types (list): Type of feature calculation, should be 'segment'. 
+        fiducials (dict, optional): Dictionary of fiducial point locations. Defaults to None.
+        prefix (str, optional): Prefix for signal type. Defaults to 'ppg'.
 
     Raises:
-        ValueError: if type is not 'segment'.
+        ValueError: If sampling rate is not greater than 0.
+        ValueError: If type is not 'segment'.
 
     Returns:
         dict: Dictionary of calculated features
