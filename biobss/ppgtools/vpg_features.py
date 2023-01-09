@@ -18,6 +18,14 @@ FEATURES_VPG = {
 def get_vpg_features(vpg_sig: ArrayLike, locs_O:ArrayLike, fiducials:dict, sampling_rate:float, prefix: str='vpg') -> dict:
     """Calculates VPG features.
 
+        a_w: Mean amplitude of w waves 
+        t_w: Mean duration of w waves 
+        a_y: Mean amplitude of y waves 
+        t_y: Mean duration of y waves 
+        a_z: Mean amplitude of z waves 
+        t_z: Mean duration of z waves 
+        a_y_w: Mean ratio of y wave amplitudes to w wave amplitudes
+
     Args:
         vpg_sig (ArrayLike): VPG signal.
         locs_O (ArrayLike): PPG signal onset locations.

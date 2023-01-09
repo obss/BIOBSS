@@ -29,6 +29,25 @@ FEATURES_APG = {
 def get_apg_features(apg_sig: ArrayLike, locs_O:ArrayLike, fiducials:dict, sampling_rate:float, prefix: str='apg') -> dict:
     """Calculates APG features.
 
+        a_a: Mean amplitude of a waves 
+        t_a: Mean duration of a waves 
+        a_b: Mean amplitude of b waves 
+        t_b: Mean duration of b waves 
+        a_c: Mean amplitude of c waves 
+        t_c: Mean duration of c waves 
+        a_d: Mean amplitude of d waves 
+        t_d: Mean duration of d waves 
+        a_e: Mean amplitude of e waves 
+        t_e: Mean duration of e waves 
+        a_b_a: Mean ratio of b wave amplitude to a wave amplitude
+        a_c_a: Mean ratio of c wave amplitude to a wave amplitude
+        a_d_a: Mean ratio of d wave amplitude to a wave amplitude
+        a_e_a: Mean ratio of e wave amplitude to a wave amplitude
+        a_cdb_a: Mean ratio of a_c + a_d - a_b to a wave amplitude
+        a_bcde_a: Mean ratio of a_b - a_c - a_d - a_e to a wave amplitude
+        a_bcd_a: Mean ratio of a_b - a_c - a_d to a wave amplitude
+        a_be_a: Mean ratio of a_b - a_e to a wave amplitude
+
     Args:
         apg_sig (ArrayLike): APG signal.
         locs_O (ArrayLike): PPG signal onset locations.
@@ -40,7 +59,7 @@ def get_apg_features(apg_sig: ArrayLike, locs_O:ArrayLike, fiducials:dict, sampl
         ValueError: If sampling rate is not greater than 0.
 
     Returns:
-        dict: VPG features
+        dict: APG features
     """
 
     if sampling_rate <= 0:

@@ -92,9 +92,20 @@ def peak_control(sig: ArrayLike, peaks_locs: ArrayLike, troughs_locs: ArrayLike,
 
     return info
 
+def ppg_waves(sig:ArrayLike, locs_onsets:ArrayLike, sampling_rate:float, th_w:float=0.5, th_y:float=0.45, th_a:float=0.45) -> dict:
+    """Detects fiducials of PPG, VPG and APG signals.
 
-def ppg_waves(sig:ArrayLike, locs_onsets:ArrayLike, sampling_rate:float, th_w:float=0.5, th_y:float=0.45, th_a:float=0.45):
+    Args:
+        sig (ArrayLike): PPG signal.
+        locs_onsets (ArrayLike): PPG signal onset locations
+        sampling_rate (float): Sampling rate of the PPG signal (Hz).
+        th_w (float, optional): Threshold to detect w waves. Defaults to 0.5.
+        th_y (float, optional): Threshold to detect y waves. Defaults to 0.45.
+        th_a (float, optional): Threshold to detect a waves. Defaults to 0.45.
 
+    Returns:
+        dict: Dictionary of fiducial locations.
+    """
     vpg_sig = np.gradient(sig) / (1/sampling_rate)
     apg_sig = np.gradient(vpg_sig) / (1/sampling_rate)
 
@@ -111,7 +122,17 @@ def ppg_waves(sig:ArrayLike, locs_onsets:ArrayLike, sampling_rate:float, th_w:fl
     return fiducials
 
 def vpg_delineate(vpg_sig:ArrayLike, sampling_rate:float, th_w:float=0.5, th_y:float=0.45) -> dict:
+    """Detects fiducials of VPG signal.
 
+    Args:
+        vpg_sig (ArrayLike): VPG signal.
+        sampling_rate (float): Sampling rate of the VPG signal (Hz).
+        th_w (float, optional): Threshold to detect w waves. Defaults to 0.5.
+        th_y (float, optional): Threshold to detect y waves. Defaults to 0.45.
+
+    Returns:
+        dict: Dictionary of fiducial locations.
+    """
     fiducials = {}
 
     ###########################################
@@ -229,7 +250,19 @@ def vpg_delineate(vpg_sig:ArrayLike, sampling_rate:float, th_w:float=0.5, th_y:f
     return fiducials
 
 def apg_delineate(apg_sig:ArrayLike, vpg_sig:ArrayLike, vpg_fiducials:dict, sampling_rate:float, th_a:float=0.45, th_w:float=0.5) -> dict:
+    """Detects fiducials of APG signal.
 
+    Args:
+        apg_sig (ArrayLike): APG signal.
+        vpg_sig (ArrayLike): VPG signal.
+        vpg_fiducials (dict): VPG fiducials.
+        sampling_rate (float): Sampling rate of the APG signal (Hz).
+        th_a (float, optional): Threshold to detect a waves. Defaults to 0.45.
+        th_w (float, optional): Threshold to detect w waves. Defaults to 0.5.
+
+    Returns:
+        dict: _description_
+    """
     locs_w=vpg_fiducials['w_waves']
     locs_y=vpg_fiducials['y_waves']
     locs_z=vpg_fiducials['z_waves']
@@ -428,7 +461,20 @@ def apg_delineate(apg_sig:ArrayLike, vpg_sig:ArrayLike, vpg_fiducials:dict, samp
     return fiducials
 
 def ppg_delineate(ppg_sig:ArrayLike, vpg_sig:ArrayLike, vpg_fiducials:dict, apg_sig:ArrayLike, apg_fiducials:dict, sampling_rate:float, locs_onsets:ArrayLike=None) -> dict:
+    """Detects fiducials of PPG signal.
 
+    Args:
+        ppg_sig (ArrayLike): PPG signal.
+        vpg_sig (ArrayLike): VPG signal.
+        vpg_fiducials (dict): VPG fiducials.
+        apg_sig (ArrayLike): APG signal.
+        apg_fiducials (dict): APG fiducials.
+        sampling_rate (float): Sampling rate of the PPG signal (Hz).
+        locs_onsets (ArrayLike, optional): PPG signal onset locations. Defaults to None.
+
+    Returns:
+        dict: Dictionary of fiducial locations
+    """
     locs_w = vpg_fiducials['w_waves']
     locs_y = vpg_fiducials['y_waves']
     locs_z = vpg_fiducials['z_waves']
@@ -547,6 +593,7 @@ def ppg_delineate(ppg_sig:ArrayLike, vpg_sig:ArrayLike, vpg_fiducials:dict, apg_
     return fiducials
 
 def find_missing_duplicate_peaks(locs_valleys: ArrayLike, locs_peaks:ArrayLike, peaks:ArrayLike) -> tuple:
+    """Detects missing or duplicate peaks in a given peak array using PPG onset locations as reference."""
     search_peaks = locs_valleys
     loc_peaks = []
     peak_peaks = []
@@ -569,7 +616,7 @@ def find_missing_duplicate_peaks(locs_valleys: ArrayLike, locs_peaks:ArrayLike, 
     return np.array(loc_peaks), peak_peaks
     
 def _generate_search_indices(w_len: int, sig_len: int) -> ArrayLike:
-
+    """Generates search indices for fiducial search."""
     ind=[]
     for k1 in range(0, sig_len-w_len+1, w_len-2):
         ind_=np.arange(k1,k1+w_len,1)
@@ -579,6 +626,7 @@ def _generate_search_indices(w_len: int, sig_len: int) -> ArrayLike:
 
 
 def _search_slope_reversals(sig:ArrayLike, search_indices:ArrayLike, direction:str, search_direction:str) -> ArrayLike:
+    """Searches for a slope reversal point in the given array."""
     #Search for a slope reversal point in each window (w_len)
 
     locs = []
@@ -595,7 +643,7 @@ def _search_slope_reversals(sig:ArrayLike, search_indices:ArrayLike, direction:s
     return locs
 
 def _find_slope_reversals(sig:ArrayLike, direction:str='both', search_direction: str='left_to_right') -> ArrayLike:
-
+    """Detects a slope reversal point for the given direction and search direction."""
     # Find the slopes of the signal by taking the difference between adjacent elements
     slopes = np.diff(sig)
     
@@ -633,7 +681,7 @@ def _find_slope_reversals(sig:ArrayLike, direction:str='both', search_direction:
     return indices
 
 def _search_zero_crossings(sig:ArrayLike, search_st:ArrayLike, search_end:ArrayLike, direction:str, search_direction:str) -> ArrayLike:
-
+    """Searches for a zero crossing point in the given array."""
     zero_cross = []
 
     for n in range(len(search_st)):

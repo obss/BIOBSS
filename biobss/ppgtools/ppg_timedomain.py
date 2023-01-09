@@ -50,54 +50,69 @@ FEATURES_TIME_SEGMENT = {
 
 def ppg_time_features(sig: ArrayLike, sampling_rate: float, input_types: str, fiducials:dict=None, prefix: str='ppg', **kwargs) -> dict:
     """Calculates time-domain features.
-
+    
     Cycle-based features:
-    a_S: Mean amplitude of the systolic peaks 
-    t_S: Mean systolic peak duration
-    t_C: Mean cycle duration
-    DW: Mean diastolic peak duration
-    SW_10: The systolic peak duration at 10% of systolic amplitude
-    SW_25: The systolic peak duration at 25% of systolic amplitude
-    SW_33: The systolic peak duration at 33% of systolic amplitude
-    SW_50: The systolic peak duration at 50% of systolic amplitude
-    SW_66: The systolic peak duration at 66% of systolic amplitude
-    SW_75: The systolic peak duration at 75% of systolic amplitude
-    DW_10: The diastolic peak duration at 10% of systolic amplitude
-    DW_25: The diastolic peak duration at 25% of systolic amplitude
-    DW_33: The diastolic peak duration at 33% of systolic amplitude
-    DW_50: The diastolic peak duration at 50% of systolic amplitude
-    DW_66: The diastolic peak duration at 66% of systolic amplitude
-    DW_75: The diastolic peak duration at 75% of systolic amplitude
-    DW_SW_10: The ratio of diastolic peak duration to systolic peak duration at 10% of systolic amplitude
-    DW_SW_25: The ratio of diastolic peak duration to systolic peak duration at 25% of systolic amplitude
-    DW_SW_33: The ratio of diastolic peak duration to systolic peak duration at 33% of systolic amplitude
-    DW_SW_50: The ratio of diastolic peak duration to systolic peak duration at 50% of systolic amplitude
-    DW_SW_66: The ratio of diastolic peak duration to systolic peak duration at 66% of systolic amplitude
-    DW_SW_75: The ratio of diastolic peak duration to systolic peak duration at 75% of systolic amplitude
-    PR_mean: Mean pulse rate
+        a_S: Mean amplitude of the systolic peaks 
+        t_S: Mean systolic peak duration
+        t_C: Mean cycle duration
+        DW: Mean diastolic peak duration
+        SW_10: The systolic peak duration at 10% of systolic amplitude
+        SW_25: The systolic peak duration at 25% of systolic amplitude
+        SW_33: The systolic peak duration at 33% of systolic amplitude
+        SW_50: The systolic peak duration at 50% of systolic amplitude
+        SW_66: The systolic peak duration at 66% of systolic amplitude
+        SW_75: The systolic peak duration at 75% of systolic amplitude
+        DW_10: The diastolic peak duration at 10% of systolic amplitude
+        DW_25: The diastolic peak duration at 25% of systolic amplitude
+        DW_33: The diastolic peak duration at 33% of systolic amplitude
+        DW_50: The diastolic peak duration at 50% of systolic amplitude
+        DW_66: The diastolic peak duration at 66% of systolic amplitude
+        DW_75: The diastolic peak duration at 75% of systolic amplitude
+        DW_SW_10: The ratio of diastolic peak duration to systolic peak duration at 10% of systolic amplitude
+        DW_SW_25: The ratio of diastolic peak duration to systolic peak duration at 25% of systolic amplitude
+        DW_SW_33: The ratio of diastolic peak duration to systolic peak duration at 33% of systolic amplitude
+        DW_SW_50: The ratio of diastolic peak duration to systolic peak duration at 50% of systolic amplitude
+        DW_SW_66: The ratio of diastolic peak duration to systolic peak duration at 66% of systolic amplitude
+        DW_SW_75: The ratio of diastolic peak duration to systolic peak duration at 75% of systolic amplitude
+        PR_mean: Mean pulse rate
+        a_D: Mean amplitude of the diastolic peaks 
+        t_D: Mean difference between diastolic peak and onset
+        r_D: Mean ratio of the diastolic peak amplitude to diastolic peak duration
+        a_N: Mean amplitude of the dicrotic notchs
+        t_N: Mean dicrotic notch duration
+        r_N: Mean ratio of the dicrotic notch amplitude to dicrotic notch duration
+        dT: Mean duration from systolic to diastolic peaks
+        r_D_NC: Mean ratio of diastolic peak amplitudes to difference between ppg wave duration and dictoric notch duration
+        r_N_NC: Mean ratio of dicrotic notch amplitudes to difference between ppg wave duration and dictoric notch duration
+        a_N_S: Mean ratio of dicrotic notch amplitudes to systolic peak amplitudes
+        AI: Mean ratio of diastolic peak amplitudes to systolic peak amplitudes
+        AI_2: Mean ratio of difference between systolic and diastolic peak amplitudes to systolic peak amplitudes
 
     Segment-based features:
-    zcr: Zero crossing rate
-    snr: Signal to noise ratio
-
+        zcr: Zero crossing rate
+        snr: Signal to noise ratio
+    
     Args:
         sig (ArrayLike): Signal to be analyzed.
-        sampling_rate (float): Sampling rate
-        type (str, optional): Type of feature calculation, should be 'segment' or 'cycle'. Defaults to None.
-        prefix (str, optional): Prefix for signal type. Defaults to 'signal'.
+        sampling_rate (float): Sampling rate of the signal (Hz).
+        input_types (str): Type of feature calculation, should be 'segment' or 'cycle'. 
+        fiducials (dict, optional): Dictionary of fiducial point locations. Defaults to None.
+        prefix (str, optional): Prefix for signal type. Defaults to 'ppg'.
 
     Kwargs:
-        peaks_amp (ArrayLike): Array of peak amplitudes
         peaks_locs (ArrayLike): Array of peak locations
-        troughs_amp (ArrayLike): Array of trough amplitudes
         troughs_locs (ArrayLike): Array of trough locations
 
     Raises:
-        ValueError: if Type is not 'cycle' or 'segment'.
+        ValueError: If sampling rate is not greater than 0.
+        ValueError: If PPG onset locations is not provided.
+        ValueError: If PPG S-peak locations is not provided.
+        ValueError: If Type is not 'cycle' or 'segment'.
 
     Returns:
         dict: Dictionary of calculated features.
     """
+
     if sampling_rate <= 0:
         raise ValueError("Sampling rate must be greater than 0.")
 

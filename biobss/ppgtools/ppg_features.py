@@ -23,8 +23,9 @@ def get_ppg_features(sig: ArrayLike, sampling_rate:float, fiducials: dict=None, 
     Args:
         sig (ArrayLike): PPG signal.
         sampling_rate (float): Sampling rate of the PPG signal (Hz).
+        fiducials (dict, optional): PPG fiducials. Defaults to None.
         input_types (list, optional): Input types. It can be a list of 'cycle' and 'segment'. Defaults to ['cycle', 'segment'].
-        feature_domain (dict, optional): Domain to calculate features. It should be provided for each input type seperately. Defaults to {'cycle':['Time','Stat'], 'segment':['Stat','Freq','Time']}.
+        feature_domain (_type_, optional): Domain to calculate features. It should be provided for each input type seperately. Defaults to {'cycle':['Time','Stat'], 'segment':['Stat','Freq','Time']}.
         prefix (str, optional): Prefix for the features. Defaults to 'ppg'.
 
     Raises:
@@ -32,8 +33,9 @@ def get_ppg_features(sig: ArrayLike, sampling_rate:float, fiducials: dict=None, 
         ValueError: If keyword arguments are missing.
 
     Returns:
-        dict: _description_
+        dict: Dictionary of PPG features
     """
+
     if sampling_rate <= 0:
         raise ValueError("Sampling rate must be greater than 0.")    
 
@@ -63,10 +65,9 @@ def from_cycles(sig: ArrayLike, peaks_locs: ArrayLike, troughs_locs: ArrayLike, 
     Args:
         sig (ArrayLike): PPG signal segment to be analyzed
         peaks_locs (ArrayLike): PPG peak locations
-        peaks_amp (ArrayLike): PPG peak amplitudes
         troughs_locs (ArrayLike): PPG trough locations
-        troughs_amp (ArrayLike): PPG trough amplitudes
         sampling_rate (float): Sampling rate of the PPG signal.
+        fiducials (dict, optional): PPG fiducials. Defaults to None.
         feature_types (ArrayLike, optional): Types of features to be calculated. Defaults to ['Time','Stat'].
         prefix (str, optional): Prefix for signal type. Defaults to 'signal'.
 

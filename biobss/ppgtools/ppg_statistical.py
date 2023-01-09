@@ -27,27 +27,35 @@ def ppg_stat_features(sig: ArrayLike, sampling_rate: float, input_types: list, f
     """Calculates statistical features.
 
     Cycle-based features: 
-    std_peaks: Standard deviation of the peak amplitudes
+        mean_peaks: Mean of the peak amplitudes
+        std_peaks: Standard deviation of the peak amplitudes
 
     Segment-based features:
-    mean: Mean value of the signal
-    median: Median value of the signal
-    std: Standard deviation of the signal
-    pct_25: 25th percentile of the signal
-    pct_75 75th percentile of the signal
-    mad: Mean absolute deviation of the signal
-    skewness: Skewness of the signal
-    kurtosis: Kurtosis of the signal
-    entropy: Entropy of the signal
+        mean: Mean value of the signal
+        median: Median value of the signal
+        std: Standard deviation of the signal
+        pct_25: 25th percentile of the signal
+        pct_75 75th percentile of the signal
+        mad: Mean absolute deviation of the signal
+        skewness: Skewness of the signal
+        kurtosis: Kurtosis of the signal
+        entropy: Entropy of the signal
 
     Args:
         sig (ArrayLike): Signal to be analyzed.
-        sampling_rate (float): Sampling rate
-        type (str): Type of feature calculation, should be 'segment' or 'cycle'. Defaults to None.
-        prefix (str, optional): Prefix for signal type. Defaults to 'signal'.
+        sampling_rate (float): Sampling rate of the signal (Hz).
+        input_types (list): Type of feature calculation, should be 'segment' or 'cycle'. 
+        fiducials (dict, optional): Dictionary of fiducial point locations. Defaults to None.
+        prefix (str, optional): Prefix for signal type. Defaults to 'ppg'.
+
+    Kwargs:
+        peaks_locs (ArrayLike): Array of peak locations
+        troughs_locs (ArrayLike): Array of trough locations
 
     Raises:
-        ValueError: if type is not 'cycle' or 'segment'.
+        ValueError: If sampling rate is not greater than 0.
+        ValueError: If 'peaks_locs' and/or 'troughs_locs' is not provided for the input_type 'cycle'.
+        ValueError: If type is not 'cycle' or 'segment'.
 
     Returns:
         dict: Dictionary of calculated features.

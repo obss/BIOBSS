@@ -18,80 +18,84 @@ MAX_VAR_DUR = 300
 MAX_VAR_AMP = 400
 CORR_TH = 0.9
 
-def detect_flatline_clipping(sig: ArrayLike, threshold: float, clipping: bool=False, flatline: bool=False, **kwargs) -> dict:
-    """Detects flatlines and clipped parts of the signal.
+def detect_clipped_segments(sig:ArrayLike, threshold_pos:float, threshold_neg:float=None) -> list:
+    """Detects clipped segments in a signal.
 
     Args:
         sig (ArrayLike): Signal to be analyzed (ECG or PPG).
-        threshold (float): Threshold value for clipping/flatline detection.
-        clipping (bool, optional): True for clipping detection. Defaults to False.
-        flatline (bool, optional): True for flatline detection. Defaults to False.
-
-    Kwargs:
-        duration (float): Mimimum duration of flat segments for flatline detection.
-
-    Raises:
-        ValueError: If keyword argument 'duration' is not given.
+        threshold_pos (float): Threshold for positive clipping
+        threshold_neg (float, optional): Threshold for negative clipping. Defaults to None.
 
     Returns:
-        dict: Dictionary of boundaries of clipped and/or flatline segments.
+        list: Dictionary of boundaries of clipped segments.
     """
-    
-    info={}
 
-    if clipping and not flatline:
-        clip_binary = np.where(sig > threshold)
-        clipped_segments=_detect_flat_segments(clip_binary)
-        info['Clipped segments']=clipped_segments
+    if threshold_neg is None:
+        threshold_neg = -threshold_pos
 
-    elif not clipping and flatline:
-        if 'duration' in kwargs:
-            if kwargs['duration'] <= 0:
-                raise ValueError("Duration must be greater than 0.")
+    start_indices = []
+    end_indices = []
+    in_clipped_segment = False
 
-            sig_dif=np.diff(sig)
-            flat_binary = np.where(abs(sig_dif) < threshold)
-            flat_segments=_detect_flat_segments(flat_binary)
+    for i, value in enumerate(sig):
 
-            flatline_segments=[]
-            for j in range(len(flat_segments)):
-                flat_dur=flat_segments[j][1]-flat_segments[j][0]
-                if flat_dur >= kwargs['duration']:
-                    flatline_segments.append(flat_segments[j])
-
-            info['Flatline segments']=flatline_segments
-        
+        if value >= threshold_pos or value <= threshold_neg:
+            if not in_clipped_segment:
+                # Start of a new clipped segment
+                start_indices.append(i)
+                in_clipped_segment = True
         else:
-            raise ValueError('Flatline detection requires a keyword argument: duration')
+            if in_clipped_segment:
+                # End of a clipped segment
+                end_indices.append(i - 1)
+                in_clipped_segment = False
+
+    if in_clipped_segment:
+        # The last segment extends until the end of the signal
+        end_indices.append(len(sig) - 1)
     
-    elif not clipping and not flatline:
-        raise ValueError("Either clipping or flatline must be True.")
+    return list(zip(start_indices, end_indices))
+    
+def detect_flatline_segments(sig:ArrayLike, min_duration:float, change_threshold:float) -> list:
+    """Detects flatline segments in a signal.
 
-    else:
-        raise ValueError("Both clipping and flatline cannot be True.")
+    Args:
+        sig (ArrayLike): Signal to be analyzed (ECG or PPG).
+        min_duration (float): Mimimum duration of flat segments for flatline detection.
+        change_threshold (float): Threshold for change in signal amplitude.
 
-    return info
+    Returns:
+        list: List of boundaries of flatline segments.
+    """
 
-def _detect_flat_segments(binary_array: ArrayLike) -> list:
-    """ Detects flat segments in a signal.
-        From HeartPy: https://github.com/paulvangentcom/heartrate_analysis_python/blob/master/heartpy/preprocessing.py """
+    start_indices = []
+    end_indices = []
+    in_flatline_segment = False
+    
+    for i in range(1, len(sig)):
+        change = abs(sig[i] - sig[i - 1])
 
-    edges = np.where(np.diff(binary_array) > 1)[1]
-    segments = []
-
-    for i in range(0, len(edges)):
-        if i == 0: #if first flat segment
-            segments.append((binary_array[0][0], 
-                                      binary_array[0][edges[0]]))
-        elif i == len(edges) - 1:
-            #append last entry
-            segments.append((binary_array[0][edges[i]+1],
-                                      binary_array[0][-1]))    
+        if change <= change_threshold and sig[i] != max(sig) and sig[i] != min(sig):
+            if not in_flatline_segment:
+                # Start of a new flatline segment
+                start_indices.append(i - 1)
+                in_flatline_segment = True
         else:
-            segments.append((binary_array[0][edges[i-1] + 1],
-                                      binary_array[0][edges[i]]))    
+            if in_flatline_segment:
+                # End of a flatline segment
+                end_indices.append(i - 1)
+                in_flatline_segment = False
 
-    return segments
+    if in_flatline_segment:
+        # The last segment extends until the end of the signal
+        end_indices.append(len(sig) - 1)
+
+    # Filter segments by duration
+    durations = [end - start + 1 for start, end in zip(start_indices, end_indices)]
+    start_indices = [start for start, duration in zip(start_indices, durations) if duration >= min_duration]
+    end_indices = [end for end, duration in zip(end_indices, durations) if duration >= min_duration]
+    
+    return list(zip(start_indices, end_indices))
 
 def check_phys(peaks_locs: ArrayLike, sampling_rate: float) -> dict:
     """Checks for physiological viability.
