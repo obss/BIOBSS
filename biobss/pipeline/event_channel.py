@@ -2,130 +2,113 @@ from __future__ import annotations
 import numpy as np
 import copy as copy
 from numpy.typing import ArrayLike
-from ..timetools import timestamp_tools
-import pandas as pd
 
 
 class Event_Channel():
-
-    """ Event channel class
-            For storing event data, with the following properties:
+    """ Biological signal channel class
     """
-    # Event name
-    # Event data
-    # Timestamp Data
+    def __init__(self, events: dict, name: str, sampling_rate: float,org_duration=None,unit=None):
 
-    def __init__(self, events:ArrayLike, event_name, timestamp_data=None, timestamp_resolution='ms', indicator=1, is_signal=False, sampling_rate=None):
+        # Docstring
+        """ Biological signal channel class
+        Args:
+            signal (ArrayLike): signal data
+            name (str): signal name
+            sampling_rate (float): signal sampling rate
+            timestamp (ArrayLike): signal timestamp
+            timestamp_resolution (float): signal timestamp resolution
+            timestamp_start (float): signal timestamp start
+            verbose (bool): print debug info
+            unit (str): signal unit
         
-        self.timestamp_data = timestamp_data
-        self.timestamp_resolution = timestamp_resolution
-        self.indicator = indicator
-        self.is_signal = is_signal
-        self.sampling_rate = sampling_rate
+        returns:
+            Bio_Channel: Bio_Channel object
+        
+        raises:
+            ValueError: if signal and timestamp dimensions do not match
+            ValueError: if signal and timestamp resolution do not match
+        # End Docstring        
+        """
+
+        # initialize channel data
+        if(not isinstance(events, dict)):
+            raise ValueError("events must be a dictionary")
+        elif(len(events) == 0):
+            raise ValueError("events must have at least one key")
+        elif(not all(isinstance(key, str) for key in events.keys())): 
+            raise ValueError("events keys must be strings")
+        elif(not all(isinstance(value, (np.ndarray,list)) for value in events.values())):
+            raise ValueError("events values must be lists or numpy arrays")
+        elif(not isinstance(name, str)):
+            raise ValueError("name must be a string")
+        elif(not isinstance(sampling_rate, (float,int))):
+            raise ValueError("sampling_rate must be a float or int")
+        elif(unit is not None and not isinstance(unit, str)):
+            raise ValueError("unit must be a string or None")            
+
         self.channel = events
-        self.event_name = event_name
-        self.window_timestamps = None
-        
-        if(isinstance(event_name,str)):
-            self.event_name=event_name
+        self.signal_name = name
+        self.sampling_rate = sampling_rate
+        self.org_duration=org_duration
+                    
+        if(unit is not None):
+            self.unit = unit
         else:
-            raise ValueError("Event name must be a string")
-        
-        if(len(events) == 0):
-            raise ValueError("Events cannot be empty")
-        
-        self._handle_events()
-        
+            self.unit = "NA"
+       
 
-    def _handle_events(self):
-        try:
-            if(np.ndim(self.channel)<2):
-                self.windowed = False
-            else:
-                self.windowed = True
-        except:
-            raise ValueError("There is a problem creating with event. Event Channel name: "+self.event_name)
+    def get_event(self, event_name: str):
+        if(event_name in self.channel.keys()):
+            return self.channel[event_name]
+        else:
+            raise ValueError("event_name not found in channel")
         
-        if(self.is_signal):
-            self._handle_signal_events()
+    def __getitem__(self, event_name: str):
+        return self.get_event(event_name)
+    
+    def __setitem__(self, event_name: str, event: ArrayLike):
+        if(not isinstance(event, (np.ndarray,list))):
+            raise ValueError("event must be a list or numpy array")
+        elif(not isinstance(event_name, str)):
+            raise ValueError("event_name must be a string")
+        else:
+            self.channel[event_name] = np.array(event)
             
-        else:
-            if(self.timestamp_data is None):
-                raise ValueError("Timestamp data must be provided for event: "+self.event_name)
-            if(self.windowed):
-                timestamp_data = []
-                window_timestamps = []
-                for i in range(len(self.channel)):
-                    window_timestamps.append([self.timestamp_data[i][0],self.timestamp_data[i][-1]])
-                    timestamp_data.append(self.timestamp_data[i][self.channel[i]])
-                self.timestamp_data = timestamp_data
-                self.window_timestamps = window_timestamps
-            else:
-                self.window_timestamps = [self.timestamp_data[0],self.timestamp_data[-1]]
-                self.timestamp_data = self.timestamp_data[self.channel]
-
-                
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Event_Channel):
+            return NotImplemented
+        return self.channel == other.channel and self.signal_name == other.signal_name and self.sampling_rate == other.sampling_rate and self.unit == other.unit
+    
+    def get_window(self,window: int,key=None):
         
-
-
-    def _handle_signal_events(self):
-        
-        if(self.windowed):
-            events=[]
-            if(self.timestamp_data is None):
-                raise ValueError("Timestamp data must be provided for windowed events")
-            for i in range(len(self.channel)):
-                e = np.where(self.channel[i]==self.indicator)
-                events.append(e)
-            self.channel = events  
- 
-        elif(not self.windowed):
-            events=[]
-            if(self.timestamp_data is None):
-                self.timestamp_data = timestamp_tools.create_timestamp_signal(self.timestamp_resolution,len(self.channel),0,self.sampling_rate) 
-            self.channel = np.where(self.channel==self.indicator)
-            self.channel = list(self.channel)
-            self.timestamp_data = list(self.timestamp_data[self.channel])
-                  
+        out = {}
+        if key is None:
+            for key in self.channel.keys():
+                out[key] = self.channel[key][window]
         else:
-            raise ValueError("There is a problem creating with event. Event Channel name: "+self.event_name)
-        
-    def get_timestamp(self, ts_point="start") -> np.ndarray:
+            out[key] = self.channel[key][window]               
 
-        if(not self.windowed):
-            out = self.window_timestamps[0]
-        else:
-            if(not ts_point in ["start", "end", "mid"]):
-                raise ValueError(
-                    'ts_point must be "start","end","mid", Please specify a valid timestamp point')
-            if(ts_point == "start"):
-                out = np.array(self.window_timestamps)[:,0]
-            elif(ts_point == "end"):
-                out = np.array(self.window_timestamps)[:,1]
-            elif(ts_point == "mid"):
-                out = np.array(self.window_timestamps)[:,:].mean(axis=1)
-        return out
-        
-    def get_window_timestamps(self,window=0,ts_point="start") -> np.ndarray:
-        if(not self.windowed):
-            out = np.array([self.window_timestamps[0]])
-        else:
-            if(not ts_point in ["start", "end", "mid"]):
-                raise ValueError(
-                    'ts_point must be "start","end","mid", Please specify a valid timestamp point')
-            if(ts_point == "start"):
-                out = np.array([self.window_timestamps[window][0]])
-            elif(ts_point == "end"):
-                out = np.array([self.window_timestamps[window][1]])
-            elif(ts_point == "mid"):
-                out = np.array([self.window_timestamps[window]]).mean(axis=1)
-                
-        return out
+    def copy(self):
+        return copy.deepcopy(self)
+    
+    def __copy__(self):
+        return self.copy()
+
     @property
-    def windows(self):
-        if(self.windowed):
-            return len(self.channel)
-        else:
-            return 1
+    def n_events(self):
+        return len(self.channel.keys())
+    
+    @property
+    def event_names(self):
+        return list(self.channel.keys())
 
+    @property
+    def n_windows(self):
+        return len(self.channel[self.event_names[0]])
         
+    @property    
+    def segmented(self):
+        return (self.n_windows > 1)
+    
+    
+

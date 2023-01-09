@@ -1,11 +1,12 @@
 from __future__ import annotations
 from .bio_data import Bio_Data
-from .bio_channel import Bio_Channel
+from .bio_channel import Channel
 from typing import Union
 from .event_channel import Event_Channel
 """ Process list object with add and iterate process objects"""
 from warnings import warn
-
+from .event_input import *
+from .channel_input import *
 
 class Process_List():
 
@@ -42,7 +43,6 @@ class Process_List():
         inputs = self.input_signals[self.processed_index]
         args=self.args[self.processed_index]
         kwargs=self.kwargs[self.processed_index]
-        
         if(isinstance(inputs,dict)):
             for key in inputs.keys():
                 kwargs.update({key:bio_data[inputs[key]]})
@@ -53,76 +53,55 @@ class Process_List():
             args=(bio_data[inputs],)+args
             
         result=self.process_list[self.processed_index].process(*args,**kwargs)    
-        if(isinstance(result, Bio_Channel)):
-            if(not isinstance(self.output_signals[self.processed_index],str)):
-                if(len(self.output_signals[self.processed_index])!=1):
-                    raise ValueError("Single channel output must be a string")
-                else:
-                    self.output_signals[self.processed_index]=self.output_signals[self.processed_index][0]
-            result.signal_name=self.output_signals[self.processed_index]
-            bio_data.add_channel(result)
-        elif(isinstance(result, Event_Channel)):
-            if(not isinstance(self.output_signals[self.processed_index],str)):
-                if(len(self.output_signals[self.processed_index])!=1):
-                    raise ValueError("Single channel output must be a string")
-                else:
-                    self.output_signals[self.processed_index]=self.output_signals[self.processed_index][0]
-            result.signal_name=self.output_signals[self.processed_index]
-            bio_data.add_event_channel(result)
-        elif(isinstance(result, Bio_Data)):
-            if(not isinstance(self.output_signals[self.processed_index],dict)):
-                warn("If output of the process is Bio_Data, output signals argument must be a dictionary or it will be ignored")
-            else:
-                if(len(self.output_signals[self.processed_index].values())!=result.channel_count):
-                    raise ValueError("Output Bio_Data must have the same number of channels as the output_signals list")
-            if(isinstance(self.output_signals[self.processed_index],dict)):
-                for i in range(result.channel_count):
-                    result[self.output_signals[self.processed_index].values()[i].keys()].signal_name=self.output_signals[self.processed_index].values()[i]
-            else:
-                pass
-            bio_data.join(result)
+        outputs = self.output_signals[self.processed_index]
+        result_cahnnels=result.get_channel_names()
+        for i,r in enumerate(result_cahnnels):
+            result[r].signal_name=outputs[i]
+            result.rename_channel(r,outputs[i])            
+
+        bio_data.join(result)
             
         self.processed_index+=1
         return bio_data
             
-    def _process_io(self,input_signals,output_signals):
-        
-        """ Check output signals and convert to list of list of strings"""
-        if(isinstance(output_signals, str)):
-            output_signals = output_signals
-        elif(isinstance(output_signals, list)):
-            if(not all(isinstance(o, str) for o in output_signals)):
-                raise ValueError("output_signals must be a string or a list of strings")
-            output_signals = output_signals
-        elif(isinstance(output_signals,dict)):
-            if(not all(isinstance(o, str) for o in output_signals.values())):
-                raise ValueError("output_signals must be a string or a list of strings")
-            output_signals = output_signals
-        else:
-            raise ValueError("output_signals must be a string or a list of strings, or a dictionary with string values")
-                
-        self.output_signals.append(output_signals)
-        
-        # Check input signals
-        if(not isinstance(input_signals, (str,list,dict))):
-            raise ValueError("input_signals must be a string, list of strings, or dictionary")
-
-        if(isinstance(input_signals, list)):
-            if(not all(isinstance(o, str) for o in input_signals)):
-                raise ValueError("input_signals must be a string or a list of strings")
-        elif(isinstance(input_signals,dict)):
-            if(not all(isinstance(o, str) for o in input_signals.values())):
-                raise ValueError("input_signals must be a string or a list of strings")
-            
-        self.input_signals.append(input_signals)
-        
-
     def get_process_by_name(self, name):
         for process in self.process_list:
             if(process.name == name):
                 return process
         raise ValueError('Process with name '+name+' not found')
 
+    def _process_io(self,input_signals,output_signals):
+            
+            """ Check output signals and convert to list of list of strings"""
+            if(isinstance(output_signals, str)):
+                output_signals = output_signals
+            elif(isinstance(output_signals, list)):
+                if(not all(isinstance(o, str) for o in output_signals)):
+                    raise ValueError("output_signals must be a string or a list of strings")
+                output_signals = output_signals
+            elif(isinstance(output_signals,dict)):
+                if(not all(isinstance(o, str) for o in output_signals.values())):
+                    raise ValueError("output_signals must be a string or a list of strings")
+                output_signals = output_signals
+            else:
+                raise ValueError("output_signals must be a string or a list of strings, or a dictionary with string values")
+                    
+            self.output_signals.append(output_signals)
+            
+            # Check input signals
+            if(not isinstance(input_signals, (str,list,dict))):
+                raise ValueError("input_signals must be a string, list of strings, or dictionary")
+
+            if(isinstance(input_signals, list)):
+                if(not all(isinstance(o, str) for o in input_signals)):
+                    raise ValueError("input_signals must be a string or a list of strings")
+            elif(isinstance(input_signals,dict)):
+                if(not all(isinstance(o, str) for o in input_signals.values())):
+                    raise ValueError("input_signals must be a string or a list of strings")
+                
+            self.input_signals.append(input_signals)
+            
+            
     def __str__(self) -> str:
         representation = "Process list:\n"
         for i, p in enumerate(self.process_list):
