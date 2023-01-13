@@ -1,7 +1,7 @@
 import numpy as np
 from numpy.typing import ArrayLike
 
-from biobss.ppgtools.ppg_peaks import find_missing_duplicate_peaks
+from biobss.ppgtools.ppg_peaks import correct_missing_duplicate_peaks
 
 #Time domain features
 FEATURES_APG = {
@@ -81,31 +81,31 @@ def get_apg_features(apg_sig: ArrayLike, locs_O:ArrayLike, fiducials:dict, sampl
         a_features = ['a_a','t_a','a_b_a','a_c_a','a_d_a','a_e_a','a_cdb_a','a_bcde_a','a_bcd_a','a_be_a']
         [feature_list.pop(key, None) for key in a_features]
     else:
-        locs_a, _ = find_missing_duplicate_peaks(locs_valleys=locs_O, locs_peaks=locs_a, peaks=apg_sig[locs_a])
+        locs_a, _ = correct_missing_duplicate_peaks(locs_valleys=locs_O, locs_peaks=locs_a, peaks=apg_sig[locs_a])
 
     if len(locs_b) == 0:
         b_features = ['a_b','t_b','a_b_a','a_cdb_a','a_bcde_a','a_bcd_a','a_be_a']
         [feature_list.pop(key, None) for key in b_features]
     else:
-        locs_b, _ = find_missing_duplicate_peaks(locs_valleys=locs_O, locs_peaks=locs_b, peaks=apg_sig[locs_b])
+        locs_b, _ = correct_missing_duplicate_peaks(locs_valleys=locs_O, locs_peaks=locs_b, peaks=apg_sig[locs_b])
 
     if len(locs_c) == 0:
         c_features = ['a_c','t_c','a_c_a','a_cdb_a','a_bcde_a','a_bcd_a']
         [feature_list.pop(key, None) for key in c_features]
     else:
-        locs_c, _ = find_missing_duplicate_peaks(locs_valleys=locs_O, locs_peaks=locs_c, peaks=apg_sig[locs_c])
+        locs_c, _ = correct_missing_duplicate_peaks(locs_valleys=locs_O, locs_peaks=locs_c, peaks=apg_sig[locs_c])
 
     if len(locs_d) == 0:
         d_features = ['a_d','t_d','a_d_a','a_cdb_a','a_bcde_a','a_bcd_a',]
         [feature_list.pop(key, None) for key in d_features]
     else:
-        locs_d, _ = find_missing_duplicate_peaks(locs_valleys=locs_O, locs_peaks=locs_d, peaks=apg_sig[locs_d])
+        locs_d, _ = correct_missing_duplicate_peaks(locs_valleys=locs_O, locs_peaks=locs_d, peaks=apg_sig[locs_d])
 
     if len(locs_e) == 0:
         e_features = ['a_e','t_e','a_e_a','a_bcde_a','a_be_a']
         [feature_list.pop(key, None) for key in e_features]
     else:
-        locs_e, _ = find_missing_duplicate_peaks(locs_valleys=locs_O, locs_peaks=locs_e, peaks=apg_sig[locs_e])
+        locs_e, _ = correct_missing_duplicate_peaks(locs_valleys=locs_O, locs_peaks=locs_e, peaks=apg_sig[locs_e])
 
 
     features={}

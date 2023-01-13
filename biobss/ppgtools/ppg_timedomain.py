@@ -132,9 +132,9 @@ def ppg_time_features(sig: ArrayLike, sampling_rate: float, input_types: str, fi
                 locs_D = fiducials['D_waves']
                 locs_N = fiducials['N_waves']
 
-                locs_S, _ = find_missing_duplicate_peaks(locs_valleys=locs_O, locs_peaks=locs_S, peaks=sig[locs_S])
-                locs_D, _ = find_missing_duplicate_peaks(locs_valleys=locs_O, locs_peaks=locs_D, peaks=sig[locs_D])
-                locs_N, _ = find_missing_duplicate_peaks(locs_valleys=locs_O, locs_peaks=locs_N, peaks=sig[locs_N])
+                locs_S, _ = correct_missing_duplicate_peaks(locs_valleys=locs_O, locs_peaks=locs_S, peaks=sig[locs_S])
+                locs_D, _ = correct_missing_duplicate_peaks(locs_valleys=locs_O, locs_peaks=locs_D, peaks=sig[locs_D])
+                locs_N, _ = correct_missing_duplicate_peaks(locs_valleys=locs_O, locs_peaks=locs_N, peaks=sig[locs_N])
 
             else: 
                 locs_O = kwargs['troughs_locs']
@@ -142,7 +142,7 @@ def ppg_time_features(sig: ArrayLike, sampling_rate: float, input_types: str, fi
                 locs_D = np.array([])
                 locs_N = np.array([])
 
-                locs_S, _ = find_missing_duplicate_peaks(locs_valleys=locs_O, locs_peaks=locs_S, peaks=sig[locs_S])
+                locs_S, _ = correct_missing_duplicate_peaks(locs_valleys=locs_O, locs_peaks=locs_S, peaks=sig[locs_S])
 
             if len(locs_O) == 0:
                 raise ValueError("PPG onset locations must be provided to calculate cycle-based features.")

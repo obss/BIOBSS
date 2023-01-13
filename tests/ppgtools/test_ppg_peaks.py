@@ -13,7 +13,7 @@ def test_num_peaks(load_sample_ppg):
     sig = np.asarray(data['PPG'])
     fs = info['sampling_rate']
     
-    locs_beats = ppg_beats(sig, sampling_rate=fs, method='peakdet', delta=0.005)
+    locs_beats = ppg_detectbeats(sig, sampling_rate=fs, method='peakdet', delta=0.005)
     beats=sig[locs_beats]
     
     info = peak_detection(sig, sampling_rate=fs, method='peakdet', delta=0.01)
@@ -60,15 +60,15 @@ def test_num_fiducials(load_sample_ppg, ppg_onsets):
     assert len(fiducials) == 12
     assert len(fiducials['S_waves']) == 12
     assert len(fiducials['O_waves']) == 12
-    assert len(fiducials['N_waves']) == 11
-    assert len(fiducials['D_waves']) == 11
+    assert len(fiducials['N_waves']) == 12
+    assert len(fiducials['D_waves']) == 12
 
     assert len(fiducials['w_waves']) == 12
-    assert len(fiducials['y_waves']) == 11
-    assert len(fiducials['z_waves']) == 11
+    assert len(fiducials['y_waves']) == 12
+    assert len(fiducials['z_waves']) == 12
 
     assert len(fiducials['a_waves']) == 12
     assert len(fiducials['b_waves']) == 12
-    assert len(fiducials['c_waves']) == 11
-    assert len(fiducials['d_waves']) == 11
-    assert len(fiducials['e_waves']) == 11
+    assert len(fiducials['c_waves']) == 12
+    assert len(fiducials['d_waves']) == 12
+    assert len(fiducials['e_waves']) == 12

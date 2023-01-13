@@ -27,20 +27,4 @@ def test_num_Rpeaks(load_sample_ecg):
     assert sum(peaks_hamilton) == pytest.approx(-0.76, 0.01)
     assert len(locs_elgendi) == 15
     assert sum(peaks_elgendi) == pytest.approx(-0.53, 0.01)
-
-def test_num_fiducials(load_sample_ecg):
-
-    data, info = load_sample_ecg
-    
-    sig = np.asarray(data['ECG'])
-    fs = info['sampling_rate']
-
-    fiducials = ecg_detectwaves(sig=sig, sampling_rate=fs, delineator='neurokit2')
-
-    assert len(fiducials) == 6
-    assert len(fiducials['ECG_P_Peaks']) == 15
-    assert len(fiducials['ECG_Q_Peaks']) == 15
-    assert len(fiducials['ECG_S_Peaks']) == 15
-    assert len(fiducials['ECG_T_Peaks']) == 15
-    assert len(fiducials['ECG_P_Onsets']) == 15
-    assert len(fiducials['ECG_T_Offsets'] ) == 15            
+          

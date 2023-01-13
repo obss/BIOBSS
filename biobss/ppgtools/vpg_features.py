@@ -1,7 +1,7 @@
 import numpy as np
 from numpy.typing import ArrayLike
 
-from biobss.ppgtools.ppg_peaks import find_missing_duplicate_peaks
+from biobss.ppgtools.ppg_peaks import correct_missing_duplicate_peaks
 
 #Time domain features
 FEATURES_VPG = {
@@ -56,19 +56,19 @@ def get_vpg_features(vpg_sig: ArrayLike, locs_O:ArrayLike, fiducials:dict, sampl
         w_features = ['a_w','t_w','a_y_w']
         [feature_list.pop(key, None) for key in w_features]
     else:
-        locs_w, _ = find_missing_duplicate_peaks(locs_valleys=locs_O, locs_peaks=locs_w, peaks=vpg_sig[locs_w])
+        locs_w, _ = correct_missing_duplicate_peaks(locs_valleys=locs_O, locs_peaks=locs_w, peaks=vpg_sig[locs_w])
 
     if len(locs_y) == 0:
         y_features = ['a_y','t_y','a_y_w']
         [feature_list.pop(key, None) for key in y_features]
     else:
-        locs_y, _ = find_missing_duplicate_peaks(locs_valleys=locs_O, locs_peaks=locs_y, peaks=vpg_sig[locs_y])
+        locs_y, _ = correct_missing_duplicate_peaks(locs_valleys=locs_O, locs_peaks=locs_y, peaks=vpg_sig[locs_y])
 
     if len(locs_z) == 0:
         z_features = ['a_z','t_z']
         [feature_list.pop(key, None) for key in z_features]
     else:
-        locs_z, _ = find_missing_duplicate_peaks(locs_valleys=locs_O, locs_peaks=locs_z, peaks=vpg_sig[locs_z])
+        locs_z, _ = correct_missing_duplicate_peaks(locs_valleys=locs_O, locs_peaks=locs_z, peaks=vpg_sig[locs_z])
         
     features={}
     for key,func in feature_list.items():
