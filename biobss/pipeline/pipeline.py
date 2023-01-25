@@ -1,5 +1,5 @@
 from __future__ import annotations
-from .. import preprocess
+#from .. import preprocess
 from .bioprocess_queue import Process_List
 from .bio_data import Bio_Data
 from .bio_channel import Channel
@@ -12,6 +12,7 @@ from copy import copy
 from .feature_queue import Feature_Queue
 from .channel_input import *
 from .event_input import *
+from ..preprocess.signal_segment import segment_signal
 
 """a biological signal processing object with preprocessing and postprocessing steps"""
 
@@ -59,14 +60,14 @@ class Bio_Pipeline:
                 raise ValueError(
                     "If signal is not a Bio_Data or Bio_Channel object, sampling_rate must be specified"
                 )
-            if name is None:
+            if name is None and not isinstance(data,dict):
                 raise ValueError(
                     "If signal is not a Bio_Data or Bio_Channel object, name must be specified"
                 )
             if(is_event):
                 self.input = convert_event(data, sampling_rate, name, **kwargs)
             else:
-                convert_event(data, sampling_rate, name, **kwargs)
+                self.input=convert_channel(data, sampling_rate, name, **kwargs)
 
     def set_window_parameters(self, window_size=10, step_size=5):
         self.window_size = window_size
@@ -80,7 +81,7 @@ class Bio_Pipeline:
             else:
                 is_event = False
                 
-            windowed = preprocess.segment_signal(
+            windowed = segment_signal(
                 signal=channel.channel,
                 window_size=self.window_size,
                 step_size=self.step_size,
@@ -88,12 +89,14 @@ class Bio_Pipeline:
                 is_event=is_event,
             )
             if(is_event):
-                windowed = Event_Channel(windowed,channel.sampling_rate,channel.name,channel.event_type)
-            
-            self.data[ch] = windowed
+                windowed = Event_Channel(windowed,channel.sampling_rate,channel.signal_name)
+            else:
+                windowed = Channel(windowed,channel.sampling_rate,channel.signal_name)
+          
+        self.data[ch] = windowed
         self.feature_list.windowed = True
         self.segmented = True
-
+        pass
     def extract_features(self):
         self.features = self.feature_list.run_feature_queue(self.data)
 
@@ -107,9 +110,8 @@ class Bio_Pipeline:
             raise ValueError("Input data must be set before running pipeline")
         
         # self.data = self.preprocess_queue.run_process_queue(self.data)
-        # if self.windowed:
-        #     self.convert_windows()
-
+        if self.windowed:
+            self.convert_windows()
         self.data = self.process_queue.run_process_queue(self.data)
         
     def get_features(self):

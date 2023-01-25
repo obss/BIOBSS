@@ -2,7 +2,8 @@ import numpy as np
 from numpy.typing import ArrayLike
 from collections.abc import Iterable
 
-def segment_signal(signal: ArrayLike, sampling_rate:float, window_size: float, step_size= float) -> ArrayLike:
+
+def segment_signal(signal: ArrayLike, sampling_rate:float, window_size: float, step_size= float,is_event = False) -> ArrayLike:
     """Generates segments from input signal.
 
     Args:

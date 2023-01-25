@@ -73,7 +73,11 @@ def peak_control(sig: ArrayLike, peaks_locs: ArrayLike, troughs_locs: ArrayLike,
     if type == 'beat':
         sig = np.gradient(sig, axis=0, edge_order=1)
     
+    peaks_locs = np.asarray(peaks_locs)
+    troughs_locs = np.asarray(troughs_locs)
+    
     peaks_amp = sig[peaks_locs]
+
 
     # Trim the arrays as the signal starts and ends with a trough
     while peaks_locs[0] < troughs_locs[0]:
@@ -495,9 +499,10 @@ def ppg_delineate(ppg_sig:ArrayLike, vpg_sig:ArrayLike, vpg_fiducials:dict, apg_
 
 def correct_missing_duplicate_peaks(locs_valleys: ArrayLike, locs_peaks:ArrayLike, peaks:ArrayLike) -> tuple:
     """Detects missing or duplicate peaks in a given peak array using PPG onset locations as reference."""
-    search_ref = locs_valleys
+    search_ref = np.array(locs_valleys)
     loc_ = []
     amp_ = []
+    locs_peaks = np.array(locs_peaks)
     j = 0
     for i in range(len(search_ref)-1):
         ind_ = np.asarray(np.where((search_ref[i] < locs_peaks) & (locs_peaks < search_ref[i+1])))

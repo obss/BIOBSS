@@ -15,7 +15,7 @@ class Bio_Data:
         self.channels = {}  # Data_Channel objects
 
     def add_channel(self,signal: Union[ArrayLike, Channel ,Event_Channel],channel_name: str = None,
-                    sampling_rate: Union[int, float] = None,modify_existed: bool = False,unit = None,is_event=True,org_duration=None):
+                    sampling_rate: Union[int, float] = None,modify_existed: bool = False,is_event=False,org_duration=None):
                 
 
         if(isinstance(signal, (Channel,Event_Channel))):
@@ -36,7 +36,7 @@ class Bio_Data:
                 signal = np.array(signal)
             if(sampling_rate is None):
                 raise ValueError("sampling_rate must be provided if signal is not a Channel or Event_Channel object")
-            if(isinstance(sampling_rate, (int,float))):
+            if(not isinstance(sampling_rate, (int,float))):
                 raise ValueError("sampling_rate must be a float or integer")
             if(channel_name is None):
                 channel_name = "channel"
@@ -48,14 +48,10 @@ class Bio_Data:
                     while(channel_name in self.channels.keys()):
                         channel_name = channel_name + "_"+str(i)
                         i = i + 1
-            if(unit is not None and not isinstance(unit, str)):
-                raise ValueError("unit must be a string or None")
-            if(unit is None):
-                unit = "NA"
             if(is_event):
-                self.channels[channel_name] = Event_Channel(signal,channel_name,sampling_rate,org_duration,unit)
+                self.channels[channel_name] = Event_Channel(signal,channel_name,sampling_rate,org_duration)
             else:
-                self.channels[channel_name] = Channel(signal,channel_name,sampling_rate,unit)
+                self.channels[channel_name] = Channel(signal,channel_name,sampling_rate)
                 
            
     def remove_channel(self, channel_name):
@@ -102,8 +98,6 @@ class Bio_Data:
 
     def __setitem__(self, key, value):
         if(isinstance(value, (Channel,Event_Channel))):
-            if(key in self.channels.keys()):
-                warnings.warn("Overwriting channel " + key)
             self.channels[key] = value
             
         else:
@@ -119,7 +113,8 @@ class Bio_Data:
             representation += " (" + str(v.sampling_rate) + "Hz)"
             #representation += " (" + str(v.signal_duration) + "s)"
             representation += " (" + str(v.n_windows) + " windows)"
-            representation += " (" + str(v.channel.shape) + ")"
+            if(isinstance(v,Channel)):
+                representation += " (" + str(v.channel.shape) + ")"
             representation += "\n"
 
         return representation

@@ -7,55 +7,22 @@ from numpy.typing import ArrayLike
 class Event_Channel():
     """ Biological signal channel class
     """
-    def __init__(self, events: dict, name: str, sampling_rate: float,org_duration=None,unit=None):
+    def __init__(self, events: list, name: str, sampling_rate: float):
 
-        # Docstring
-        """ Biological signal channel class
-        Args:
-            signal (ArrayLike): signal data
-            name (str): signal name
-            sampling_rate (float): signal sampling rate
-            timestamp (ArrayLike): signal timestamp
-            timestamp_resolution (float): signal timestamp resolution
-            timestamp_start (float): signal timestamp start
-            verbose (bool): print debug info
-            unit (str): signal unit
-        
-        returns:
-            Bio_Channel: Bio_Channel object
-        
-        raises:
-            ValueError: if signal and timestamp dimensions do not match
-            ValueError: if signal and timestamp resolution do not match
-        # End Docstring        
-        """
-
-        # initialize channel data
-        if(not isinstance(events, dict)):
-            raise ValueError("events must be a dictionary")
+        if(not isinstance(events, list)):
+            raise ValueError("events data must be a list")
         elif(len(events) == 0):
             raise ValueError("events must have at least one key")
-        elif(not all(isinstance(key, str) for key in events.keys())): 
-            raise ValueError("events keys must be strings")
-        elif(not all(isinstance(value, (np.ndarray,list)) for value in events.values())):
-            raise ValueError("events values must be lists or numpy arrays")
         elif(not isinstance(name, str)):
             raise ValueError("name must be a string")
         elif(not isinstance(sampling_rate, (float,int))):
             raise ValueError("sampling_rate must be a float or int")
-        elif(unit is not None and not isinstance(unit, str)):
-            raise ValueError("unit must be a string or None")            
+        
 
         self.channel = events
         self.signal_name = name
         self.sampling_rate = sampling_rate
-        self.org_duration=org_duration
-                    
-        if(unit is not None):
-            self.unit = unit
-        else:
-            self.unit = "NA"
-       
+
 
     def get_event(self, event_name: str):
         if(event_name in self.channel.keys()):
@@ -63,36 +30,43 @@ class Event_Channel():
         else:
             raise ValueError("event_name not found in channel")
         
+    def get_window(self,window_index):
+        
+        if(self.n_windows == 1):
+            return self.channel
+        else:
+            return self.channel[window_index]
+        
     def __getitem__(self, event_name: str):
         return self.get_event(event_name)
     
-    def __setitem__(self, event_name: str, event: ArrayLike):
+    def __setitem__(self,event: ArrayLike):
         if(not isinstance(event, (np.ndarray,list))):
             raise ValueError("event must be a list or numpy array")
-        elif(not isinstance(event_name, str)):
-            raise ValueError("event_name must be a string")
         else:
-            self.channel[event_name] = np.array(event)
+            self.channel = list(event)
             
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Event_Channel):
-            return NotImplemented
-        return self.channel == other.channel and self.signal_name == other.signal_name and self.sampling_rate == other.sampling_rate and self.unit == other.unit
-    
-    def get_window(self,window: int,key=None):
-        
-        out = {}
-        if key is None:
-            for key in self.channel.keys():
-                out[key] = self.channel[key][window]
-        else:
-            out[key] = self.channel[key][window]               
+            raise ValueError("other must be an Event_Channel object")
+        return self.channel == other.channel and self.signal_name == other.signal_name and self.sampling_rate == other.sampling_rate
 
     def copy(self):
         return copy.deepcopy(self)
     
     def __copy__(self):
         return self.copy()
+
+    def get_timestamp(self):
+        if(self.n_windows == 1):
+            return np.array([0])
+        else:
+            return np.arange(self.n_windows)
+    def get_window_timestamps(self):
+        if(self.n_windows == 1):
+            return np.array([0])
+        else:
+            return np.arange(self.n_windows)
 
     @property
     def n_events(self):
@@ -104,11 +78,15 @@ class Event_Channel():
 
     @property
     def n_windows(self):
-        return len(self.channel[self.event_names[0]])
+        if(all(isinstance(value, (np.ndarray,list)) for value in self.channel)):
+            return len(self.channel)
+        else:
+            return 1
         
     @property    
     def segmented(self):
         return (self.n_windows > 1)
     
+
     
 

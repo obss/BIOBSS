@@ -7,7 +7,7 @@ from numpy.typing import ArrayLike
 class Channel():
     """ Biological signal channel class
     """
-    def __init__(self, signal: ArrayLike, name: str, sampling_rate: float,unit=None):
+    def __init__(self, signal: ArrayLike, name: str, sampling_rate: float):
 
         # Docstring
         """ Biological signal channel class
@@ -35,12 +35,6 @@ class Channel():
         self.signal_name = name
         self.sampling_rate = sampling_rate
                     
-        if(unit is not None):
-            self.unit = unit
-        else:
-            self.unit = "NA"
-       
-
     def copy(self):
         return copy.deepcopy(self)
     
@@ -48,14 +42,32 @@ class Channel():
         if not isinstance(other, Channel):
             return False
         return ((self.signal_name == other.signal_name)
-                and (np.array_equal(self.channel,other.channel)) and self.sampling_rate == other.sampling_rate and self.unit == other.unit)
+                and (np.array_equal(self.channel,other.channel)) and self.sampling_rate == other.sampling_rate)
+        
+    def get_window(self,window_index):
+        if(len(self.channel.shape) < 2):
+            return self.channel
+        else:
+            return self.channel[window_index,:]
+        
+    def get_timestamp(self):
+        if(self.n_windows == 1):
+            return np.array([0])
+        else:
+            return np.arange(self.n_windows)
+    def get_window_timestamps(self):
+        if(self.n_windows == 1):
+            return np.array([0])
+        else:
+            return np.arange(self.n_windows)
+
 
     @property
     def duration(self):
         if(len(self.channel.shape) < 2):
             return self.channel.shape[0]/self.sampling_rate
         else:
-            return self.channel.shape[1]/self
+            return self.channel.shape[1]/self.sampling_rate
 
     @property
     def n_windows(self):

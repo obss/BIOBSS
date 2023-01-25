@@ -3,7 +3,6 @@ import os
 import numpy as np
 import pytest
 
-
 @pytest.fixture(scope='package')
 def load_sample_ecg():
 
@@ -91,6 +90,7 @@ def load_sample_eda():
     sample_data['EDA']=sig
 
     return sample_data, info
+
 
 @pytest.fixture(scope='package')
 def ppg_peaks():

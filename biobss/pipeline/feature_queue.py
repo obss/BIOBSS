@@ -53,18 +53,18 @@ class Feature_Queue():
 
     def run_single(self, inputs, args, kwargs, bio_data, index=None):
         input_keys = self._get_input_keys(inputs)
-        timestamps = None
+        
         if isinstance(inputs, dict):
             for key, value in inputs.items():
                 if(isinstance(value,str)):
-                    kwargs[key] = bio_data[value].channel[index] if index else bio_data[value].channel
+                    kwargs[key] = bio_data[value].channel[index] if index is not None else bio_data[value].channel
                 elif(isinstance(value,list)):
-                    kwargs[key] = [bio_data[v].channel[index] if index else bio_data[v].channel for v in value]
+                    kwargs[key] = [bio_data[v].channel[index] if index is not None else bio_data[v].channel for v in value]
         elif isinstance(inputs, list):
             inputs = inputs[::-1]
             for i in inputs:
                 if (isinstance(i, list)):
-                    combined,timestamps = self._combine_inputs(bio_data=bio_data,inputs=i, index=index)
+                    combined = self._combine_inputs(bio_data=bio_data,inputs=i, index=index)
                     args = (combined,) + args
                 else:
                     args = (bio_data[i].channel[index]
@@ -74,20 +74,12 @@ class Feature_Queue():
                     if index is not None else bio_data[inputs].channel,) + args
         else:
             raise ValueError("Inputs must be a string, list, or dictionary.")
-        if(timestamps is None):
-            timestamps = []
-            for k in input_keys:
-                timestamps.append(bio_data[k].get_window_timestamps(window=index)
-                                  if index is not None else bio_data[k].get_window_timestamps())
-        timestamps = np.array(timestamps)
-        if(not np.all(timestamps == timestamps[0])):
-            raise ValueError(
-                "Timestamps must be the same for all input signals.")
+    
 
         result = self.extraction_list[self.processed_index].process(
             *args, **kwargs)
         result = self._process_results_single(result)
-        result.index = [timestamps[0]]
+        result.index = [index]
         return result
 
     def run_windowed(self, inputs, args, kwargs, bio_data):
@@ -97,34 +89,22 @@ class Feature_Queue():
         input_keys = self._get_input_keys(inputs)
         for key in input_keys:
             if(isinstance(key,str)):
-                n_windows.append(bio_data[key].windows)
+                n_windows.append(bio_data[key].n_windows)
             elif(isinstance(key,list)):
                 input_windows = []
                 for k in key:
-                    input_windows.append(bio_data[k].windows)
+                    input_windows.append(bio_data[k].n_windows)
                 if(not np.any(input_windows != input_windows[0])):
                     raise ValueError("All input signals must have the same number of windows.")
                 else:
                     n_windows.append(input_windows[0])
                 
         n_windows = min(n_windows)
-
-        timestamps = []
-        for key in input_keys:
-            if(isinstance(key,str)):
-                timestamps.append(bio_data[key].get_timestamp())
-            elif(isinstance(key,list)):
-                for k in key:
-                    timestamps.append(bio_data[k].get_timestamp())
-            else:
-                raise ValueError("Inputs must be a string or list")
-
-        if(not np.all(timestamps == timestamps[0], axis=0).all()):
-            raise ValueError(
-                "Timestamps must be the same for all input signals.")
-
-        for i in range(n_windows):
-            results.append(self.run_single(inputs, args, kwargs, bio_data, i))
+        if(n_windows > 1):
+            for i in range(n_windows):
+                results.append(self.run_single(inputs, args, kwargs, bio_data, i))
+        else:
+            results.append(self.run_single(inputs, args, kwargs, bio_data))
         results = pd.concat(results)
         return results
 
@@ -248,21 +228,12 @@ class Feature_Queue():
 
     def _combine_inputs(self, bio_data, inputs, index=None):
         input_args = []
-        timestamps = []
         for i in inputs:
             if(not isinstance(i, str)):
                 raise ValueError("Inputs must be a list of strings.")
             if(index is not None):
                 input_args.append(bio_data[i].channel[index])
-                timestamps.append(bio_data[i].get_window_timestamps()[index])
             else:
                 input_args.append(bio_data[i].channel)
-                timestamps.append(bio_data[i].get_window_timestamps())
-
-        timestamps = np.array(timestamps)
-        if(np.any(timestamps[0] != timestamps)):
-           raise ValueError("Timestamps must be the same for all input signals.")
-        
-        if(np.ndim(timestamps) > 1):
-            timestamps = timestamps[:,0]          
-        return np.array(input_args),timestamps
+     
+        return np.array(input_args)
