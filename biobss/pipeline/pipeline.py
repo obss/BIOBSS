@@ -89,9 +89,9 @@ class Bio_Pipeline:
                 is_event=is_event,
             )
             if(is_event):
-                windowed = Event_Channel(windowed,channel.sampling_rate,channel.signal_name)
+                windowed = Event_Channel(windowed,name = channel.signal_name,sampling_rate = channel.sampling_rate)
             else:
-                windowed = Channel(windowed,channel.sampling_rate,channel.signal_name)
+                windowed = Channel(windowed,name =channel.signal_name,sampling_rate = channel.sampling_rate)
           
         self.data[ch] = windowed
         self.feature_list.windowed = True

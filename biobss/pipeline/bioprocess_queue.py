@@ -159,7 +159,7 @@ class Process_List():
     def __str__(self) -> str:
         representation = "Process list:\n"
         for i, p in enumerate(self.process_list):
-            process= p.name
+            process= p.process_name
             if(isinstance(self.input_signals[i],dict)):
                 process_in=self.input_signals[i].values()
             else:
