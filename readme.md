@@ -322,3 +322,54 @@ The main focus of BIOBSS is to generate and save pipelines for signal processing
 
 
 To learn more, visit the [Documentation page](biobss.readthedocs.io/en/latest/).
+
+
+## <div align="center"> Installation </div>
+
+Through pip,
+
+    pip install biobss
+
+or build from source,
+
+    git clone https://github.com/obss/biobss.git
+    cd BIOBSS
+    python setup.py install
+
+## <div align="center"> Dependencies </div> 
+
+- neurokit2
+- antropy
+- cvxopt
+- heartpy
+- scipy
+- py_ecg_detectors
+
+
+## <div align="center"> Tutorial notebooks </div>
+
+- [PPG Signal Processing](https://github.com/obss/BIOBSS/blob/main/examples/ppg_processing.ipynb)
+- [ECG Signal Processing](https://github.com/obss/BIOBSS/blob/main/examples/ecg_processing.ipynb)
+- [ACC Signal Processing](https://github.com/obss/BIOBSS/blob/main/examples/acc_processing.ipynb)
+- [HRV Analysis](https://github.com/obss/BIOBSS/blob/main/examples/hrv_analysis.ipynb)
+- [Respiratory Analysis](https://github.com/obss/BIOBSS/blob/main/examples/respiratory_analysis.ipynb)
+
+
+## <div align="center"> License </div>
+
+Licensed under the [MIT](LICENSE) License.
+
+
+## <div align="center"> Contributing </div>
+
+If you have ideas for improving existing features or adding new features to BIOBSS, please contact us. 
+
+
+## <div align="center"> Contributors </div>
+[Çağatay Taşcı](https://github.com/tascic)
+
+[İpek Karakuş](https://github.com/karakusipek)
+
+[Devrim Çavuşoğlu](https://github.com/devrimcavusoglu)
+
+[Fatih Çağatay Akyön](https://github.com/fcakyon)
