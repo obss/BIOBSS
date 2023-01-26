@@ -1,13 +1,8 @@
 import numpy as np
-from scipy import fft 
-from scipy import signal
 from scipy import interpolate
-from scipy import integrate
-import math
 from numpy.typing import ArrayLike
 
 from biobss.common.signal_fft import *
-from biobss.common.signal_power import *
 from biobss.common.signal_psd import *
 
 F_INTERP = 4
@@ -34,15 +29,18 @@ FEATURES_FREQ= {
 def hrv_freq_features(ppi: ArrayLike, sampling_rate:int, prefix: str='hrv') -> dict:
     """Calculates frequency-domain hrv parameters.
 
-    vlf: The spectral power pertaining to very low frequency band i.e., 0.0033 to 0.04 Hz by default.
-    lf: The spectral power pertaining to low frequency band i.e., 0.04 to 0.15 Hz by default.
-    hf: The spectral power pertaining to high frequency band i.e., 0.15 to 0.4 Hz by default.
-    lf_hf_ratio: the ratio of LF to HF
-    total_power: The sum of spectral powers pertaining to low and high frequency bands.
-    lfnu: The normalized spectral power pertaining to low frequency band, obtained by dividing the low frequency power by the total power.
-    hfnu: The normalized spectral power pertaining to low frequency band, obtained by dividing the high frequency power by the total power.
-    lnLF: The log transformed low frequency power.
-    lnHF: The log transformed high frequency power.
+    vlf: Spectral power pertaining to very low frequency band (0.0033 to 0.04 Hz by default.)
+    lf: spectral power pertaining to low frequency band (0.04 to 0.15 Hz by default.)
+    hf: spectral power pertaining to high frequency band (0.15 to 0.4 Hz by default.)
+    lf_hf_ratio: ratio of lf to hf
+    total_power: sum of vlf, lf and hf
+    lfnu: normalized spectral power pertaining to low frequency band (ratio of lf to total_power)
+    hfnu: normalized spectral power pertaining to high frequency band (ratio of hf to total_power)
+    lnLF: log transformed low-frequency power
+    lnHF: log transformed high-frequency power
+    vlf_peak: max peak of power spectral density in very low frequency band
+    lf_peak: max peak of power spectral density in low frequency band
+    hf_peak: max peak of power spectral density in high frequency band
 
     Args:
         ppi (ArrayLike): Peak-to-peak interval array (miliseconds).
@@ -66,7 +64,10 @@ def hrv_freq_features(ppi: ArrayLike, sampling_rate:int, prefix: str='hrv') -> d
     
     features_freq={}
     for key,func in FEATURES_FREQ.items():
-        features_freq["_".join([prefix, key])]=func(pxx,fxx)
+        try:
+            features_freq["_".join([prefix, key])]=func(pxx,fxx)
+        except:
+            features_freq["_".join([prefix, key])]=np.nan
 
     return features_freq
 

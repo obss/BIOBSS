@@ -1,22 +1,26 @@
 import numpy as np
 import cvxopt as cv
-from pyparsing import srange
 import neurokit2 as nk
 import pandas as pd
+from numpy.typing import ArrayLike
 
 
-def eda_decompose(eda_signal: np.ndarray, sampling_rate: float, method="highpass") -> pd.DataFrame:
-    """This methods takes an 1-D Array input and decompose it into tonic and phasic components.
+def eda_decompose(eda_signal: ArrayLike, sampling_rate: float, method: str="highpass") -> pd.DataFrame:
+    """Decomposes EDA signal into tonic and phasic components.
 
     Args:
-        eda_signal (arraylike): EDA signal
-        sampling_rate (float): Sampling rate of EDA signal
-        method  (str): Method selection to be used in decomposition
+        eda_signal (ArrayLike): EDA signal.
+        sampling_rate (float): Sampling rate of EDA signal (Hz).
+        method (str, optional): Method to be used for decomposition. Defaults to "highpass".
+
+    Raises:
+        ValueError: If sampling rate is not greater than 0.
+        Exception: If method is not implemented.
 
     Returns:
-        DataFrame: A Dataframe composed of Phasic and Tonic components of EDA signal
-
+        pd.DataFrame: A dataframe composed of Phasic and Tonic components of EDA signal
     """
+
     if sampling_rate <= 0:
         raise ValueError("Sampling rate must be greater than 0.")
 
@@ -35,33 +39,26 @@ def eda_decompose(eda_signal: np.ndarray, sampling_rate: float, method="highpass
 
     return decomposed
 
-
-def _eda_highpass(eda_signal, sampling_rate):
+def _eda_highpass(eda_signal:ArrayLike, sampling_rate:float) -> pd.DataFrame:
+    
     # Highpass filter for EDA signal decomposition
-
-    phasic = nk.signal_filter(
-        eda_signal, sampling_rate=sampling_rate, lowcut=0.05, method="butter"
-    )
-    tonic = nk.signal_filter(
-        eda_signal, sampling_rate=sampling_rate, highcut=0.05, method="butter"
-    )
+    phasic = nk.signal_filter(eda_signal, sampling_rate=sampling_rate, lowcut=0.05, method="butter")
+    tonic = nk.signal_filter(eda_signal, sampling_rate=sampling_rate, highcut=0.05, method="butter")
 
     out = pd.DataFrame({"EDA_Tonic": np.array(
         tonic), "EDA_Phasic": np.array(phasic)})
 
     return out
 
+def _eda_bandpass(eda_signal:ArrayLike, sampling_rate:float) -> pd.DataFrame:
 
-def _eda_bandpass(eda_signal, sampling_rate):
     # Bandpass filter for EDA signal decomposition
     phasic = nk.signal_filter(eda_signal, sampling_rate, 0.2, 1)
     tonic = nk.signal_filter(eda_signal, sampling_rate, highcut=0.2)
 
-    out = pd.DataFrame({"EDA_Tonic": np.array(
-        tonic), "EDA_Phasic": np.array(phasic)})
+    out = pd.DataFrame({"EDA_Tonic": np.array(tonic), "EDA_Phasic": np.array(phasic)})
 
     return out
-
 
 def _cvxEDA(
     y,

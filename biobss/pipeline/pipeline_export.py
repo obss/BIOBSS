@@ -1,3 +1,4 @@
+from __future__ import annotations
 from .pipeline import Pipeline
 import pandas as pd
 
@@ -21,3 +22,6 @@ def export_pipeline(pipeline: Pipeline, filename: str,include_data=False,include
         
     pd.to_pickle(pipeline, filename)
         
+        
+        
+##TODO add import pipeline function

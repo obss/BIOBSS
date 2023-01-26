@@ -1,6 +1,6 @@
 import numpy as np
 from scipy import stats, signal
-from numpy.typing import ArrayLike
+
 
 STAT_FEATURES = {
     "mean": lambda sig: np.mean(sig),
@@ -19,48 +19,63 @@ STAT_FEATURES = {
     "skew": lambda sig: stats.skew(sig),
     "kurtosis": lambda sig: stats.kurtosis(sig),
     "energy": lambda sig: np.sum(sig**2)/100,
-    "momentum": lambda sig: stats.moment(sig, 2),
-}
+    "momentum": lambda sig: stats.moment(sig, 2)
+    }
 
-
-def get_stat_features(sig: ArrayLike, sampling_rate, prefix) -> dict:
+def acc_stat_features(signals: list, signal_names:list, sampling_rate:float, magnitude:bool=False) -> dict:
     """Calculates statistical features.
 
     From https://towardsdatascience.com/feature-engineering-on-time-series-data-transforming-signal-data-of-a-smartphone-accelerometer-for-72cbe34b8a60
-
-    mean: Mean value of the signal.
-    std: Standard deviation of the signal.
-    mad: Mean absolute deviation of the signal.
-    min: Minimum value of the signal.
-    max: Maximum value of the signal.
-    range: Difference of maximum and minimum values.
-    median: Median value of the signal.
-    medad: Median absolute deviation of the signal.
-    iqr: Interquartile range of the signal. 
-    ncount: Number of negative values.
-    pcount: Number of positive values
-    abmean: Number of values above mean 
-    npeaks: Number of peaks
-    skew: Skewness
-    kurtosis: Kurtosis
-    energy: Signal energy
+    
+    mean: mean of the signal amplitude
+    std: standard deviation of the signal amplitude
+    mad: mean absolute deviation of the signal amplitude
+    min: minimum value of the signal amplitude
+    max: maximum value of the signal amplitude
+    range: difference of maximum and minimum values of the signal amplitude
+    median: median value of the signal amplitude
+    medad: median absolute deviation of the signal amplitude
+    iqr: interquartile range of the signal amplitude
+    ncount: number of negative values 
+    pcount: number of positibe values 
+    abmean: number of values above mean
+    npeaks: number of peaks
+    skew: Skewness of the signal
+    kurtosis: Kurtosis of the signal
+    energy: signal energy (the mean of sum of squares of the values in a window)
     momentum: Signal momentum
-    average resultant acceleration: [i.mean() for i in ((pd.Series(x_list)**2 + pd.Series(y_list)**2 + pd.Series(z_list)**2)**0.5)]
-    signal magnitude area: pd.Series(x_list).apply(lambda x: np.sum(abs(x)/100)) + pd.Series(y_list).apply(lambda x: np.sum(abs(x)/100)) + pd.Series(z_list).apply(lambda x: np.sum(abs(x)/100)) 
 
     Args:
-        sig (ArrayLike): Input signal
-        sampling_rate (_type_): Sampling rate
-        prefix (_type_): Prefix 
+        signals (list): List of input signal(s).
+        signal_names (list): List of signal name(s).
+        sampling_rate (float): Sampling rate of the ACC signal(s) (Hz).
+        magnitude (bool, optional): If True, features are also calculated for magnitude signal. Defaults to False.
 
     Returns:
-        dict: Dictionary of statistical features
+        dict: Dictionary of statistical features.
     """
 
+    if(np.ndim(signals) == 1):
+        signals = [signals]        
+    if(isinstance(signal_names, str)):
+        signal_names = [signal_names]
+
+    data = dict(zip(signal_names, signals))
+
+    if magnitude:
+        sum=0
+        for sig in signals:
+            sum += np.square(sig)
+
+        magn=np.sqrt(sum)
+        data['magn'] = magn
+
     features_stat={}
-
-    for key,func in STAT_FEATURES.items():
-        features_stat["_".join([prefix, key])]=func(sig)
-
+    for signal_name, signal in data.items():
+        for key,func in STAT_FEATURES.items():
+            try:
+                features_stat["_".join([signal_name, key])]=func(signal)
+            except:
+                features_stat["_".join([signal_name, key])]=np.nan
 
     return features_stat

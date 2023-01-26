@@ -3,6 +3,7 @@ import math
 from numpy.typing import ArrayLike
 from typing import Tuple
 
+
 #Constants to check for physiological viability and morphological features. 
 HR_MIN = 40
 HR_MAX = 180
@@ -17,82 +18,84 @@ MAX_VAR_DUR = 300
 MAX_VAR_AMP = 400
 CORR_TH = 0.9
 
-def detect_flatline_clipping(sig: ArrayLike, threshold: float, clipping: bool=False, flatline: bool=False, **kwargs) -> dict:
-    """Detects flatlines and clipped parts of the signal.
+def detect_clipped_segments(sig:ArrayLike, threshold_pos:float, threshold_neg:float=None) -> list:
+    """Detects clipped segments in a signal.
 
     Args:
-        ppg_sig (ArrayLike): PPG signal to be analyzed.
-        threshold (float): Threshold value for clipping/flatline detection.
-        clipping (bool, optional): True for clipping detection. Defaults to False.
-        flatline (bool, optional): True for flatline detection. Defaults to False.
-        **kwargs (dict): Keyword arguments
-
-    Keyword Args:
-        duration (float): Mimimum duration of flat segments for flatline detection.
-
-    Raises:
-        ValueError: If keyword argument 'duration' is not given.
+        sig (ArrayLike): Signal to be analyzed (ECG or PPG).
+        threshold_pos (float): Threshold for positive clipping
+        threshold_neg (float, optional): Threshold for negative clipping. Defaults to None.
 
     Returns:
-        dict: Dictionary of boundaries of clipped and/or flatline segments.
+        list: Dictionary of boundaries of clipped segments.
     """
-    
-    info={}
 
-    if clipping and not flatline:
-        clip_binary = np.where(sig > threshold)
-        clipped_segments=_detect_flat_segments(clip_binary)
-        info['Clipped segments']=clipped_segments
+    if threshold_neg is None:
+        threshold_neg = -threshold_pos
 
-    elif not clipping and flatline:
-        if 'duration' in kwargs:
-            if kwargs['duration'] <= 0:
-                raise ValueError("Duration must be greater than 0.")
+    start_indices = []
+    end_indices = []
+    in_clipped_segment = False
 
-            sig_dif=np.diff(sig)
-            flat_binary = np.where(abs(sig_dif) < threshold)
-            flat_segments=_detect_flat_segments(flat_binary)
+    for i, value in enumerate(sig):
 
-            flatline_segments=[]
-            for j in range(len(flat_segments)):
-                flat_dur=flat_segments[j][1]-flat_segments[j][0]
-                if flat_dur >= kwargs['duration']:
-                    flatline_segments.append(flat_segments[j])
-
-            info['Flatline segments']=flatline_segments
-        
+        if value >= threshold_pos or value <= threshold_neg:
+            if not in_clipped_segment:
+                # Start of a new clipped segment
+                start_indices.append(i)
+                in_clipped_segment = True
         else:
-            raise ValueError('Flatline detection requires a keyword argument: duration')
+            if in_clipped_segment:
+                # End of a clipped segment
+                end_indices.append(i - 1)
+                in_clipped_segment = False
+
+    if in_clipped_segment:
+        # The last segment extends until the end of the signal
+        end_indices.append(len(sig) - 1)
     
-    elif not clipping and not flatline:
-        raise ValueError("Either clipping or flatline must be True.")
+    return list(zip(start_indices, end_indices))
+    
+def detect_flatline_segments(sig:ArrayLike, min_duration:float, change_threshold:float) -> list:
+    """Detects flatline segments in a signal.
 
-    else:
-        raise ValueError("Both clipping and flatline cannot be True.")
+    Args:
+        sig (ArrayLike): Signal to be analyzed (ECG or PPG).
+        min_duration (float): Mimimum duration of flat segments for flatline detection.
+        change_threshold (float): Threshold for change in signal amplitude.
 
-    return info
+    Returns:
+        list: List of boundaries of flatline segments.
+    """
 
+    start_indices = []
+    end_indices = []
+    in_flatline_segment = False
+    
+    for i in range(1, len(sig)):
+        change = abs(sig[i] - sig[i - 1])
 
-def _detect_flat_segments(binary_array: ArrayLike) -> list:
-
-    #Copied from HeartPy
-    edges = np.where(np.diff(binary_array) > 1)[1]
-    segments = []
-
-    for i in range(0, len(edges)):
-        if i == 0: #if first flat segment
-            segments.append((binary_array[0][0], 
-                                      binary_array[0][edges[0]]))
-        elif i == len(edges) - 1:
-            #append last entry
-            segments.append((binary_array[0][edges[i]+1],
-                                      binary_array[0][-1]))    
+        if change <= change_threshold and sig[i] != max(sig) and sig[i] != min(sig):
+            if not in_flatline_segment:
+                # Start of a new flatline segment
+                start_indices.append(i - 1)
+                in_flatline_segment = True
         else:
-            segments.append((binary_array[0][edges[i-1] + 1],
-                                      binary_array[0][edges[i]]))    
+            if in_flatline_segment:
+                # End of a flatline segment
+                end_indices.append(i - 1)
+                in_flatline_segment = False
 
-    return segments
+    if in_flatline_segment:
+        # The last segment extends until the end of the signal
+        end_indices.append(len(sig) - 1)
 
+    # Filter segments by duration
+    durations = [end - start + 1 for start, end in zip(start_indices, end_indices)]
+    start_indices = [start for start, duration in zip(start_indices, durations) if duration >= min_duration]
+    end_indices = [end for end, duration in zip(end_indices, durations) if duration >= min_duration]
+    
+    return list(zip(start_indices, end_indices))
 
 def check_phys(peaks_locs: ArrayLike, sampling_rate: float) -> dict:
     """Checks for physiological viability.
@@ -103,8 +106,8 @@ def check_phys(peaks_locs: ArrayLike, sampling_rate: float) -> dict:
             For 10 seconds signal, it is 1.1; allowing for a single missing beat, it is 2.2 
 
     Args:
-        peaks_locs (ArrayLike): Peak locations
-        sampling_rate (float): Sampling rate of the PPG signal
+        peaks_locs (ArrayLike): Array of peak locations.
+        sampling_rate (float): Sampling rate of the input signal.
 
     Returns:
         dict: Dictionary of decisions.
@@ -138,8 +141,7 @@ def check_phys(peaks_locs: ArrayLike, sampling_rate: float) -> dict:
 
     return info
 
-
-def check_morph(peaks_locs: ArrayLike, peaks_amps: ArrayLike, troughs_locs: ArrayLike, troughs_amps: ArrayLike, sampling_rate: float) -> dict:
+def check_morph(sig:ArrayLike, peaks_locs: ArrayLike, troughs_locs: ArrayLike, sampling_rate: float) -> dict:
     """Checks for ranges of morphological features.
 
     Rule 1: Systolic phase duration(rise time): 0.08 to 0.49 s
@@ -149,26 +151,23 @@ def check_morph(peaks_locs: ArrayLike, peaks_amps: ArrayLike, troughs_locs: Arra
     Rule 5: Variation in PWA: 25-400% (Pulse wave amplitude: a threshold which was set heuristically)
 
     Args:
-        peaks_locs (Array): Peak locations
-        peaks_amps (Array): Peak amplitudes
-        troughs_locs (Array): Trough locations
-        troughs_amps (Array): Trough amplitudes
-        sampling_rate (float): Sampling rate of the PPG signal.
+        peaks_locs (Array): Array of peak locations.
+        peaks_amps (Array): Array of peak amplitudes.
+        troughs_locs (Array): Array of trough locations.
+        troughs_amps (Array): Array of trough amplitudes.
+        sampling_rate (float): Sampling rate of the input signal.
 
     Returns:
-        dict: Dictionary of decisions
+        dict: Dictionary of decisions.
     """
     if sampling_rate <= 0:
         raise ValueError("Sampling rate must be greater than 0.")
 
-    if len(peaks_locs) != len(peaks_amps):
-        raise ValueError("Lengths of peak location and peak amplitude arrays do not match!")
-
-    if len(troughs_locs) != len(troughs_amps):
-        raise ValueError("Lengths of trough location and peak amplitude arrays do not match!")
-
     if len(peaks_locs) != len(troughs_locs) - 1:
         raise ValueError("Number of peaks and troughs are not compatible!")
+
+    peaks_amps = sig[peaks_locs]
+    troughs_amps = sig[troughs_locs]
 
     info={}
 
@@ -217,12 +216,11 @@ def check_morph(peaks_locs: ArrayLike, peaks_amps: ArrayLike, troughs_locs: Arra
 
     return info
 
-
 def template_matching(sig: ArrayLike, peaks_locs: ArrayLike, corr_th: float=CORR_TH) -> Tuple[float,bool]:
-    """Applies template matching method for signal quality assessment
+    """Applies template matching method for signal quality assessment.
 
     Args:
-        ppg_sig (ArrayLike): Signal to be analyzed.
+        sig (ArrayLike): Signal to be analyzed.
         peaks_locs (ArrayLike): Peak locations (Systolic peaks for PPG signal, R peaks for ECG signal).
         corr_th (float, optional): Threshold for the correlation coefficient above which the signal is considered to be valid. Defaults to CORR_TH.
 

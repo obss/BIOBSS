@@ -1,10 +1,26 @@
 import numpy as np
+from numpy.typing import ArrayLike
 
 
-def unify_windows(windows,timestamps,window_size,step_size,sampling_rate):
-    
+def unify_windows(windows: ArrayLike, timestamps: ArrayLike, window_size: float, step_size:float, sampling_rate:float) -> tuple:
+    """Unifies windows into a single array.
+
+    Args:
+        windows (ArrayLike): Collection of windows.
+        timestamps (ArrayLike): Collection of timestamps.
+        window_size (float): Window size.
+        step_size (float): Step size.
+        sampling_rate (float): Sampling rate of the signal (Hz).
+
+    Raises:
+        ValueError: If windows and timestamps do not have the same length.
+
+    Returns:
+        tuple: Unified signal, unified time array
+    """
     window_size = int(window_size*sampling_rate)
     step_size = int(step_size*sampling_rate)
+    
     if(len(windows)!=len(timestamps)):
         raise ValueError('windows and timestamps must have the same length')
     

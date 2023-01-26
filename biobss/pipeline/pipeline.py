@@ -1,15 +1,18 @@
-import re
-import time
-from .. import preprocess
+from __future__ import annotations
+#from .. import preprocess
 from .bioprocess_queue import Process_List
 from .bio_data import Bio_Data
-from .bio_channel import Bio_Channel
+from .bio_channel import Channel
 from typing import Union
 import numpy as np
 import pandas as pd
 from numpy.typing import ArrayLike
 from .feature_extraction import Feature
 from copy import copy
+from .feature_queue import Feature_Queue
+from .channel_input import *
+from .event_input import *
+from ..preprocess.signal_segment import segment_signal
 
 """a biological signal processing object with preprocessing and postprocessing steps"""
 
@@ -21,7 +24,6 @@ class Bio_Pipeline:
         windowed_process=False,
         window_size=None,
         step_size=None,
-        features_list=[],
     ):
         if windowed_process:
             self.windowed = True
@@ -34,64 +36,38 @@ class Bio_Pipeline:
             self.step_size = "Not Windowed"
             self.windowed = False
 
-        self.preprocess_queue = Process_List(name="Preprocess_Queue")
-        self.process_queue = Process_List(name="Process_Queue")
-        self.postprocess_queue = Process_List(name="Postprocess_Queue")
+
+        self.process_queue = Process_List(name="Process_List")
         self.features = pd.DataFrame()
-        self.feature_list = features_list
+        self.feature_list = Feature_Queue()
 
     def set_input(
         self,
-        signal: Union[Bio_Data, ArrayLike, Bio_Channel],
+        data: Union[Bio_Data, ArrayLike, Channel],
         sampling_rate=None,
         name=None,
-        timestamp=None,
-        timestamp_start=0,
-        timestamp_resolution='ms',
+        is_event=False,
+        **kwargs,
     ):
 
-        if isinstance(signal, Bio_Data):
-            self.input = signal
-        elif isinstance(signal, Bio_Channel):
+        if isinstance(data, Bio_Data):
+            self.input = data
+        elif isinstance(data, Channel):
             self.input = Bio_Data()
-            self.input.add_channel(signal)
+            self.input.add_channel(data)
         else:
             if sampling_rate is None:
                 raise ValueError(
                     "If signal is not a Bio_Data or Bio_Channel object, sampling_rate must be specified"
                 )
-            if name is None:
+            if name is None and not isinstance(data,dict):
                 raise ValueError(
                     "If signal is not a Bio_Data or Bio_Channel object, name must be specified"
                 )
-            self.input = Bio_Data()
-            if isinstance(signal, (np.ndarray, pd.Series, list)):
-                self.input.add_channel(
-                    Bio_Channel(
-                        np.array(signal),
-                        sampling_rate=sampling_rate,
-                        name=name,
-                        timestamp=timestamp,
-                        timestamp_start=timestamp_start,
-                        timestamp_resolution=timestamp_resolution,
-                    )
-                )
-            elif isinstance(signal, pd.DataFrame):
-                for column in signal.columns:
-                    self.input.add_channel(
-                        Bio_Channel(
-                            signal[column],
-                            sampling_rate=sampling_rate,
-                            name=column,
-                            timestamp=signal.index,
-                            timestamp_start=timestamp_start,
-                            timestamp_resolution=timestamp_resolution,
-                        )
-                    )
+            if(is_event):
+                self.input = convert_event(data, sampling_rate, name, **kwargs)
             else:
-                raise ValueError(
-                    "Input signal must be a Bio_Data object, a pandas DataFrame, a pandas Series, a numpy array, or a list"
-                )
+                self.input=convert_channel(data, sampling_rate, name, **kwargs)
 
     def set_window_parameters(self, window_size=10, step_size=5):
         self.window_size = window_size
@@ -100,38 +76,32 @@ class Bio_Pipeline:
     def convert_windows(self):
         for ch in self.data.get_channel_names():
             channel = self.data[ch]
-            windowed = preprocess.segment_signal(
-                channel.channel,
-                self.window_size,
-                self.step_size,
+            if(isinstance(channel,Event_Channel)):
+                is_event = True
+            else:
+                is_event = False
+                
+            windowed = segment_signal(
+                signal=channel.channel,
+                window_size=self.window_size,
+                step_size=self.step_size,
                 sampling_rate=channel.sampling_rate,
+                is_event=is_event,
             )
-            timestamps = preprocess.segment_signal(
-                channel.timestamp,
-                self.window_size,
-                self.step_size,
-                sampling_rate=channel.sampling_rate,
-            )
-            self.data.modify_signal(
-                windowed,
-                channel_name=channel.signal_name,
-                timestamp=timestamps,
-                sampling_rate=channel.sampling_rate,
-                timestamp_resolution=channel.timestamp_resolution
-            )
-
+            if(is_event):
+                windowed = Event_Channel(windowed,name = channel.signal_name,sampling_rate = channel.sampling_rate)
+            else:
+                windowed = Channel(windowed,name =channel.signal_name,sampling_rate = channel.sampling_rate)
+          
+        self.data[ch] = windowed
+        self.feature_list.windowed = True
         self.segmented = True
-
+        pass
     def extract_features(self):
-        for f in self.feature_list:
-            self.calculate_feature(f)
+        self.features = self.feature_list.run_feature_queue(self.data)
 
-    def add_feature_step(self, feature: Feature):
-        self.feature_list.append(feature)
-
-    def calculate_feature(self, feature: Feature):
-        self.features = pd.concat(
-            [self.features, feature.run(self.data)], axis=1)
+    def add_feature_step(self, feature: Feature,input_signals,*args,**kwargs):
+        self.feature_list.add_feature(feature,input_signals,*args,**kwargs)
 
     def run_pipeline(self):        
         try:
@@ -139,10 +109,9 @@ class Bio_Pipeline:
         except AttributeError:
             raise ValueError("Input data must be set before running pipeline")
         
-        self.data = self.preprocess_queue.run_process_queue(self.data)
+        # self.data = self.preprocess_queue.run_process_queue(self.data)
         if self.windowed:
             self.convert_windows()
-
         self.data = self.process_queue.run_process_queue(self.data)
         
     def get_features(self):
@@ -169,11 +138,7 @@ class Bio_Pipeline:
             
     def __repr__(self) -> str:
         representation = "Bio_Pipeline:\n"
-        representation += "\tPreprocessors: " + \
-            str(self.preprocess_queue) + "\n"
         representation += "\tProcessors: " + str(self.process_queue) + "\n"
-        representation += "\tPostprocessors: " + \
-            str(self.postprocess_queue) + "\n"
         representation += "\tWindow Size(Seconds): " + \
             str(self.window_size) + "\n"
         representation += "\tStep Size: " + str(self.step_size) + "\n"

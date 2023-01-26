@@ -6,3 +6,5 @@ from .ppg_freqdomain import *
 from .ppg_statistical import *
 from .ppg_filter import *
 from .ppg_plot import *
+from .vpg_features import *
+from .apg_features import *

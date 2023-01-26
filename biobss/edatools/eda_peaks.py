@@ -1,12 +1,25 @@
 import neurokit2 as nk
-import numpy as np
+from numpy.typing import ArrayLike
+from typing import Tuple
 
+def eda_detectpeaks(phasic_signal: ArrayLike, sampling_rate: float) -> Tuple:
+    """Detects peaks from phasic component of EDA signal.
 
-def find_peaks(phasic_signal: np.ndarray, sampling_rate: float):
-    
+    Args:
+        phasic_signal (ArrayLike): Phasic EDA signal.
+        sampling_rate (float): Sampling rate of the EDA signal (Hz).
+
+    Raises:
+        ValueError: If sampling rate is not greater than 0.
+
+    Returns:
+        Tuple: Peak array, info
+    """
     if sampling_rate <= 0:
         raise ValueError("Sampling rate must be greater than 0.")
 
+    if(not isinstance(phasic_signal, pd.Series)):
+        phasic_signal = pd.Series(phasic_signal)
     # This function is a placeholder peak detection
     peak_signal, info = nk.eda_peaks(
         phasic_signal.values,

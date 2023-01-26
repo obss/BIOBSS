@@ -17,14 +17,14 @@ FEATURES_NL = {
 def hrv_nl_features(ppi: ArrayLike, sampling_rate:int, prefix: str='hrv') -> dict:
     """Calculates nonlinear hrv parameters.
 
-    SD1: the standard deviation of the Poincare plot perpendicular to the line of identity
-    SD2: the standard deviation of the Poincare plot along to the line of identity
-    SD2SD1: the ratio of SD2 to SD1
-    CSI:
-    CVI:
-    CSI_modified:
-    ApEn: approximate entropy of intervals
-    SampEn: Sample entropy of intervals
+    SD1: standard deviation of Poincare plot perpendicular to the line of identity
+    SD2: standard deviation of Poincare plot along the line of identity
+    SD2SD1:  ratio of SD2 to SD1
+    CSI: cardiac stress index
+    CVI: cardiac vagal index
+    CSI_modified: modified cardiac stress index
+    ApEn: approximate entropy of peak to peak intervals
+    SampEn: sample entropy of peak to peak intervals
  
     Args:
         ppi (ArrayLike): Peak-to-peak interval array (miliseconds)
@@ -39,7 +39,10 @@ def hrv_nl_features(ppi: ArrayLike, sampling_rate:int, prefix: str='hrv') -> dic
     features_nl={}
 
     for key,func in FEATURES_NL.items():
-        features_nl["_".join([prefix, key])]=func(ppi)
+        try:
+            features_nl["_".join([prefix, key])]=func(ppi)
+        except:
+            features_nl["_".join([prefix, key])]=np.nan
 
     return features_nl
 
@@ -47,11 +50,9 @@ def hrv_nl_features(ppi: ArrayLike, sampling_rate:int, prefix: str='hrv') -> dic
 def _SD1(ppi):
     return np.std(((ppi[:-1]-ppi[1:])/np.sqrt(2)), ddof=1)
     
-#np.sqrt( 0.5 * (np.std(np.diff(ppi), ddof=1) ** 2))*1000
 
 def _SD2(ppi):
     return np.std(((ppi[:-1]+ppi[1:])/np.sqrt(2)), ddof=1)
     
-#np.sqrt(2 * (np.std(ppi, ddof=1) ** 2) - 0.5 * (np.std(np.diff(ppi), ddof=1) ** 2))*1000
 
 

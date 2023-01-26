@@ -1,24 +1,25 @@
 from scipy import signal
 from numpy.typing import ArrayLike
-import warnings
 
 from biobss.ppgtools.ppg_filter import *
 from biobss.ecgtools.ecg_filter import *
 from biobss.imutools.acc_filter import *
+from biobss.edatools.eda_filter import *
 
-def filter_signal(sig: ArrayLike, sampling_rate: float, filter_type: str=None, N: int=None, f_lower: float=None, f_upper: float=None, axis: int=0, signal_type: str=None, method: str=None, **kwargs) -> ArrayLike:
+
+def filter_signal(sig: ArrayLike, sampling_rate: float, signal_type: str=None, method: str=None, filter_type: str=None, N: int=None, f_lower: float=None, f_upper: float=None, axis: int=0, **kwargs) -> ArrayLike:
     """Filters a signal using a N-th order Butterworth filter unless signal_type is specified. If signal_type is specified, predefined filter parameters are used.
 
     Args:
         sig (ArrayLike): Signal to be filtered.
         sampling_rate (float): The sampling frequency of the signal (Hz).
+        signal_type (str, optional): Type of the input signal. If None, a Butterworth filter is used and the filter parameters should be defined. If a value is passed, the predefined filter parameters for each signal type (most common in the literature) are used for filtering. Defaults to None.
+        method (str, optional): Filtering method for the selected signal_type. Defaults to None.
         filter_type (str, optional): Type of the filter. Can be 'lowpass', 'highpass' or 'bandpass'. Defaults to None.
-        N (int): Order of the filter. Defaults to None.
+        N (int, optional): Order of the filter. Defaults to None.
         f_lower (float, optional): Lower cutoff frequency (Hz). Defaults to None.
         f_upper (float, optional): Upper cutoff frequency (Hz). Defaults to None.
         axis (int, optional): The axis alongh which filtering is applied. Defaults to 0.
-        signal_type (str, optional): Type of the input signal. If None, a Butterworth filter is used and the filter parameters should be defined. If a value is passed, the default filter parameters for each signal type (most common in the literature) are used for filtering. Defaults to None.
-        method (str, optional): Filtering method for the selected signal_type. Defaults to None.
 
     Raises:
         ValueError: If sampling rate is less than or equal to zero.
@@ -32,6 +33,7 @@ def filter_signal(sig: ArrayLike, sampling_rate: float, filter_type: str=None, N
     Returns:
         ArrayLike: Filtered signal.
     """
+
     if sampling_rate <= 0:
         raise ValueError("Sampling rate must be greater than 0.")
 
@@ -90,25 +92,11 @@ def filter_signal(sig: ArrayLike, sampling_rate: float, filter_type: str=None, N
 
         elif signal_type == 'ACC':
             filtered_sig = filter_acc(sig, sampling_rate, method=method)
-
+        
         elif signal_type == 'EDA':
-            filtered_sig = filter_eda(method=method)
+            filtered_sig = filter_eda(sig, sampling_rate, method=method)
 
         else:
             raise ValueError(f"Signal type should be one of {valid_types}.")
 
     return filtered_sig
-
-
-def filter_eda(method):
-
-    if method is None:
-        N = 2
-        filter_type = 'bandpass'
-        f_lower = 0.5
-        f_upper = 5
-        warnings.warn(f"Default parameters will be used for filtering. {N}th order {method} {filter_type} filter with f1={f_lower} and f2={f_upper}.")
-
-
-
-

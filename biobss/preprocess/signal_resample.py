@@ -1,23 +1,22 @@
 import numpy as np
 from scipy import signal as sg
 from numpy.typing import ArrayLike
-from ..pipeline.bio_channel import Bio_Channel
+from ..pipeline.bio_channel import Channel
 
 
 def resample_signal(signal: ArrayLike, sampling_rate: float, target_sampling_rate: float, return_time: bool=False, t: ArrayLike=None) -> ArrayLike:
     """Resamples the given signal.
 
     Args:
-        signal (ArrayLike): Signal to be analyzed.
-        sample_rate (float): Sampling rate of the signal.
-        target_sample_rate (float): Expected sample rate after resampling.
+        signal (ArrayLike): Input signal.
+        sample_rate (float): Sampling rate of the signal (Hz).
+        target_sample_rate (float): Expected sample rate after resampling (Hz).
         return_time (bool, optional): If True, time array is returned. Defaults to False.
         t (ArrayLike, optional): Time array. Defaults to None.
 
     Returns:
         ArrayLike: Resampled signal.
     """
-
     if sampling_rate <= 0:
         raise ValueError("Sampling rate must be greater than 0.")
         
@@ -40,17 +39,20 @@ def resample_signal(signal: ArrayLike, sampling_rate: float, target_sampling_rat
     return resampled
 
 
-def resample_signal_object(signal: Bio_Channel, target_sample_rate: float) -> Bio_Channel:
-    """_summary_
+def resample_signal_object(signal: Channel, target_sample_rate: float) -> Channel:
+    """Resamples the given signal. 
 
     Args:
-        signal (Signal): input signal
-        target_sample_rate (float): Expected sample rate after resampling
+        signal (Bio_Channel): Input signal.
+        target_sample_rate (float): Expected sample rate after resampling (Hz).
+
+    Raises:
+        ValueError: If signal is not an instance of Bio_Channel class.
 
     Returns:
-        Signal: resampled signal
+        Bio_Channel: Resampled signal.
     """
-    if(not isinstance(signal, Bio_Channel)):
+    if(not isinstance(signal, Channel)):
         raise ValueError("Expecting a Signal object")
 
     if(len(signal.channel.shape) < 2):
