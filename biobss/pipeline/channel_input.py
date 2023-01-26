@@ -22,8 +22,48 @@ def convert_channel(signal,sampling_rate=None,name=None,n_windows=1,n_signal=Non
         output=_from_tuple(signal,sampling_rate,name,n_windows,n_signal,index)
     elif(isinstance(signal, np.ndarray)):
         output=_from_array(signal,sampling_rate,name,n_windows,n_signal,index)
+    elif(isinstance(signal, pd.DataFrame)):
+        output=_from_dataframe(signal,sampling_rate,name,n_windows,n_signal,index)
         
-        
+    return output
+
+
+def _from_dataframe(signal,sampling_rate=None,name=None,n_windows=1,n_signal=None,index=None):
+    if(name is not None):
+        if(isinstance(name, str)):
+            if(len(signal.columns) == 1):
+                signal.columns = [name]
+            else:
+                raise ValueError("name must be a list of strings if signal has more than one column")            
+        elif(isinstance(name, list)):
+            if(len(signal.columns) == len(name)):
+                signal.columns = name
+            else:
+                raise ValueError("name must be a list of strings if signal has more than one column")
+            
+    if(index is not None):
+        if(isinstance(index,str)):
+            signal = signal[index]
+        elif(isinstance(index,list)):
+            if(any([not isinstance(key,str) for key in index])):
+                raise ValueError("index must be a list of strings")
+        else:
+            new_signal = {}
+            for key in index:
+                new_signal[key] = signal[key]
+            signal = new_signal
+    
+    _check_sampling_rate(sampling_rate,n_signal)
+    if(len(signal.keys())==0):
+        raise ValueError("signal must have at least one key")
+    output = Bio_Data() 
+    for key in signal.keys():
+        data = signal[key]
+        data = np.array(data)
+        data = data.reshape(n_windows,-1)
+        data = data.squeeze()
+        output.add_channel(Channel(data,key,sampling_rate))
+    
     return output
         
 def _from_dict(signal,sampling_rate=None,name=None,n_windows=1,n_signal=None,index=None):
