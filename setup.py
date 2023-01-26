@@ -5,7 +5,7 @@ import re
 
 def get_long_description():
     base_dir = os.path.abspath(os.path.dirname(__file__))
-    with io.open(os.path.join(base_dir, "README.md"), encoding="utf-8") as f:
+    with io.open(os.path.join(base_dir, "readme.md"), encoding="utf-8") as f:
         return f.read()
 
 def get_requirements():
