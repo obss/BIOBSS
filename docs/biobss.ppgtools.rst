@@ -1,10 +1,9 @@
-biobss.ppgtools package
+ppgtools
 =======================
 
-Submodules
-----------
 
-biobss.ppgtools.ppg\_features module
+
+ppg\_features 
 ------------------------------------
 
 .. automodule:: biobss.ppgtools.ppg_features
@@ -12,7 +11,7 @@ biobss.ppgtools.ppg\_features module
    :undoc-members:
    :show-inheritance:
 
-biobss.ppgtools.ppg\_filter module
+ppg\_filter 
 ----------------------------------
 
 .. automodule:: biobss.ppgtools.ppg_filter
@@ -20,7 +19,7 @@ biobss.ppgtools.ppg\_filter module
    :undoc-members:
    :show-inheritance:
 
-biobss.ppgtools.ppg\_freqdomain module
+ppg\_freqdomain 
 --------------------------------------
 
 .. automodule:: biobss.ppgtools.ppg_freqdomain
@@ -28,7 +27,7 @@ biobss.ppgtools.ppg\_freqdomain module
    :undoc-members:
    :show-inheritance:
 
-biobss.ppgtools.ppg\_peaks module
+ppg\_peaks 
 ---------------------------------
 
 .. automodule:: biobss.ppgtools.ppg_peaks
@@ -36,7 +35,7 @@ biobss.ppgtools.ppg\_peaks module
    :undoc-members:
    :show-inheritance:
 
-biobss.ppgtools.ppg\_plot module
+ppg\_plot 
 --------------------------------
 
 .. automodule:: biobss.ppgtools.ppg_plot
@@ -44,7 +43,7 @@ biobss.ppgtools.ppg\_plot module
    :undoc-members:
    :show-inheritance:
 
-biobss.ppgtools.ppg\_sqa module
+ppg\_sqa 
 -------------------------------
 
 .. automodule:: biobss.ppgtools.ppg_sqa
@@ -52,7 +51,7 @@ biobss.ppgtools.ppg\_sqa module
    :undoc-members:
    :show-inheritance:
 
-biobss.ppgtools.ppg\_statistical module
+ppg\_statistical 
 ---------------------------------------
 
 .. automodule:: biobss.ppgtools.ppg_statistical
@@ -60,7 +59,7 @@ biobss.ppgtools.ppg\_statistical module
    :undoc-members:
    :show-inheritance:
 
-biobss.ppgtools.ppg\_timedomain module
+ppg\_timedomain 
 --------------------------------------
 
 .. automodule:: biobss.ppgtools.ppg_timedomain
@@ -68,8 +67,7 @@ biobss.ppgtools.ppg\_timedomain module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
+
 
 .. automodule:: biobss.ppgtools
    :members:

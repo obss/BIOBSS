@@ -1,4 +1,4 @@
-BIOBSS Pipeline Creation Tool (biobss.pipeline)
+pipeline
 ==================================================
 
 This pipeline creation tool is designed to help you create a 
@@ -8,10 +8,9 @@ you should be able to use this tool to create a pipeline that takes your
 signal as an input and produce processed signal and a feature vector as output.
 
 
-Submodules
---------------------------------------------------
 
-biobss.pipeline.bio\_channel module
+
+bio\_channel
 -----------------------------------
 
 .. automodule:: biobss.pipeline.bio_channel
@@ -19,7 +18,7 @@ biobss.pipeline.bio\_channel module
    :undoc-members:
    :show-inheritance:
 
-biobss.pipeline.bio\_data module
+bio\_data 
 --------------------------------
 
 .. automodule:: biobss.pipeline.bio_data
@@ -27,7 +26,7 @@ biobss.pipeline.bio\_data module
    :undoc-members:
    :show-inheritance:
 
-biobss.pipeline.bio\_process module
+bio\_process 
 -----------------------------------
 
 .. automodule:: biobss.pipeline.bio_process
@@ -35,7 +34,7 @@ biobss.pipeline.bio\_process module
    :undoc-members:
    :show-inheritance:
 
-biobss.pipeline.bioprocess\_queue module
+bioprocess\_queue
 ----------------------------------------
 
 .. automodule:: biobss.pipeline.bioprocess_queue
@@ -43,7 +42,42 @@ biobss.pipeline.bioprocess\_queue module
    :undoc-members:
    :show-inheritance:
 
-biobss.pipeline.feature\_extraction module
+channel\_input
+------------------------------------------
+
+.. automodule:: biobss.pipeline.channel_input
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+channel\_output
+------------------------------------------
+
+.. automodule:: biobss.pipeline.channel_output
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+event\_channel
+------------------------------------------
+
+.. automodule:: biobss.pipeline.event_channel
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+event\_input
+------------------------------------------
+
+.. automodule:: biobss.pipeline.event_input
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+feature\_extraction
 ------------------------------------------
 
 .. automodule:: biobss.pipeline.feature_extraction
@@ -51,15 +85,24 @@ biobss.pipeline.feature\_extraction module
    :undoc-members:
    :show-inheritance:
 
-biobss.pipeline.pipeline module
--------------------------------
+feature\_queue
+------------------------------------------
 
-.. automodule:: biobss.pipeline.pipeline
+.. automodule:: biobss.pipeline.Feature_queue
    :members:
    :undoc-members:
    :show-inheritance:
 
-biobss.pipeline.pipeline\_export module
+
+io\_mapper
+------------------------------------------
+
+.. automodule:: biobss.pipeline.io_mapper
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pipeline\_export 
 ---------------------------------------
 
 .. automodule:: biobss.pipeline.pipeline_export
@@ -67,8 +110,15 @@ biobss.pipeline.pipeline\_export module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
+pipeline 
+-------------------------------
+
+.. automodule:: biobss.pipeline.pipeline
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
 
 .. automodule:: biobss.pipeline
    :members:

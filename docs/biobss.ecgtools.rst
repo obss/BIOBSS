@@ -1,10 +1,9 @@
-biobss.ecgtools package
+ecgtools
 =======================
 
-Submodules
-----------
 
-biobss.ecgtools.ecg\_features module
+
+ecg\_features 
 ------------------------------------
 
 .. automodule:: biobss.ecgtools.ecg_features
@@ -12,7 +11,7 @@ biobss.ecgtools.ecg\_features module
    :undoc-members:
    :show-inheritance:
 
-biobss.ecgtools.ecg\_filter module
+ecg\_filter 
 ----------------------------------
 
 .. automodule:: biobss.ecgtools.ecg_filter
@@ -20,7 +19,7 @@ biobss.ecgtools.ecg\_filter module
    :undoc-members:
    :show-inheritance:
 
-biobss.ecgtools.ecg\_peaks module
+ecg\_peaks 
 ---------------------------------
 
 .. automodule:: biobss.ecgtools.ecg_peaks
@@ -28,7 +27,7 @@ biobss.ecgtools.ecg\_peaks module
    :undoc-members:
    :show-inheritance:
 
-biobss.ecgtools.ecg\_plot module
+ecg\_plot 
 --------------------------------
 
 .. automodule:: biobss.ecgtools.ecg_plot
@@ -36,7 +35,7 @@ biobss.ecgtools.ecg\_plot module
    :undoc-members:
    :show-inheritance:
 
-biobss.ecgtools.ecg\_sqa module
+ecg\_sqa 
 -------------------------------
 
 .. automodule:: biobss.ecgtools.ecg_sqa
@@ -44,8 +43,7 @@ biobss.ecgtools.ecg\_sqa module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
+
 
 .. automodule:: biobss.ecgtools
    :members:

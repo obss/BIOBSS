@@ -1,10 +1,9 @@
-biobss.resptools package
+resptools
 ========================
 
-Submodules
-----------
 
-biobss.resptools.resp\_estimation module
+
+resp\_estimation 
 ----------------------------------------
 
 .. automodule:: biobss.resptools.resp_estimation
@@ -12,7 +11,7 @@ biobss.resptools.resp\_estimation module
    :undoc-members:
    :show-inheritance:
 
-biobss.resptools.resp\_plot module
+resp\_plot 
 ----------------------------------
 
 .. automodule:: biobss.resptools.resp_plot
@@ -20,7 +19,7 @@ biobss.resptools.resp\_plot module
    :undoc-members:
    :show-inheritance:
 
-biobss.resptools.resp\_preprocess module
+resp\_preprocess 
 ----------------------------------------
 
 .. automodule:: biobss.resptools.resp_preprocess
@@ -28,8 +27,7 @@ biobss.resptools.resp\_preprocess module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
+
 
 .. automodule:: biobss.resptools
    :members:

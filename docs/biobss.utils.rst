@@ -1,19 +1,13 @@
-biobss.utils package
+utils
 ====================
 
-Submodules
-----------
-
-biobss.utils.sample\_loader module
+sample\_loader
 ----------------------------------
 
 .. automodule:: biobss.utils.sample_loader
    :members:
    :undoc-members:
    :show-inheritance:
-
-Module contents
----------------
 
 .. automodule:: biobss.utils
    :members:

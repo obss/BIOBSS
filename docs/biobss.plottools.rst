@@ -1,10 +1,9 @@
-biobss.plottools package
+plottools
 ========================
 
-Submodules
-----------
 
-biobss.plottools.plot\_tools module
+
+plot\_tools 
 -----------------------------------
 
 .. automodule:: biobss.plottools.plot_tools
@@ -12,16 +11,8 @@ biobss.plottools.plot\_tools module
    :undoc-members:
    :show-inheritance:
 
-biobss.plottools.window\_plotter module
----------------------------------------
 
-.. automodule:: biobss.plottools.window_plotter
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
-Module contents
----------------
 
 .. automodule:: biobss.plottools
    :members:

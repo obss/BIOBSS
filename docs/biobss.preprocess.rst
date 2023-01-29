@@ -1,10 +1,9 @@
-biobss.preprocess package
+preprocess
 =========================
 
-Submodules
-----------
 
-biobss.preprocess.signal\_detectpeaks module
+
+signal\_detectpeaks
 --------------------------------------------
 
 .. automodule:: biobss.preprocess.signal_detectpeaks
@@ -12,7 +11,7 @@ biobss.preprocess.signal\_detectpeaks module
    :undoc-members:
    :show-inheritance:
 
-biobss.preprocess.signal\_filter module
+signal\_filter
 ---------------------------------------
 
 .. automodule:: biobss.preprocess.signal_filter
@@ -20,7 +19,7 @@ biobss.preprocess.signal\_filter module
    :undoc-members:
    :show-inheritance:
 
-biobss.preprocess.signal\_normalize module
+signal\_normalize
 ------------------------------------------
 
 .. automodule:: biobss.preprocess.signal_normalize
@@ -28,7 +27,7 @@ biobss.preprocess.signal\_normalize module
    :undoc-members:
    :show-inheritance:
 
-biobss.preprocess.signal\_resample module
+signal\_resample
 -----------------------------------------
 
 .. automodule:: biobss.preprocess.signal_resample
@@ -36,7 +35,7 @@ biobss.preprocess.signal\_resample module
    :undoc-members:
    :show-inheritance:
 
-biobss.preprocess.signal\_segment module
+signal\_segment
 ----------------------------------------
 
 .. automodule:: biobss.preprocess.signal_segment
@@ -44,7 +43,7 @@ biobss.preprocess.signal\_segment module
    :undoc-members:
    :show-inheritance:
 
-biobss.preprocess.unify\_windows module
+unify\_windows
 ---------------------------------------
 
 .. automodule:: biobss.preprocess.unify_windows
@@ -52,8 +51,7 @@ biobss.preprocess.unify\_windows module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
+
 
 .. automodule:: biobss.preprocess
    :members:

@@ -1,10 +1,9 @@
-biobss.imutools package
+imutools
 =======================
 
-Submodules
-----------
 
-biobss.imutools.acc\_activityindex module
+
+acc\_activityindex 
 -----------------------------------------
 
 .. automodule:: biobss.imutools.acc_activityindex
@@ -12,7 +11,7 @@ biobss.imutools.acc\_activityindex module
    :undoc-members:
    :show-inheritance:
 
-biobss.imutools.acc\_correlation module
+acc\_correlation 
 ---------------------------------------
 
 .. automodule:: biobss.imutools.acc_correlation
@@ -20,7 +19,7 @@ biobss.imutools.acc\_correlation module
    :undoc-members:
    :show-inheritance:
 
-biobss.imutools.acc\_features module
+acc\_features 
 ------------------------------------
 
 .. automodule:: biobss.imutools.acc_features
@@ -28,7 +27,7 @@ biobss.imutools.acc\_features module
    :undoc-members:
    :show-inheritance:
 
-biobss.imutools.acc\_filter module
+acc\_filter 
 ----------------------------------
 
 .. automodule:: biobss.imutools.acc_filter
@@ -36,7 +35,7 @@ biobss.imutools.acc\_filter module
    :undoc-members:
    :show-inheritance:
 
-biobss.imutools.acc\_freqdomain module
+acc\_freqdomain 
 --------------------------------------
 
 .. automodule:: biobss.imutools.acc_freqdomain
@@ -44,7 +43,7 @@ biobss.imutools.acc\_freqdomain module
    :undoc-members:
    :show-inheritance:
 
-biobss.imutools.acc\_plot module
+acc\_plot 
 --------------------------------
 
 .. automodule:: biobss.imutools.acc_plot
@@ -52,7 +51,7 @@ biobss.imutools.acc\_plot module
    :undoc-members:
    :show-inheritance:
 
-biobss.imutools.acc\_statistical module
+acc\_statistical 
 ---------------------------------------
 
 .. automodule:: biobss.imutools.acc_statistical
@@ -60,8 +59,7 @@ biobss.imutools.acc\_statistical module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
+
 
 .. automodule:: biobss.imutools
    :members:

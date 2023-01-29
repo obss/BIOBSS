@@ -1,10 +1,9 @@
-biobss.hrvtools package
+hrvtools
 =======================
 
-Submodules
-----------
 
-biobss.hrvtools.hrv\_features module
+
+hrv\_features 
 ------------------------------------
 
 .. automodule:: biobss.hrvtools.hrv_features
@@ -12,7 +11,7 @@ biobss.hrvtools.hrv\_features module
    :undoc-members:
    :show-inheritance:
 
-biobss.hrvtools.hrv\_freqdomain module
+hrv\_freqdomain 
 --------------------------------------
 
 .. automodule:: biobss.hrvtools.hrv_freqdomain
@@ -20,7 +19,7 @@ biobss.hrvtools.hrv\_freqdomain module
    :undoc-members:
    :show-inheritance:
 
-biobss.hrvtools.hrv\_nonlinear module
+hrv\_nonlinear 
 -------------------------------------
 
 .. automodule:: biobss.hrvtools.hrv_nonlinear
@@ -28,7 +27,7 @@ biobss.hrvtools.hrv\_nonlinear module
    :undoc-members:
    :show-inheritance:
 
-biobss.hrvtools.hrv\_timedomain module
+hrv\_timedomain 
 --------------------------------------
 
 .. automodule:: biobss.hrvtools.hrv_timedomain
@@ -36,8 +35,7 @@ biobss.hrvtools.hrv\_timedomain module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
+
 
 .. automodule:: biobss.hrvtools
    :members:

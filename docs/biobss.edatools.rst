@@ -1,18 +1,17 @@
-biobss.edatools package
+edatools
 =======================
 
-Submodules
-----------
 
-biobss.edatools.eda\_clean module
+
+eda\_filter 
 ---------------------------------
 
-.. automodule:: biobss.edatools.eda_clean
+.. automodule:: biobss.edatools.eda_filter
    :members:
    :undoc-members:
    :show-inheritance:
 
-biobss.edatools.eda\_decompose module
+eda\_decompose 
 -------------------------------------
 
 .. automodule:: biobss.edatools.eda_decompose
@@ -20,7 +19,7 @@ biobss.edatools.eda\_decompose module
    :undoc-members:
    :show-inheritance:
 
-biobss.edatools.eda\_features module
+eda\_features 
 ------------------------------------
 
 .. automodule:: biobss.edatools.eda_features
@@ -28,7 +27,7 @@ biobss.edatools.eda\_features module
    :undoc-members:
    :show-inheritance:
 
-biobss.edatools.eda\_freqdomain module
+eda\_freqdomain 
 --------------------------------------
 
 .. automodule:: biobss.edatools.eda_freqdomain
@@ -36,7 +35,7 @@ biobss.edatools.eda\_freqdomain module
    :undoc-members:
    :show-inheritance:
 
-biobss.edatools.eda\_hjorth module
+eda\_hjorth 
 ----------------------------------
 
 .. automodule:: biobss.edatools.eda_hjorth
@@ -44,7 +43,7 @@ biobss.edatools.eda\_hjorth module
    :undoc-members:
    :show-inheritance:
 
-biobss.edatools.eda\_peaks module
+eda\_peaks 
 ---------------------------------
 
 .. automodule:: biobss.edatools.eda_peaks
@@ -52,7 +51,7 @@ biobss.edatools.eda\_peaks module
    :undoc-members:
    :show-inheritance:
 
-biobss.edatools.eda\_plot module
+eda\_plot 
 --------------------------------
 
 .. automodule:: biobss.edatools.eda_plot
@@ -60,7 +59,7 @@ biobss.edatools.eda\_plot module
    :undoc-members:
    :show-inheritance:
 
-biobss.edatools.eda\_signalfeatures module
+eda\_signalfeatures 
 ------------------------------------------
 
 .. automodule:: biobss.edatools.eda_signalfeatures
@@ -68,7 +67,7 @@ biobss.edatools.eda\_signalfeatures module
    :undoc-members:
    :show-inheritance:
 
-biobss.edatools.eda\_statistical module
+eda\_statistical
 ---------------------------------------
 
 .. automodule:: biobss.edatools.eda_statistical
@@ -76,8 +75,7 @@ biobss.edatools.eda\_statistical module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
+
 
 .. automodule:: biobss.edatools
    :members:

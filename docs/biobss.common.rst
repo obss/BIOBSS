@@ -1,10 +1,7 @@
-biobss.common package
+common 
 =====================
 
-Submodules
-----------
-
-biobss.common.signal\_entropy module
+signal\_entropy
 ------------------------------------
 
 .. automodule:: biobss.common.signal_entropy
@@ -12,7 +9,7 @@ biobss.common.signal\_entropy module
    :undoc-members:
    :show-inheritance:
 
-biobss.common.signal\_fft module
+signal\_fft
 --------------------------------
 
 .. automodule:: biobss.common.signal_fft
@@ -20,7 +17,7 @@ biobss.common.signal\_fft module
    :undoc-members:
    :show-inheritance:
 
-biobss.common.signal\_hjorth module
+signal\_hjorth
 -----------------------------------
 
 .. automodule:: biobss.common.signal_hjorth
@@ -28,15 +25,8 @@ biobss.common.signal\_hjorth module
    :undoc-members:
    :show-inheritance:
 
-biobss.common.signal\_power module
-----------------------------------
 
-.. automodule:: biobss.common.signal_power
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-biobss.common.signal\_psd module
+signal\_psd
 --------------------------------
 
 .. automodule:: biobss.common.signal_psd
@@ -44,8 +34,6 @@ biobss.common.signal\_psd module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
 
 .. automodule:: biobss.common
    :members:

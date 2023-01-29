@@ -1,19 +1,15 @@
-biobss.timetools package
+timetools
 ========================
 
-Submodules
-----------
 
-biobss.timetools.timestamp\_tools module
-----------------------------------------
+timestamp\_tools 
+-----------------
 
 .. automodule:: biobss.timetools.timestamp_tools
    :members:
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
 
 .. automodule:: biobss.timetools
    :members:

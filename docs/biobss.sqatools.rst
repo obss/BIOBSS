@@ -1,19 +1,17 @@
-biobss.sqatools package
+sqatools
 =======================
 
-Submodules
-----------
 
-biobss.sqatools.signal\_quality module
---------------------------------------
+
+signal\_quality 
+----------------------
 
 .. automodule:: biobss.sqatools.signal_quality
    :members:
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
+
 
 .. automodule:: biobss.sqatools
    :members:
