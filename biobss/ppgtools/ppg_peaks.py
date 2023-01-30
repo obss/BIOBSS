@@ -132,6 +132,12 @@ def ppg_waves(sig:ArrayLike, locs_onsets:ArrayLike, sampling_rate:float, th_w:fl
 def vpg_delineate(vpg_sig:ArrayLike, sampling_rate:float, th_w:float=0.5, th_y:float=0.45) -> dict:
     """Detects fiducials of VPG signal.
 
+        This function is an implementation of the method presented in:
+        Abhishek Chakraborty, Deboleena Sadhukhan & Madhuchhanda Mitra
+        (2019): An Automated Algorithm to Extract Time Plane Features From the PPG Signal and
+        its Derivatives for Personal Health Monitoring Application, IETE Journal of Research, DOI:
+        10.1080/03772063.2019.1604178
+
     Args:
         vpg_sig (ArrayLike): VPG signal.
         sampling_rate (float): Sampling rate of the VPG signal (Hz).
@@ -242,6 +248,12 @@ def vpg_delineate(vpg_sig:ArrayLike, sampling_rate:float, th_w:float=0.5, th_y:f
 def apg_delineate(apg_sig:ArrayLike, vpg_sig:ArrayLike, vpg_fiducials:dict, sampling_rate:float, th_a:float=0.45, th_w:float=0.5) -> dict:
     """Detects fiducials of APG signal.
 
+        This function is an implementation of the method presented in:
+        Abhishek Chakraborty, Deboleena Sadhukhan & Madhuchhanda Mitra
+        (2019): An Automated Algorithm to Extract Time Plane Features From the PPG Signal and
+        its Derivatives for Personal Health Monitoring Application, IETE Journal of Research, DOI:
+        10.1080/03772063.2019.1604178
+        
     Args:
         apg_sig (ArrayLike): APG signal.
         vpg_sig (ArrayLike): VPG signal.
@@ -420,6 +432,12 @@ def apg_delineate(apg_sig:ArrayLike, vpg_sig:ArrayLike, vpg_fiducials:dict, samp
 def ppg_delineate(ppg_sig:ArrayLike, vpg_sig:ArrayLike, vpg_fiducials:dict, apg_sig:ArrayLike, apg_fiducials:dict, sampling_rate:float, locs_onsets:ArrayLike=None) -> dict:
     """Detects fiducials of PPG signal.
 
+        This function is an implementation of the method presented in:
+        Abhishek Chakraborty, Deboleena Sadhukhan & Madhuchhanda Mitra
+        (2019): An Automated Algorithm to Extract Time Plane Features From the PPG Signal and
+        its Derivatives for Personal Health Monitoring Application, IETE Journal of Research, DOI:
+        10.1080/03772063.2019.1604178
+        
     Args:
         ppg_sig (ArrayLike): PPG signal.
         vpg_sig (ArrayLike): VPG signal.
