@@ -4,7 +4,6 @@ from .bioprocess_queue import Process_List
 from .bio_data import Bio_Data
 from .bio_channel import Channel
 from typing import Union
-import numpy as np
 import pandas as pd
 from numpy.typing import ArrayLike
 from .feature_extraction import Feature
