@@ -13,6 +13,7 @@ import sys
 sys.path.append(os.path.abspath('../..'))
 sys.path.append(os.path.abspath('..'))
 
+master_doc = 'index'
 
 project = 'BIOBSS'
 copyright = '2022'
@@ -44,6 +45,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
+html_show_sphinx = False
 
 autodoc_type_aliases = {
     'Iterable': 'Iterable',
@@ -52,3 +54,13 @@ autodoc_type_aliases = {
 
 autodoc_typehints = "description"
 add_module_names = False
+
+
+html_theme_options = {
+    # Toc options
+    'collapse_navigation': True,
+    'sticky_navigation': True,
+    'navigation_depth': -1,
+    'includehidden': True,
+    'titles_only': False
+}

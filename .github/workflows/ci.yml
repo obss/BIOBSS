@@ -63,7 +63,7 @@ jobs:
         run: |
           pip install -e .[dev]
           # stop the build if there are Python syntax errors or undefined names
-          python -m scripts.run_code_style check
+          python -m tests.run_code_style check
           
           # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
           flake8 . --exit-zero --max-complexity=10 --max-line-length=127
@@ -78,5 +78,4 @@ jobs:
 
       - name: Run tests
         run: |
-          cd tests
-          pytest
+          python -m tests.run_tests
