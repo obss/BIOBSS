@@ -1,9 +1,6 @@
 from __future__ import annotations
 from distutils.log import warn
-from .bio_data import Bio_Data
 import pandas as pd
-import numpy as np
-from typing import Union
 import inspect
 
 
