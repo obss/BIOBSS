@@ -1,8 +1,8 @@
-from scipy import signal
 from numpy.typing import ArrayLike
+from scipy import signal
 
 
-def filter_acc(sig: ArrayLike, sampling_rate: float, method: str='lowpass') -> ArrayLike:
+def filter_acc(sig: ArrayLike, sampling_rate: float, method: str = "lowpass") -> ArrayLike:
     """Filters ACC signal using predefined filter parameters.
 
     Args:
@@ -23,7 +23,7 @@ def filter_acc(sig: ArrayLike, sampling_rate: float, method: str='lowpass') -> A
 
     method = method.lower()
 
-    if method == 'lowpass': 
+    if method == "lowpass":
         filtered_sig = _filter_acc_lowpass(sig=sig, sampling_rate=sampling_rate)
 
     else:
@@ -35,10 +35,10 @@ def filter_acc(sig: ArrayLike, sampling_rate: float, method: str='lowpass') -> A
 def _filter_acc_lowpass(sig: ArrayLike, sampling_rate: float) -> ArrayLike:
     """Filters ACC signal using a predefined lowpass filter."""
     N = 2
-    btype = 'lowpass'
-    W2 = 10 / (sampling_rate/2)
+    btype = "lowpass"
+    W2 = 10 / (sampling_rate / 2)
 
-    sos = signal.butter(N, W2, btype, output='sos')
-    filtered_sig=signal.sosfiltfilt(sos, sig)
+    sos = signal.butter(N, W2, btype, output="sos")
+    filtered_sig = signal.sosfiltfilt(sos, sig)
 
     return filtered_sig

@@ -1,13 +1,16 @@
 from __future__ import annotations
-from distutils.log import warn
-from .bio_data import Bio_Data
-import pandas as pd
-import numpy as np
-from .feature_extraction import Feature
+
 from copy import copy
+from distutils.log import warn
+
+import numpy as np
+import pandas as pd
+
+from .bio_data import Bio_Data
+from .feature_extraction import Feature
 
 
-class Feature_Queue():
+class Feature_Queue:
     def __init__(self, name="Feature_Queue"):
         self.extraction_list = []
         self.input_signals = []
@@ -28,11 +31,11 @@ class Feature_Queue():
 
     def run_feature_queue(self, bio_data: Bio_Data, reset=False) -> pd.DataFrame:
         bio_data = bio_data.copy()
-        if(reset):
+        if reset:
             self.reset()
         for i in range(len(self.extraction_list)):
             res = self.run_next(bio_data)
-            if(self.prefix[i] is not None):
+            if self.prefix[i] is not None:
                 res.columns = [self.prefix[i] + "_" + c for c in res.columns]
             self.feature_set = pd.concat([self.feature_set, res], axis=1)
             self.processed_index += 1
@@ -52,31 +55,29 @@ class Feature_Queue():
 
     def run_single(self, inputs, args, kwargs, bio_data, index=None):
         input_keys = self._get_input_keys(inputs)
-        
+
         if isinstance(inputs, dict):
             for key, value in inputs.items():
-                if(isinstance(value,str)):
+                if isinstance(value, str):
                     kwargs[key] = bio_data[value].channel[index] if index is not None else bio_data[value].channel
-                elif(isinstance(value,list)):
-                    kwargs[key] = [bio_data[v].channel[index] if index is not None else bio_data[v].channel for v in value]
+                elif isinstance(value, list):
+                    kwargs[key] = [
+                        bio_data[v].channel[index] if index is not None else bio_data[v].channel for v in value
+                    ]
         elif isinstance(inputs, list):
             inputs = inputs[::-1]
             for i in inputs:
-                if (isinstance(i, list)):
-                    combined = self._combine_inputs(bio_data=bio_data,inputs=i, index=index)
+                if isinstance(i, list):
+                    combined = self._combine_inputs(bio_data=bio_data, inputs=i, index=index)
                     args = (combined,) + args
                 else:
-                    args = (bio_data[i].channel[index]
-                            if index is not None else bio_data[i].channel,) + args
+                    args = (bio_data[i].channel[index] if index is not None else bio_data[i].channel,) + args
         elif isinstance(inputs, str):
-            args = (bio_data[inputs].channel[index]
-                    if index is not None else bio_data[inputs].channel,) + args
+            args = (bio_data[inputs].channel[index] if index is not None else bio_data[inputs].channel,) + args
         else:
             raise ValueError("Inputs must be a string, list, or dictionary.")
-    
 
-        result = self.extraction_list[self.processed_index].process(
-            *args, **kwargs)
+        result = self.extraction_list[self.processed_index].process(*args, **kwargs)
         result = self._process_results_single(result)
         result.index = [index]
         return result
@@ -87,19 +88,19 @@ class Feature_Queue():
 
         input_keys = self._get_input_keys(inputs)
         for key in input_keys:
-            if(isinstance(key,str)):
+            if isinstance(key, str):
                 n_windows.append(bio_data[key].n_windows)
-            elif(isinstance(key,list)):
+            elif isinstance(key, list):
                 input_windows = []
                 for k in key:
                     input_windows.append(bio_data[k].n_windows)
-                if(not np.any(input_windows != input_windows[0])):
+                if not np.any(input_windows != input_windows[0]):
                     raise ValueError("All input signals must have the same number of windows.")
                 else:
                     n_windows.append(input_windows[0])
-                
+
         n_windows = min(n_windows)
-        if(n_windows > 1):
+        if n_windows > 1:
             for i in range(n_windows):
                 results.append(self.run_single(inputs, args, kwargs, bio_data, i))
         else:
@@ -108,11 +109,11 @@ class Feature_Queue():
         return results
 
     def _get_input_keys(self, inputs):
-        if(isinstance(inputs, dict)):
+        if isinstance(inputs, dict):
             input_keys = list(inputs.values())
-        elif(isinstance(inputs, str)):
+        elif isinstance(inputs, str):
             input_keys = [inputs]
-        elif(isinstance(inputs, list)):
+        elif isinstance(inputs, list):
             input_keys = inputs
         else:
             raise ValueError("Inputs must be a string, list, or dictionary.")
@@ -120,27 +121,27 @@ class Feature_Queue():
         return input_keys
 
     def _process_results(self, results):
-        if(isinstance(results, pd.DataFrame)):
+        if isinstance(results, pd.DataFrame):
             return results
-        elif(isinstance(results, pd.Series)):
+        elif isinstance(results, pd.Series):
             return results.to_frame()
         elif isinstance(results, dict):
-            if(not any(isinstance(v, dict) for v in results.values())):
+            if not any(isinstance(v, dict) for v in results.values()):
                 return pd.DataFrame([results])
             else:
                 results = []
                 for key, value in results.items():
                     results.append(self._process_results(value))
                 return pd.concat(results, axis=1)
-        elif(isinstance(results, np.ndarray)):
-            if(not results.ndim == 1):
+        elif isinstance(results, np.ndarray):
+            if not results.ndim == 1:
                 keys = self.generate_keys(results.shape[1])
                 return pd.DataFrame([results], columns=keys)
             else:
                 keys = self.generate_keys(1)
                 return pd.DataFrame(results, columns=keys)
         elif isinstance(results, list):
-            if(np.dim(results) == 1):
+            if np.dim(results) == 1:
                 keys = self.generate_keys(1)
                 return pd.DataFrame([results], columns=keys)
             else:
@@ -148,8 +149,7 @@ class Feature_Queue():
                 return pd.DataFrame(results, columns=keys)
 
         else:
-            raise ValueError(
-                "Results must be a pandas DataFrame, Series, numpy array, or list.")
+            raise ValueError("Results must be a pandas DataFrame, Series, numpy array, or list.")
 
         # Add tuple support?
 
@@ -172,50 +172,49 @@ class Feature_Queue():
 
     def _process_results_single(self, results, key=None):
 
-        if(isinstance(results, pd.DataFrame)):
+        if isinstance(results, pd.DataFrame):
             return results
-        elif(isinstance(results, pd.Series)):
-            if(results.name is None):
-                if(key is None):
+        elif isinstance(results, pd.Series):
+            if results.name is None:
+                if key is None:
                     key = self.generate_keys(1)
                 else:
                     results.name = key
             return pd.DataFrame(results)
-        elif(isinstance(results, np.ndarray)):
-            if(key is None):
+        elif isinstance(results, np.ndarray):
+            if key is None:
                 n_columns = results.shape[1]
                 key = self.generate_keys(n_columns)
-                if(n_columns == 1):
+                if n_columns == 1:
                     key = [key]
-            elif(isinstance(key, str)):
+            elif isinstance(key, str):
                 key = [key]
             return pd.DataFrame(results, columns=[key])
 
-        elif(isinstance(results, (int, float))):
-            if(key is None):
+        elif isinstance(results, (int, float)):
+            if key is None:
                 key = self.generate_keys(1)
             return pd.DataFrame([results], columns=[key])
 
-        elif(isinstance(results, (list, tuple))):
-            if(key is None):
+        elif isinstance(results, (list, tuple)):
+            if key is None:
                 key = self.generate_keys(len(results))
-                if(len(results) == 1):
+                if len(results) == 1:
                     key = [key]
             return pd.DataFrame(results, columns=key)
-        elif(results is None):
+        elif results is None:
             warn("Feature returned None")
             return pd.DataFrame()
-        elif(isinstance(results, dict)):
-            if(any(isinstance(v, (list, tuple, np.ndarray, dict)) for v in results.values())):
+        elif isinstance(results, dict):
+            if any(isinstance(v, (list, tuple, np.ndarray, dict)) for v in results.values()):
                 results_deeper = {}
                 for k, v in results.items():
                     results_deeper[k] = self._process_results_single(v, k)
                 results = pd.concat(results_deeper, axis=0)
                 results_val = results.values
                 results_cols = results.columns
-                temp = pd.DataFrame(
-                    [np.ones(len(results_cols))], columns=results_cols, dtype=object)
-                if(np.shape(results_val)[1] == len(results_cols) and np.shape(results_val)[0] != len(results_cols)):
+                temp = pd.DataFrame([np.ones(len(results_cols))], columns=results_cols, dtype=object)
+                if np.shape(results_val)[1] == len(results_cols) and np.shape(results_val)[0] != len(results_cols):
                     results_val = results_val.transpose()
                 for i in range(len(results_cols)):
                     temp.iloc[0, i] = results_val[i]
@@ -228,11 +227,11 @@ class Feature_Queue():
     def _combine_inputs(self, bio_data, inputs, index=None):
         input_args = []
         for i in inputs:
-            if(not isinstance(i, str)):
+            if not isinstance(i, str):
                 raise ValueError("Inputs must be a list of strings.")
-            if(index is not None):
+            if index is not None:
                 input_args.append(bio_data[i].channel[index])
             else:
                 input_args.append(bio_data[i].channel)
-     
+
         return np.array(input_args)

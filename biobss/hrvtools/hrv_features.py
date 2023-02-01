@@ -1,13 +1,15 @@
-from numpy.typing import ArrayLike
-from typing import Callable
-import numpy as np
 import warnings
+from typing import Callable
+
+import numpy as np
+from numpy.typing import ArrayLike
 
 from biobss.hrvtools.hrv_freqdomain import *
-from biobss.hrvtools.hrv_timedomain import *
 from biobss.hrvtools.hrv_nonlinear import *
+from biobss.hrvtools.hrv_timedomain import *
 
-def get_domain_function(domain:str) -> Callable:
+
+def get_domain_function(domain: str) -> Callable:
 
     if domain == "Time":
         return hrv_time_features
@@ -16,10 +18,20 @@ def get_domain_function(domain:str) -> Callable:
     elif domain == "Nonlinear":
         return hrv_nl_features
     else:
-        raise ValueError("Unknown domain:", domain)  
+        raise ValueError("Unknown domain:", domain)
 
 
-def get_hrv_features(sampling_rate: float, signal_length:float, signal_type: str='PPG',  input_type: str='ppi', peaks_locs: ArrayLike=None, troughs_locs: ArrayLike=None, ppi: ArrayLike=None, feature_types: ArrayLike=['Freq','Time','Nonlinear'], prefix: str='hrv') -> dict:
+def get_hrv_features(
+    sampling_rate: float,
+    signal_length: float,
+    signal_type: str = "PPG",
+    input_type: str = "ppi",
+    peaks_locs: ArrayLike = None,
+    troughs_locs: ArrayLike = None,
+    ppi: ArrayLike = None,
+    feature_types: ArrayLike = ["Freq", "Time", "Nonlinear"],
+    prefix: str = "hrv",
+) -> dict:
     """Calculates HRV parameters
 
     Args:
@@ -46,56 +58,44 @@ def get_hrv_features(sampling_rate: float, signal_length:float, signal_type: str
     """
     if sampling_rate <= 0:
         raise ValueError("Sampling rate must be greater than 0.")
-    
-    if signal_length < 60 :
+
+    if signal_length < 60:
         warnings.warn("Signal length is too short!")
 
     input_type = input_type.lower()
     signal_type = signal_type.lower()
     feature_types = [x.capitalize() for x in feature_types]
 
-    if signal_type == 'ecg' and input_type =='troughs':
+    if signal_type == "ecg" and input_type == "troughs":
         raise ValueError(f"Input type {input_type} is not defined for {signal_type} signal.")
 
-    valid_types=['Time','Freq','Nonlinear']   
-    features={}
-    
+    valid_types = ["Time", "Freq", "Nonlinear"]
+    features = {}
+
     for domain in feature_types:
         if domain not in valid_types:
             raise ValueError("invalid feature type: " + domain)
         else:
-            if input_type=='ppi':
+            if input_type == "ppi":
                 if ppi is None:
                     raise ValueError("The argument 'ppi' is required.")
 
-            elif input_type=='peaks':
+            elif input_type == "peaks":
                 if peaks_locs is None:
                     raise ValueError("The argument 'peaks_locs' is required.")
-                else:                
-                    ppi=1000 * np.diff(peaks_locs)/sampling_rate
+                else:
+                    ppi = 1000 * np.diff(peaks_locs) / sampling_rate
 
-            elif input_type=='troughs':
+            elif input_type == "troughs":
                 if troughs_locs is None:
                     raise ValueError("The argument 'troughs_locs' is required.")
                 else:
-                    ppi=1000 * np.diff(troughs_locs)/sampling_rate
-                    
+                    ppi = 1000 * np.diff(troughs_locs) / sampling_rate
+
             else:
                 raise ValueError("Undefined input type: " + input_type)
 
             domain_function = get_domain_function(domain)
-            features.update(domain_function(ppi,sampling_rate,prefix=prefix))
+            features.update(domain_function(ppi, sampling_rate, prefix=prefix))
 
     return features
-
-
-
-
-
-
-
-
-
-
-
-

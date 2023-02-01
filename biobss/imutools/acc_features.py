@@ -1,11 +1,13 @@
-import numpy as np
 from typing import Callable
 
+import numpy as np
+
+from biobss.imutools.acc_correlation import *
 from biobss.imutools.acc_freqdomain import *
 from biobss.imutools.acc_statistical import *
-from biobss.imutools.acc_correlation import *
 
-def get_domain_function(domain:str) -> Callable:
+
+def get_domain_function(domain: str) -> Callable:
 
     if domain == "Corr":
         return acc_corr_features
@@ -14,10 +16,16 @@ def get_domain_function(domain:str) -> Callable:
     elif domain == "Stat":
         return acc_stat_features
     else:
-        raise ValueError("Unknown domain:", domain)   
+        raise ValueError("Unknown domain:", domain)
 
-    
-def get_acc_features(signals: list, signal_names: list, sampling_rate: float, feature_types: list=['Freq','Stat','Corr'], magnitude: bool=False) -> dict:
+
+def get_acc_features(
+    signals: list,
+    signal_names: list,
+    sampling_rate: float,
+    feature_types: list = ["Freq", "Stat", "Corr"],
+    magnitude: bool = False,
+) -> dict:
     """Calculates ACC features.
 
     Args:
@@ -34,45 +42,33 @@ def get_acc_features(signals: list, signal_names: list, sampling_rate: float, fe
     Returns:
         dict: Dictionary of ACC features.
     """
-    if(np.ndim(signals) == 1):
-        signals = [signals]        
-    if(isinstance(signal_names, str)):
+    if np.ndim(signals) == 1:
+        signals = [signals]
+    if isinstance(signal_names, str):
         signal_names = [signal_names]
-        
+
     data = dict(zip(signal_names, signals))
 
     if sampling_rate <= 0:
         raise ValueError("Sampling rate must be greater than 0.")
-    
-    feature_types = [x.capitalize() for x in feature_types]
-    valid_types=['Freq','Stat','Corr']
 
-    features={}
+    feature_types = [x.capitalize() for x in feature_types]
+    valid_types = ["Freq", "Stat", "Corr"]
+
+    features = {}
     for domain in feature_types:
         if domain not in valid_types:
             raise ValueError("invalid feature type: " + domain)
         else:
             domain_function = get_domain_function(domain)
-            features.update(domain_function(signals=signals,signal_names=signal_names,sampling_rate=sampling_rate))
+            features.update(domain_function(signals=signals, signal_names=signal_names, sampling_rate=sampling_rate))
 
-            if domain in ['Freq', 'Stat']:
+            if domain in ["Freq", "Stat"]:
                 if magnitude:
-                    sum=0
+                    sum = 0
                     for sig in data.values():
                         sum += np.square(sig)
-                    magn=np.sqrt(sum)
-                    features.update(domain_function(signals=[magn],signal_names=['magn'],sampling_rate=sampling_rate))                
+                    magn = np.sqrt(sum)
+                    features.update(domain_function(signals=[magn], signal_names=["magn"], sampling_rate=sampling_rate))
 
     return features
-
-
-
-
-
-
-
-
-
-
-
-

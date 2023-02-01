@@ -1,5 +1,6 @@
-import numpy as np
 from copy import copy
+
+import numpy as np
 from numpy.typing import ArrayLike
 
 SIGNAL_FEATURES = {
@@ -9,8 +10,10 @@ SIGNAL_FEATURES = {
     "average_power": lambda x: _calculate_avg_pow(x),
 }
 
+
 def get_feature_names():
     return SIGNAL_FEATURES.keys()
+
 
 def eda_signal_features(signal: ArrayLike, prefix="signal") -> dict:
     """Calculates EDA features.
@@ -38,9 +41,11 @@ def eda_signal_features(signal: ArrayLike, prefix="signal") -> dict:
 
     return s_features
 
-def _calculate_rms(sig:ArrayLike) -> float:
 
-    def rms_(x): return x**2
+def _calculate_rms(sig: ArrayLike) -> float:
+    def rms_(x):
+        return x ** 2
+
     rms_func = np.vectorize(rms_)
     sig_ = rms_func(sig)
     tot = sig_.sum()
@@ -49,27 +54,35 @@ def _calculate_rms(sig:ArrayLike) -> float:
 
     return tot
 
-def _calculate_arc_length(sig:ArrayLike) -> float:
+
+def _calculate_arc_length(sig: ArrayLike) -> float:
 
     # This is the arc length of the signal
     sig = np.array(sig)
     sig1 = copy(sig[1:])
     sig2 = copy(sig[:-1])
-    def alsc_(x): return np.sqrt(1 + x**2)
+
+    def alsc_(x):
+        return np.sqrt(1 + x ** 2)
+
     alsc_func = np.vectorize(alsc_)
     tot = alsc_func(sig1 - sig2)
     tot = tot.sum()
 
     return tot
 
-def _calculate_integral(sig:ArrayLike) -> float:
+
+def _calculate_integral(sig: ArrayLike) -> float:
     # This is the integral of the signal
     return np.abs(sig).sum()
 
-def _calculate_avg_pow(sig:ArrayLike) -> float:
+
+def _calculate_avg_pow(sig: ArrayLike) -> float:
     # This is the normalized average power of the signal
 
-    def rms_(x): return x**2
+    def rms_(x):
+        return x ** 2
+
     rms_func = np.vectorize(rms_)
     sig_ = rms_func(sig)
     apsc = sig_.sum()

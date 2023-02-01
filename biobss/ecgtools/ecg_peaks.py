@@ -1,9 +1,9 @@
-from numpy.typing import ArrayLike
-from ecgdetectors import Detectors
 import neurokit2 as nk
+from ecgdetectors import Detectors
+from numpy.typing import ArrayLike
 
 
-def ecg_detectpeaks(sig: ArrayLike , sampling_rate: float, method: str='pantompkins') -> ArrayLike:
+def ecg_detectpeaks(sig: ArrayLike, sampling_rate: float, method: str = "pantompkins") -> ArrayLike:
     """Detects R peaks from ECG signal.
     Uses py-ecg-detectors package(https://github.com/berndporr/py-ecg-detectors/).
 
@@ -30,14 +30,13 @@ def ecg_detectpeaks(sig: ArrayLike , sampling_rate: float, method: str='pantompk
     method = method.lower()
     detectors = Detectors(sampling_rate)
 
-    if method == 'pantompkins':
+    if method == "pantompkins":
         r_peaks = detectors.pan_tompkins_detector(sig)
-    elif method == 'hamilton':
+    elif method == "hamilton":
         r_peaks = detectors.hamilton_detector(sig)
-    elif method == 'elgendi':
-        r_peaks = detectors.two_average_detector(sig)    
+    elif method == "elgendi":
+        r_peaks = detectors.two_average_detector(sig)
     else:
         raise ValueError(f"Undefined method: {method}")
-        
-    return r_peaks
 
+    return r_peaks

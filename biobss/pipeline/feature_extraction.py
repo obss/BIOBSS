@@ -1,29 +1,29 @@
 from __future__ import annotations
-from distutils.log import warn
-import pandas as pd
+
 import inspect
+from distutils.log import warn
+
+import pandas as pd
 
 
-class Feature():
-
+class Feature:
     def __init__(self, name, function, *args, **kwargs):
 
         self.name = name
         self.function = function
         self.args = args
-        self.kwargs=kwargs
-    
-    def process(self,*args,**kwargs) -> pd.DataFrame:
+        self.kwargs = kwargs
 
-        args=args+self.args
+    def process(self, *args, **kwargs) -> pd.DataFrame:
+
+        args = args + self.args
         kwargs.update(self.kwargs)
-        kwargs=self._process_args(**kwargs)
-        feature_output = self.__extract(*args,**kwargs)
+        kwargs = self._process_args(**kwargs)
+        feature_output = self.__extract(*args, **kwargs)
         return feature_output
 
+    def _process_args(self, **kwargs):
 
-    def _process_args(self,**kwargs):
-             
         signature = inspect.signature(self.function)
         excess_args = []
         for key in kwargs.keys():
@@ -33,13 +33,10 @@ class Feature():
             kwargs.pop(e)
         return kwargs
 
-    def __extract(self, *args,**kwargs):
-        
-        result = self.function(*args,**kwargs)
-        return result    
-    
-    
-    
+    def __extract(self, *args, **kwargs):
+
+        result = self.function(*args, **kwargs)
+        return result
 
     def __str__(self) -> str:
         return self.name

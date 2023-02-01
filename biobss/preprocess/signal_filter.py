@@ -1,13 +1,24 @@
-from scipy import signal
 from numpy.typing import ArrayLike
+from scipy import signal
 
-from biobss.ppgtools.ppg_filter import *
 from biobss.ecgtools.ecg_filter import *
-from biobss.imutools.acc_filter import *
 from biobss.edatools.eda_filter import *
+from biobss.imutools.acc_filter import *
+from biobss.ppgtools.ppg_filter import *
 
 
-def filter_signal(sig: ArrayLike, sampling_rate: float, signal_type: str=None, method: str=None, filter_type: str=None, N: int=None, f_lower: float=None, f_upper: float=None, axis: int=0, **kwargs) -> ArrayLike:
+def filter_signal(
+    sig: ArrayLike,
+    sampling_rate: float,
+    signal_type: str = None,
+    method: str = None,
+    filter_type: str = None,
+    N: int = None,
+    f_lower: float = None,
+    f_upper: float = None,
+    axis: int = 0,
+    **kwargs,
+) -> ArrayLike:
     """Filters a signal using a N-th order Butterworth filter unless signal_type is specified. If signal_type is specified, predefined filter parameters are used.
 
     Args:
@@ -37,42 +48,42 @@ def filter_signal(sig: ArrayLike, sampling_rate: float, signal_type: str=None, m
     if sampling_rate <= 0:
         raise ValueError("Sampling rate must be greater than 0.")
 
-    valid_types = ['ECG','ACC','EDA','PPG']
+    valid_types = ["ECG", "ACC", "EDA", "PPG"]
 
     if signal_type is None:
 
-        if filter_type=='lowpass':
+        if filter_type == "lowpass":
             if f_upper is not None:
                 if f_upper < 0:
                     raise ValueError("Cut-off frequency must be greater than 0.")
-                W2=f_upper/(sampling_rate/2) #normalized frequency
-                btype='lowpass'
-                sos2 = signal.butter(N, W2, btype, output='sos')
-                filtered_sig=signal.sosfiltfilt(sos2, sig, axis=axis)
+                W2 = f_upper / (sampling_rate / 2)  # normalized frequency
+                btype = "lowpass"
+                sos2 = signal.butter(N, W2, btype, output="sos")
+                filtered_sig = signal.sosfiltfilt(sos2, sig, axis=axis)
             else:
                 raise ValueError("Upper cutoff frequency is required for lowpass filtering.")
 
-        elif filter_type=='highpass':
+        elif filter_type == "highpass":
             if f_lower is not None:
                 if f_lower < 0:
                     raise ValueError("Cut-off frequency must be greater than 0.")
-                W1=f_lower/(sampling_rate/2) #normalized frequency
-                btype='highpass'
-                sos1 = signal.butter(N, W1, btype, output='sos')
-                filtered_sig=signal.sosfiltfilt(sos1, sig, axis=axis)
+                W1 = f_lower / (sampling_rate / 2)  # normalized frequency
+                btype = "highpass"
+                sos1 = signal.butter(N, W1, btype, output="sos")
+                filtered_sig = signal.sosfiltfilt(sos1, sig, axis=axis)
             else:
                 raise ValueError("Lower cutoff frequency is required for highpass filtering.")
 
-        elif filter_type=='bandpass':
+        elif filter_type == "bandpass":
             if f_lower is not None and f_upper is not None:
                 if f_lower < 0 or f_upper < 0:
                     raise ValueError("Cut-off frequencies must be greater than 0.")
 
-                W1=f_lower/(sampling_rate/2) #normalized frequency 
-                W2=f_upper/(sampling_rate/2) #normalized frequency
-                btype='bandpass'
-                sos = signal.butter(N, [W1,W2], btype, output='sos')
-                filtered_sig=signal.sosfiltfilt(sos, sig, axis=axis)
+                W1 = f_lower / (sampling_rate / 2)  # normalized frequency
+                W2 = f_upper / (sampling_rate / 2)  # normalized frequency
+                btype = "bandpass"
+                sos = signal.butter(N, [W1, W2], btype, output="sos")
+                filtered_sig = signal.sosfiltfilt(sos, sig, axis=axis)
             else:
                 raise ValueError("Both lower and upper cutoff frequencies are required for bandpass filtering.")
 
@@ -83,17 +94,17 @@ def filter_signal(sig: ArrayLike, sampling_rate: float, signal_type: str=None, m
         signal_type = signal_type.upper()
         if method is not None:
             method = method.lower()
-        
-        if signal_type == 'ECG':
-            filtered_sig = filter_ecg(sig, sampling_rate, method=method, **kwargs) 
 
-        elif signal_type == 'PPG':
+        if signal_type == "ECG":
+            filtered_sig = filter_ecg(sig, sampling_rate, method=method, **kwargs)
+
+        elif signal_type == "PPG":
             filtered_sig = filter_ppg(sig, sampling_rate, method=method)
 
-        elif signal_type == 'ACC':
+        elif signal_type == "ACC":
             filtered_sig = filter_acc(sig, sampling_rate, method=method)
-        
-        elif signal_type == 'EDA':
+
+        elif signal_type == "EDA":
             filtered_sig = filter_eda(sig, sampling_rate, method=method)
 
         else:

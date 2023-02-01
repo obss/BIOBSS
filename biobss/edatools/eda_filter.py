@@ -1,9 +1,8 @@
 import neurokit2 as nk
-
 from numpy.typing import ArrayLike
 
 
-def filter_eda(sig: ArrayLike, sampling_rate: float, method: str='neurokit') -> ArrayLike:
+def filter_eda(sig: ArrayLike, sampling_rate: float, method: str = "neurokit") -> ArrayLike:
     """Filters EDA signal using predefined filter parameters.
 
     Args:
@@ -18,7 +17,7 @@ def filter_eda(sig: ArrayLike, sampling_rate: float, method: str='neurokit') -> 
         ArrayLike: Filtered EDA signal.
     """
 
-    if(method=='neurokit' or method=='biosppy'):        
+    if method == "neurokit" or method == "biosppy":
         cleaned = nk.eda_clean(sig, sampling_rate=sampling_rate, method=method)
     else:
         raise Exception("Method not implemented.")

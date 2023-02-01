@@ -1,8 +1,8 @@
-from numpy.typing import ArrayLike
 import numpy as np
+from numpy.typing import ArrayLike
 
 
-def normalize_signal(signal: ArrayLike, method: str='zscore') -> ArrayLike:
+def normalize_signal(signal: ArrayLike, method: str = "zscore") -> ArrayLike:
     """Normalizes a signal.
 
     Args:
@@ -16,11 +16,10 @@ def normalize_signal(signal: ArrayLike, method: str='zscore') -> ArrayLike:
         ArrayLike: Normalized signal
     """
     # Need to add signal check
-    epsilon=1e-100
-    if(method == 'zscore'):
-        return (signal - np.mean(signal)) / (np.std(signal)+epsilon)
-    elif(method == 'minmax'):
-        return (signal-signal.min())/(signal.max()-signal.min() + epsilon)
+    epsilon = 1e-100
+    if method == "zscore":
+        return (signal - np.mean(signal)) / (np.std(signal) + epsilon)
+    elif method == "minmax":
+        return (signal - signal.min()) / (signal.max() - signal.min() + epsilon)
     else:
         raise ValueError(f"Unknown method '{method}', available values are [zscore, minmax].")
-    

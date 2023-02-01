@@ -1,9 +1,10 @@
-from scipy.stats import pearsonr
 import itertools
+
 import numpy as np
+from scipy.stats import pearsonr
 
 
-def acc_corr_features(signals: list, signal_names: list, sampling_rate:float) -> dict:
+def acc_corr_features(signals: list, signal_names: list, sampling_rate: float) -> dict:
     """Calculates correlation features for ACC signals.
         For example:
         accx_accy_corr: correlation coefficient for x and y axes
@@ -15,16 +16,16 @@ def acc_corr_features(signals: list, signal_names: list, sampling_rate:float) ->
         sampling_rate (float): Sampling rate of the ACC signal(s) (Hz).
 
     Returns:
-        dict: Dictionary of correlation features. 
+        dict: Dictionary of correlation features.
     """
-    if(np.ndim(signals) == 1):
-        signals = [signals]        
-    if(isinstance(signal_names, str)):
+    if np.ndim(signals) == 1:
+        signals = [signals]
+    if isinstance(signal_names, str):
         signal_names = [signal_names]
 
     data = dict(zip(signal_names, signals))
     comb = list(itertools.combinations(signal_names, 2))
-    
+
     corr_list = {}
     for i in comb:
         try:

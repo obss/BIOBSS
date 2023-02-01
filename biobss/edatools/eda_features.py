@@ -1,14 +1,16 @@
 from __future__ import annotations
-import pandas as pd
+
 import multiprocessing
 from functools import partial
+
+import pandas as pd
 from numpy.typing import ArrayLike
 
-from .eda_hjorth import *
 from .eda_decompose import *
+from .eda_freqdomain import *
+from .eda_hjorth import *
 from .eda_signalfeatures import *
 from .eda_statistical import *
-from .eda_freqdomain import *
 
 
 def from_decomposed(signal_phasic: ArrayLike, signal_tonic: ArrayLike, sampling_rate: float) -> dict:
@@ -30,7 +32,8 @@ def from_decomposed(signal_phasic: ArrayLike, signal_tonic: ArrayLike, sampling_
 
     return features
 
-def from_signal(signal: ArrayLike, sampling_rate: float=20.) -> dict:
+
+def from_signal(signal: ArrayLike, sampling_rate: float = 20.0) -> dict:
     """Calculates features over EDA signal.
 
     Args:
@@ -47,7 +50,10 @@ def from_signal(signal: ArrayLike, sampling_rate: float=20.) -> dict:
 
     return features
 
-def from_windows(eda_windows: ArrayLike, sampling_rate: float=20., parallel: bool=False, n_jobs: int=6) -> pd.DataFrame:
+
+def from_windows(
+    eda_windows: ArrayLike, sampling_rate: float = 20.0, parallel: bool = False, n_jobs: int = 6
+) -> pd.DataFrame:
     """Calculates EDA features over set of EDA signals.
 
     Args:
@@ -71,7 +77,10 @@ def from_windows(eda_windows: ArrayLike, sampling_rate: float=20., parallel: boo
 
     return features
 
-def from_decomposed_windows(phasic_windows: ArrayLike, tonic_windows: ArrayLike, sampling_rate: float, parallel:bool=False, n_jobs:int=6) -> pd.DataFrame:
+
+def from_decomposed_windows(
+    phasic_windows: ArrayLike, tonic_windows: ArrayLike, sampling_rate: float, parallel: bool = False, n_jobs: int = 6
+) -> pd.DataFrame:
     """Calculates EDA features over set of decomposed EDA signals.
 
     Args:
@@ -104,6 +113,7 @@ def from_decomposed_windows(phasic_windows: ArrayLike, tonic_windows: ArrayLike,
 
     return pd.concat([scr_features, scl_features], axis=0, ignore_index=True)
 
+
 def from_scr(signal: ArrayLike) -> dict:
     """Calculates features over Phasic EDA signal.
 
@@ -120,6 +130,7 @@ def from_scr(signal: ArrayLike) -> dict:
     scr_features.update(eda_freq_features(signal, prefix="scr"))
 
     return scr_features
+
 
 def from_scl(signal: ArrayLike) -> dict:
     """Calculates features over Tonic EDA signal.

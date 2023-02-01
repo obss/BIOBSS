@@ -1,7 +1,8 @@
-import zipfile
-import urllib.request
-from pathlib import Path
 import os
+import urllib.request
+import zipfile
+from pathlib import Path
+
 
 def unzip(file_path: str, dest_dir: str):
     """

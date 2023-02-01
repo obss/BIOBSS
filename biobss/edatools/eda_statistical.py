@@ -1,6 +1,6 @@
 import numpy as np
-from scipy import stats
 from numpy.typing import ArrayLike
+from scipy import stats
 
 # STAT_FEATURES : Dictionary of statistical features
 STAT_FEATURES = {
@@ -14,10 +14,12 @@ STAT_FEATURES = {
     "momentum": lambda sig: stats.moment(sig, 2),
 }
 
+
 def get_feature_names():
     return STAT_FEATURES.keys()
 
-def eda_stat_features(signal: ArrayLike, prefix:str="signal") -> dict:
+
+def eda_stat_features(signal: ArrayLike, prefix: str = "signal") -> dict:
     """Calculates statistical EDA features.
 
     mean: Mean of the signal

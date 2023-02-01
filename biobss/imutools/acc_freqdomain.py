@@ -1,12 +1,11 @@
 import numpy as np
-from scipy import stats, signal
+from scipy import signal, stats
 
 from biobss.common.signal_fft import *
 from biobss.common.signal_psd import *
 
-
 FREQ_FEATURES = {
-    "fft_mean": lambda sigfft, _0, _1, _2: np.mean(sigfft), 
+    "fft_mean": lambda sigfft, _0, _1, _2: np.mean(sigfft),
     "fft_std": lambda sigfft, _0, _1, _2: np.std(sigfft),
     "fft_mad": lambda sigfft, _0, _1, _2: np.mean(np.abs(sigfft - np.mean(sigfft))),
     "fft_min": lambda sigfft, _0, _1, _2: np.min(sigfft),
@@ -19,21 +18,22 @@ FREQ_FEATURES = {
     "fft_npeaks": lambda sigfft, _0, _1, _2: len(signal.find_peaks(sigfft)[0]),
     "fft_skew": lambda sigfft, _0, _1, _2: stats.skew(sigfft),
     "fft_kurtosis": lambda sigfft, _0, _1, _2: stats.kurtosis(sigfft),
-    "fft_energy": lambda sigfft, _0, _1, _2: np.sum(sigfft**2)/100,
-    "fft_entropy": lambda sigfft, _0, _1, _2: np.sum(sigfft*np.log(sigfft)),
-    "f1sc": lambda _0,_1,pxx,fxx: sig_power(pxx,fxx,[0.1,0.2]),
-    "f2sc": lambda _0,_1,pxx,fxx: sig_power(pxx,fxx,[0.2,0.3]),
-    "f3sc": lambda _0,_1,pxx,fxx: sig_power(pxx,fxx,[0.3,0.4]),
-    "max_freq": lambda sigfft, freq, _0, _1: fft_peaks(sigfft,freq,1,loc=True),
+    "fft_energy": lambda sigfft, _0, _1, _2: np.sum(sigfft ** 2) / 100,
+    "fft_entropy": lambda sigfft, _0, _1, _2: np.sum(sigfft * np.log(sigfft)),
+    "f1sc": lambda _0, _1, pxx, fxx: sig_power(pxx, fxx, [0.1, 0.2]),
+    "f2sc": lambda _0, _1, pxx, fxx: sig_power(pxx, fxx, [0.2, 0.3]),
+    "f3sc": lambda _0, _1, pxx, fxx: sig_power(pxx, fxx, [0.3, 0.4]),
+    "max_freq": lambda sigfft, freq, _0, _1: fft_peaks(sigfft, freq, 1, loc=True),
 }
 
-def acc_freq_features(signals: list, signal_names:list, sampling_rate:float, magnitude:bool=False) -> dict:
+
+def acc_freq_features(signals: list, signal_names: list, sampling_rate: float, magnitude: bool = False) -> dict:
     """Calculates frequency-domain features for ACC signal(s).
 
     From:
         https://towardsdatascience.com/feature-engineering-on-time-series-data-transforming-signal-data-of-a-smartphone-accelerometer-for-72cbe34b8a60
 
-        Zangróniz, R., Martínez-Rodrigo, A., Pastor, J.M., López, M.T. and Fernández-Caballero, A., 2017. 
+        Zangróniz, R., Martínez-Rodrigo, A., Pastor, J.M., López, M.T. and Fernández-Caballero, A., 2017.
         Electrodermal activity sensor for classification of calm/distress condition. Sensors, 17(10), p.2324.
 
     fft_mean: mean of fft peaks
@@ -65,33 +65,30 @@ def acc_freq_features(signals: list, signal_names:list, sampling_rate:float, mag
     Returns:
         dict: Dictionary of frequency domain features.
     """
-    if(np.ndim(signals) == 1):
-        signals = [signals]        
-    if(isinstance(signal_names, str)):
+    if np.ndim(signals) == 1:
+        signals = [signals]
+    if isinstance(signal_names, str):
         signal_names = [signal_names]
 
     data = dict(zip(signal_names, signals))
 
     if magnitude:
-        sum=0
+        sum = 0
         for sig in signals:
             sum += np.square(sig)
-        
-        magn=np.sqrt(sum)
-        data['magn'] = magn
 
-    features_freq={}
+        magn = np.sqrt(sum)
+        data["magn"] = magn
+
+    features_freq = {}
     for signal_name, signal in data.items():
         freq, sigfft = sig_fft(sig=signal, sampling_rate=sampling_rate)
-        f, pxx = sig_psd(sig=signal, sampling_rate=sampling_rate, method='welch')
-    
-        for key,func in FREQ_FEATURES.items():
-            try:
-                features_freq["_".join([signal_name, key])]=func(sigfft,freq,pxx,f)
-            except:
-                features_freq["_".join([signal_name, key])]=np.nan
-        
-    return features_freq
+        f, pxx = sig_psd(sig=signal, sampling_rate=sampling_rate, method="welch")
 
-        
-         
+        for key, func in FREQ_FEATURES.items():
+            try:
+                features_freq["_".join([signal_name, key])] = func(sigfft, freq, pxx, f)
+            except:
+                features_freq["_".join([signal_name, key])] = np.nan
+
+    return features_freq

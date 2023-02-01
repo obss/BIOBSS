@@ -1,32 +1,36 @@
-import numpy as np
-from scipy import stats
 import collections
+
+import numpy as np
 from numpy.typing import ArrayLike
+from scipy import stats
 
 from biobss.common.signal_entropy import *
 
-#Statistical features
+# Statistical features
 FEATURES_STAT_CYCLE = {
-'mean_peaks': lambda _0,peaks_amp,_1,_2,_3: np.mean(peaks_amp),
-'std_peaks': lambda _0,peaks_amp,_1,_2,_3: np.std(peaks_amp),
+    "mean_peaks": lambda _0, peaks_amp, _1, _2, _3: np.mean(peaks_amp),
+    "std_peaks": lambda _0, peaks_amp, _1, _2, _3: np.std(peaks_amp),
 }
 
 FEATURES_STAT_SEGMENT = {
-'mean': np.mean,
-'median': np.median,
-'std': np.std,
-'pct_25': lambda sig: np.percentile(sig, 25),
-'pct_75': lambda sig: np.percentile(sig, 75),
-'mad': lambda sig: np.sum(sig-np.mean(sig))/len(sig),
-'skewness': stats.skew,
-'kurtosis': stats.kurtosis,
-'entropy': lambda sig: calculate_shannon_entropy(sig),
+    "mean": np.mean,
+    "median": np.median,
+    "std": np.std,
+    "pct_25": lambda sig: np.percentile(sig, 25),
+    "pct_75": lambda sig: np.percentile(sig, 75),
+    "mad": lambda sig: np.sum(sig - np.mean(sig)) / len(sig),
+    "skewness": stats.skew,
+    "kurtosis": stats.kurtosis,
+    "entropy": lambda sig: calculate_shannon_entropy(sig),
 }
 
-def ppg_stat_features(sig: ArrayLike, sampling_rate: float, input_types: list, fiducials:dict=None, prefix: str='ppg', **kwargs) -> dict:
+
+def ppg_stat_features(
+    sig: ArrayLike, sampling_rate: float, input_types: list, fiducials: dict = None, prefix: str = "ppg", **kwargs
+) -> dict:
     """Calculates statistical features.
 
-    Cycle-based features: 
+    Cycle-based features:
         mean_peaks: Mean of the peak amplitudes
         std_peaks: Standard deviation of the peak amplitudes
 
@@ -44,7 +48,7 @@ def ppg_stat_features(sig: ArrayLike, sampling_rate: float, input_types: list, f
     Args:
         sig (ArrayLike): Signal to be analyzed.
         sampling_rate (float): Sampling rate of the signal (Hz).
-        input_types (list): Type of feature calculation, should be 'segment' or 'cycle'. 
+        input_types (list): Type of feature calculation, should be 'segment' or 'cycle'.
         fiducials (dict, optional): Dictionary of fiducial point locations. Defaults to None.
         prefix (str, optional): Prefix for signal type. Defaults to 'ppg'.
 
@@ -65,29 +69,30 @@ def ppg_stat_features(sig: ArrayLike, sampling_rate: float, input_types: list, f
 
     input_types = [x.lower() for x in input_types]
 
-    features_stat={}
+    features_stat = {}
     for type in input_types:
 
-        if type=='cycle':
-            for key,func in FEATURES_STAT_CYCLE.items():
-                if all(k in kwargs.keys() for k in ('peaks_locs', 'troughs_locs')):
-                    peaks_amp = sig[kwargs['peaks_locs']]
+        if type == "cycle":
+            for key, func in FEATURES_STAT_CYCLE.items():
+                if all(k in kwargs.keys() for k in ("peaks_locs", "troughs_locs")):
+                    peaks_amp = sig[kwargs["peaks_locs"]]
                     try:
-                        features_stat["_".join([prefix, key])]=func(sig,peaks_amp,kwargs['peaks_locs'],kwargs['troughs_locs'], sampling_rate)
+                        features_stat["_".join([prefix, key])] = func(
+                            sig, peaks_amp, kwargs["peaks_locs"], kwargs["troughs_locs"], sampling_rate
+                        )
                     except:
-                        features_stat["_".join([prefix, key])]=np.nan
+                        features_stat["_".join([prefix, key])] = np.nan
                 else:
                     raise ValueError("Missing keyword arguments for the input_type: 'cycle'!")
-        
-        elif type=='segment':
-            for key,func in FEATURES_STAT_SEGMENT.items():
-                try:           
-                    features_stat["_".join([prefix, key])]=func(sig)
-                except:
-                    features_stat["_".join([prefix, key])]=np.nan
 
-        else: 
+        elif type == "segment":
+            for key, func in FEATURES_STAT_SEGMENT.items():
+                try:
+                    features_stat["_".join([prefix, key])] = func(sig)
+                except:
+                    features_stat["_".join([prefix, key])] = np.nan
+
+        else:
             raise ValueError("Type should be 'cycle' or 'segment'.")
 
     return features_stat
-

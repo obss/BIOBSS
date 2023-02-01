@@ -2,7 +2,8 @@ from numpy.typing import ArrayLike
 
 from biobss.sqatools.signal_quality import *
 
-def sqa_ecg(ecg_sig: ArrayLike, sampling_rate:float, methods: list, **kwargs) -> dict:
+
+def sqa_ecg(ecg_sig: ArrayLike, sampling_rate: float, methods: list, **kwargs) -> dict:
     """Assesses quality of ECG signal by applying rules based on morphological information.
 
     Args:
@@ -30,46 +31,52 @@ def sqa_ecg(ecg_sig: ArrayLike, sampling_rate:float, methods: list, **kwargs) ->
         ValueError: If 'peaks_locs' is missing and the method 'template' is selected.
 
     Returns:
-        dict: Dictionary of results for the applied methods. 
+        dict: Dictionary of results for the applied methods.
     """
-    
+
     results = {}
 
     for method in methods:
 
-        if method == 'flatline':
-            if ('change_threshold' in kwargs) and ('min_duration' in kwargs):
-                flatline_segments = detect_flatline_segments(sig=ecg_sig, change_threshold=kwargs['change_threshold'], min_duration=kwargs['min_duration'])
-                results['Flatline segments']=flatline_segments
+        if method == "flatline":
+            if ("change_threshold" in kwargs) and ("min_duration" in kwargs):
+                flatline_segments = detect_flatline_segments(
+                    sig=ecg_sig, change_threshold=kwargs["change_threshold"], min_duration=kwargs["min_duration"]
+                )
+                results["Flatline segments"] = flatline_segments
             else:
-                raise ValueError(f"Missing keyword arguments 'change_threshold' and/or 'min_duration' for the selected method: {method}.")
+                raise ValueError(
+                    f"Missing keyword arguments 'change_threshold' and/or 'min_duration' for the selected method: {method}."
+                )
 
-        elif method == 'clipping':
-            if 'threshold_pos' in kwargs:
-                if 'threshold_neg' in kwargs:
-                    clipped_segments = detect_clipped_segments(sig=ecg_sig, threshold_pos=kwargs['threshold_pos'], threshold_neg=kwargs['threshold_neg'])
+        elif method == "clipping":
+            if "threshold_pos" in kwargs:
+                if "threshold_neg" in kwargs:
+                    clipped_segments = detect_clipped_segments(
+                        sig=ecg_sig, threshold_pos=kwargs["threshold_pos"], threshold_neg=kwargs["threshold_neg"]
+                    )
                 else:
-                    clipped_segments = detect_clipped_segments(sig=ecg_sig, threshold_pos=kwargs['threshold_pos'])
+                    clipped_segments = detect_clipped_segments(sig=ecg_sig, threshold_pos=kwargs["threshold_pos"])
 
-                results['Clipped segments']=clipped_segments
+                results["Clipped segments"] = clipped_segments
             else:
                 raise ValueError(f"Missing keyword argument 'threshold_pos' for the selected method: {method}.")
 
-        elif method == 'physiological':
-            if 'peaks_locs' in kwargs:
-                info = check_phys(peaks_locs=kwargs['peaks_locs'], sampling_rate=sampling_rate)
-                results['Physiological']=info
+        elif method == "physiological":
+            if "peaks_locs" in kwargs:
+                info = check_phys(peaks_locs=kwargs["peaks_locs"], sampling_rate=sampling_rate)
+                results["Physiological"] = info
             else:
                 raise ValueError(f"Missing keyword arguments 'peaks_locs' for the selected method: {method}.")
 
-        elif method == 'template':
-            if 'peaks_locs' in kwargs:
-                if 'corr_th' in kwargs:
-                    info = template_matching(sig=ecg_sig, peaks_locs=kwargs['peaks_locs'], corr_th=kwargs['corr_th'])
+        elif method == "template":
+            if "peaks_locs" in kwargs:
+                if "corr_th" in kwargs:
+                    info = template_matching(sig=ecg_sig, peaks_locs=kwargs["peaks_locs"], corr_th=kwargs["corr_th"])
                 else:
-                    info = template_matching(sig=ecg_sig, peaks_locs=kwargs['peaks_locs'])
-                    
-                results['Template matching']=info
+                    info = template_matching(sig=ecg_sig, peaks_locs=kwargs["peaks_locs"])
+
+                results["Template matching"] = info
             else:
                 raise ValueError(f"Missing keyword arguments 'peaks_locs' for the selected method: {method}.")
 

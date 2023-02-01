@@ -1,10 +1,10 @@
-import numpy as np
 import math
-from numpy.typing import ArrayLike
 from typing import Tuple
 
+import numpy as np
+from numpy.typing import ArrayLike
 
-#Constants to check for physiological viability and morphological features. 
+# Constants to check for physiological viability and morphological features.
 HR_MIN = 40
 HR_MAX = 180
 PP_MAX = 3
@@ -18,7 +18,8 @@ MAX_VAR_DUR = 300
 MAX_VAR_AMP = 400
 CORR_TH = 0.9
 
-def detect_clipped_segments(sig:ArrayLike, threshold_pos:float, threshold_neg:float=None) -> list:
+
+def detect_clipped_segments(sig: ArrayLike, threshold_pos: float, threshold_neg: float = None) -> list:
     """Detects clipped segments in a signal.
 
     Args:
@@ -53,10 +54,11 @@ def detect_clipped_segments(sig:ArrayLike, threshold_pos:float, threshold_neg:fl
     if in_clipped_segment:
         # The last segment extends until the end of the signal
         end_indices.append(len(sig) - 1)
-    
+
     return list(zip(start_indices, end_indices))
-    
-def detect_flatline_segments(sig:ArrayLike, min_duration:float, change_threshold:float) -> list:
+
+
+def detect_flatline_segments(sig: ArrayLike, min_duration: float, change_threshold: float) -> list:
     """Detects flatline segments in a signal.
 
     Args:
@@ -71,7 +73,7 @@ def detect_flatline_segments(sig:ArrayLike, min_duration:float, change_threshold
     start_indices = []
     end_indices = []
     in_flatline_segment = False
-    
+
     for i in range(1, len(sig)):
         change = abs(sig[i] - sig[i - 1])
 
@@ -94,16 +96,17 @@ def detect_flatline_segments(sig:ArrayLike, min_duration:float, change_threshold
     durations = [end - start + 1 for start, end in zip(start_indices, end_indices)]
     start_indices = [start for start, duration in zip(start_indices, durations) if duration >= min_duration]
     end_indices = [end for end, duration in zip(end_indices, durations) if duration >= min_duration]
-    
+
     return list(zip(start_indices, end_indices))
+
 
 def check_phys(peaks_locs: ArrayLike, sampling_rate: float) -> dict:
     """Checks for physiological viability.
 
     Rule 1: Average HR should be between 40-180 bpm (up to 300 bpm in the case of exercise)
     Rule 2: Maximum P-P interval: 1.5 seconds. Allowing for a single missing beat, it is 3 seconds
-    Rule 3: Maximum P-P interval / minimum P-P interval ratio: 10 of the signal length for a short signal. 
-            For 10 seconds signal, it is 1.1; allowing for a single missing beat, it is 2.2 
+    Rule 3: Maximum P-P interval / minimum P-P interval ratio: 10 of the signal length for a short signal.
+            For 10 seconds signal, it is 1.1; allowing for a single missing beat, it is 2.2
 
     Args:
         peaks_locs (ArrayLike): Array of peak locations.
@@ -115,33 +118,34 @@ def check_phys(peaks_locs: ArrayLike, sampling_rate: float) -> dict:
     if sampling_rate <= 0:
         raise ValueError("Sampling rate must be greater than 0.")
 
-    info={}
+    info = {}
 
-    #Rule 1: Average HR should be between 40-180 bpm (up to 300 bpm in the case of exercise)
-    intervals = np.diff(peaks_locs)/sampling_rate
+    # Rule 1: Average HR should be between 40-180 bpm (up to 300 bpm in the case of exercise)
+    intervals = np.diff(peaks_locs) / sampling_rate
     HR_mean = 60 / np.mean(intervals)
 
-    if (HR_mean < HR_MIN or HR_mean > HR_MAX):
-        info['Rule 1']=False
+    if HR_mean < HR_MIN or HR_mean > HR_MAX:
+        info["Rule 1"] = False
     else:
-        info['Rule 1']=True
-        
-    #Rule 2: Maximum P-P interval: 1.5 seconds. Allowing for a single missing beat, it is 3 seconds
-    if np.size(np.where(intervals > PP_MAX))>0:
-        info['Rule 2']=False
-    else:
-        info['Rule 2']=True
+        info["Rule 1"] = True
 
-    #Rule 3: Maximum P-P interval / minimum P-P interval ratio: 10 of the signal length for a short signal. 
-             #For 10 seconds signal, it is 1.1; allowing for a single missing beat, it is 2.2  
-    if (intervals.max()/intervals.min())> MAX_PP_RATIO:
-        info['Rule 3']=False
+    # Rule 2: Maximum P-P interval: 1.5 seconds. Allowing for a single missing beat, it is 3 seconds
+    if np.size(np.where(intervals > PP_MAX)) > 0:
+        info["Rule 2"] = False
     else:
-        info['Rule 3']=True
+        info["Rule 2"] = True
+
+    # Rule 3: Maximum P-P interval / minimum P-P interval ratio: 10 of the signal length for a short signal.
+    # For 10 seconds signal, it is 1.1; allowing for a single missing beat, it is 2.2
+    if (intervals.max() / intervals.min()) > MAX_PP_RATIO:
+        info["Rule 3"] = False
+    else:
+        info["Rule 3"] = True
 
     return info
 
-def check_morph(sig:ArrayLike, peaks_locs: ArrayLike, troughs_locs: ArrayLike, sampling_rate: float) -> dict:
+
+def check_morph(sig: ArrayLike, peaks_locs: ArrayLike, troughs_locs: ArrayLike, sampling_rate: float) -> dict:
     """Checks for ranges of morphological features.
 
     Rule 1: Systolic phase duration(rise time): 0.08 to 0.49 s
@@ -169,54 +173,55 @@ def check_morph(sig:ArrayLike, peaks_locs: ArrayLike, troughs_locs: ArrayLike, s
     peaks_amps = sig[peaks_locs]
     troughs_amps = sig[troughs_locs]
 
-    info={}
+    info = {}
 
-    #Rule 1
-    SP= (peaks_locs-troughs_locs[:-1])/sampling_rate
+    # Rule 1
+    SP = (peaks_locs - troughs_locs[:-1]) / sampling_rate
 
-    if np.size(np.where(SP<MIN_SPD))>0 or np.size(np.where(SP>MAX_SPD))>0:
-        info['Rule 1']=False
+    if np.size(np.where(SP < MIN_SPD)) > 0 or np.size(np.where(SP > MAX_SPD)) > 0:
+        info["Rule 1"] = False
     else:
-        info['Rule 1']=True
+        info["Rule 1"] = True
 
-    #Rule 2:
-    DP= (troughs_locs[1:]-peaks_locs)/sampling_rate #Diastolic phase duration
-    SP_DP = SP/DP
+    # Rule 2:
+    DP = (troughs_locs[1:] - peaks_locs) / sampling_rate  # Diastolic phase duration
+    SP_DP = SP / DP
 
-    if np.size(np.where(SP_DP > SP_DP_RATIO))>0:
-        info['Rule 2']=False
+    if np.size(np.where(SP_DP > SP_DP_RATIO)) > 0:
+        info["Rule 2"] = False
     else:
-        info['Rule 2']=True
+        info["Rule 2"] = True
 
-    #Rule 3:
-    PWD = np.diff(troughs_locs)/sampling_rate
+    # Rule 3:
+    PWD = np.diff(troughs_locs) / sampling_rate
 
-    if np.size(np.where(PWD < MIN_PWD))>0 or np.size(np.where(PWD > MAX_PWD))>0:
-        info['Rule 3']=False
+    if np.size(np.where(PWD < MIN_PWD)) > 0 or np.size(np.where(PWD > MAX_PWD)) > 0:
+        info["Rule 3"] = False
     else:
-        info['Rule 3']=True
+        info["Rule 3"] = True
 
-    #Rule 4:
-    var_SP= (np.max(peaks_amps)-np.min(peaks_amps))/np.min(peaks_amps)*100
-    var_PWD= (np.max(PWD)-np.min(PWD))/np.min(PWD)*100
+    # Rule 4:
+    var_SP = (np.max(peaks_amps) - np.min(peaks_amps)) / np.min(peaks_amps) * 100
+    var_PWD = (np.max(PWD) - np.min(PWD)) / np.min(PWD) * 100
 
-    if ( var_SP > MAX_VAR_DUR ) or ( var_PWD > MAX_VAR_DUR ):
-        info['Rule 4']=False
+    if (var_SP > MAX_VAR_DUR) or (var_PWD > MAX_VAR_DUR):
+        info["Rule 4"] = False
     else:
-        info['Rule 4']=True
+        info["Rule 4"] = True
 
-    #Rule 5: 
-    PWA = peaks_amps-troughs_amps[:-1]
-    var_PWA= (np.max(PWA)-np.min(PWA))/np.min(PWA)*100
+    # Rule 5:
+    PWA = peaks_amps - troughs_amps[:-1]
+    var_PWA = (np.max(PWA) - np.min(PWA)) / np.min(PWA) * 100
 
-    if ( var_PWA > MAX_VAR_AMP ):
-        info['Rule 5']=False
+    if var_PWA > MAX_VAR_AMP:
+        info["Rule 5"] = False
     else:
-        info['Rule 5']=True
+        info["Rule 5"] = True
 
     return info
 
-def template_matching(sig: ArrayLike, peaks_locs: ArrayLike, corr_th: float=CORR_TH) -> Tuple[float,bool]:
+
+def template_matching(sig: ArrayLike, peaks_locs: ArrayLike, corr_th: float = CORR_TH) -> Tuple[float, bool]:
     """Applies template matching method for signal quality assessment.
 
     Args:
@@ -229,42 +234,42 @@ def template_matching(sig: ArrayLike, peaks_locs: ArrayLike, corr_th: float=CORR
     """
     if corr_th <= 0:
         raise ValueError("Threshold for the correlation coefficient must be greater than 0.")
-        
-    wl=np.median(np.diff(peaks_locs))
-    waves=np.empty((0,2*math.floor(wl/2)+1))
-    nofwaves=np.size(peaks_locs)
+
+    wl = np.median(np.diff(peaks_locs))
+    waves = np.empty((0, 2 * math.floor(wl / 2) + 1))
+    nofwaves = np.size(peaks_locs)
 
     for i in range((nofwaves)):
-        wave_st=peaks_locs[i]-math.floor(wl/2)
-        wave_end=peaks_locs[i]+math.floor(wl/2)
-        wave=[]
-    
-        if (wave_st < 0):
+        wave_st = peaks_locs[i] - math.floor(wl / 2)
+        wave_end = peaks_locs[i] + math.floor(wl / 2)
+        wave = []
+
+        if wave_st < 0:
             wave = sig[:wave_end]
-            for _ in range(-wave_st+1):
-                wave=np.insert(wave,0,wave[0])
+            for _ in range(-wave_st + 1):
+                wave = np.insert(wave, 0, wave[0])
 
-        elif (wave_end > len(sig)-1):
-            wave = sig[wave_st-1:]
-            for _ in range(wave_end-len(sig)):
-                wave=np.append(wave,wave[-1])      
-            
+        elif wave_end > len(sig) - 1:
+            wave = sig[wave_st - 1 :]
+            for _ in range(wave_end - len(sig)):
+                wave = np.append(wave, wave[-1])
+
         else:
-            wave = sig[wave_st:wave_end+1]
-    
-        waves=np.vstack([waves,wave])
-        
-    sig_temp=np.mean(waves,axis=0)
-    
-    ps=np.array([])
-    for j in range(np.size(peaks_locs)):
-        p=np.corrcoef(waves[j],sig_temp,rowvar=True)
-        ps=np.append(ps,p[0][1])
+            wave = sig[wave_st : wave_end + 1]
 
-    if np.size(np.where(ps<corr_th))>0:
-        result=False
+        waves = np.vstack([waves, wave])
+
+    sig_temp = np.mean(waves, axis=0)
+
+    ps = np.array([])
+    for j in range(np.size(peaks_locs)):
+        p = np.corrcoef(waves[j], sig_temp, rowvar=True)
+        ps = np.append(ps, p[0][1])
+
+    if np.size(np.where(ps < corr_th)) > 0:
+        result = False
 
     else:
-        result=True            
+        result = True
 
-    return ps,result
+    return ps, result

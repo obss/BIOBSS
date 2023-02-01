@@ -1,11 +1,11 @@
-import numpy as np
 import cvxopt as cv
 import neurokit2 as nk
+import numpy as np
 import pandas as pd
 from numpy.typing import ArrayLike
 
 
-def eda_decompose(eda_signal: ArrayLike, sampling_rate: float, method: str="highpass") -> pd.DataFrame:
+def eda_decompose(eda_signal: ArrayLike, sampling_rate: float, method: str = "highpass") -> pd.DataFrame:
     """Decomposes EDA signal into tonic and phasic components.
 
     Args:
@@ -39,18 +39,19 @@ def eda_decompose(eda_signal: ArrayLike, sampling_rate: float, method: str="high
 
     return decomposed
 
-def _eda_highpass(eda_signal:ArrayLike, sampling_rate:float) -> pd.DataFrame:
-    
+
+def _eda_highpass(eda_signal: ArrayLike, sampling_rate: float) -> pd.DataFrame:
+
     # Highpass filter for EDA signal decomposition
     phasic = nk.signal_filter(eda_signal, sampling_rate=sampling_rate, lowcut=0.05, method="butter")
     tonic = nk.signal_filter(eda_signal, sampling_rate=sampling_rate, highcut=0.05, method="butter")
 
-    out = pd.DataFrame({"EDA_Tonic": np.array(
-        tonic), "EDA_Phasic": np.array(phasic)})
+    out = pd.DataFrame({"EDA_Tonic": np.array(tonic), "EDA_Phasic": np.array(phasic)})
 
     return out
 
-def _eda_bandpass(eda_signal:ArrayLike, sampling_rate:float) -> pd.DataFrame:
+
+def _eda_bandpass(eda_signal: ArrayLike, sampling_rate: float) -> pd.DataFrame:
 
     # Bandpass filter for EDA signal decomposition
     phasic = nk.signal_filter(eda_signal, sampling_rate, 0.2, 1)
@@ -59,6 +60,7 @@ def _eda_bandpass(eda_signal:ArrayLike, sampling_rate:float) -> pd.DataFrame:
     out = pd.DataFrame({"EDA_Tonic": np.array(tonic), "EDA_Phasic": np.array(phasic)})
 
     return out
+
 
 def _cvxEDA(
     y,
@@ -103,36 +105,30 @@ def _cvxEDA(
     # bateman ARMA model
     a1 = 1.0 / min(tau1, tau0)  # a1 > a0
     a0 = 1.0 / max(tau1, tau0)
-    ar = np.array(
-        [
-            (a1 * delta + 2.0) * (a0 * delta + 2.0),
-            2.0 * a1 * a0 * delta**2 - 8.0,
-            (a1 * delta - 2.0) * (a0 * delta - 2.0),
-        ]
-    ) / ((a1 - a0) * delta**2)
+    ar = (
+        np.array(
+            [
+                (a1 * delta + 2.0) * (a0 * delta + 2.0),
+                2.0 * a1 * a0 * delta ** 2 - 8.0,
+                (a1 * delta - 2.0) * (a0 * delta - 2.0),
+            ]
+        )
+        / ((a1 - a0) * delta ** 2)
+    )
     ma = np.array([1.0, 2.0, 1.0])
 
     # matrices for ARMA model
     i = np.arange(2, n)
-    A = cv.spmatrix(
-        np.tile(ar, (n - 2, 1)), np.c_[i, i, i], np.c_[i, i - 1, i - 2], (n, n)
-    )
-    M = cv.spmatrix(
-        np.tile(ma, (n - 2, 1)), np.c_[i, i, i], np.c_[i, i - 1, i - 2], (n, n)
-    )
+    A = cv.spmatrix(np.tile(ar, (n - 2, 1)), np.c_[i, i, i], np.c_[i, i - 1, i - 2], (n, n))
+    M = cv.spmatrix(np.tile(ma, (n - 2, 1)), np.c_[i, i, i], np.c_[i, i - 1, i - 2], (n, n))
 
     # spline
     delta_knot_s = int(round(delta_knot / delta))
-    spl = np.r_[
-        np.arange(1.0, delta_knot_s), np.arange(delta_knot_s, 0.0, -1.0)
-    ]  # order 1
+    spl = np.r_[np.arange(1.0, delta_knot_s), np.arange(delta_knot_s, 0.0, -1.0)]  # order 1
     spl = np.convolve(spl, spl, "full")
     spl /= max(spl)
     # matrix of spline regressors
-    i = (
-        np.c_[np.arange(-(len(spl) // 2), (len(spl) + 1) // 2)]
-        + np.r_[np.arange(0, n, delta_knot_s)]
-    )
+    i = np.c_[np.arange(-(len(spl) // 2), (len(spl) + 1) // 2)] + np.r_[np.arange(0, n, delta_knot_s)]
     nB = i.shape[1]
     j = np.tile(np.arange(nB), (len(spl), 1))
     p = np.tile(spl, (nB, 1)).T
@@ -165,10 +161,8 @@ def _cvxEDA(
             ]
         )
         h = cv.matrix([z(n, 1), 0.5, 0.5, y, 0.5, 0.5, z(nB, 1)])
-        c = cv.matrix([(cv.matrix(alpha, (1, n)) * A).T,
-                      z(nC, 1), 1, gamma, z(nB, 1)])
-        res = cv.solvers.conelp(
-            c, G, h, dims={"l": n, "q": [n + 2, nB + 2], "s": []})
+        c = cv.matrix([(cv.matrix(alpha, (1, n)) * A).T, z(nC, 1), 1, gamma, z(nB, 1)])
+        res = cv.solvers.conelp(c, G, h, dims={"l": n, "q": [n + 2, nB + 2], "s": []})
         obj = res["primal objective"]
     else:
         # Use qp
@@ -184,8 +178,7 @@ def _cvxEDA(
                 ],
             ]
         )
-        f = cv.matrix([(cv.matrix(alpha, (1, n)) * A).T -
-                      Mt * y, -(Ct * y), -(Bt * y)])
+        f = cv.matrix([(cv.matrix(alpha, (1, n)) * A).T - Mt * y, -(Ct * y), -(Bt * y)])
         res = cv.solvers.qp(
             H,
             f,
@@ -198,7 +191,7 @@ def _cvxEDA(
     cv.solvers.options.update(old_options)
 
     l = res["x"][-nB:]
-    d = res["x"][n: n + nC]
+    d = res["x"][n : n + nC]
     t = B * l + C * d
     q = res["x"][:n]
     p = A * q

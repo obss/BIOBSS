@@ -1,6 +1,5 @@
 import numpy as np
-from scipy import stats, signal
-
+from scipy import signal, stats
 
 STAT_FEATURES = {
     "mean": lambda sig: np.mean(sig),
@@ -18,15 +17,16 @@ STAT_FEATURES = {
     "npeaks": lambda sig: len(signal.find_peaks(sig)[0]),
     "skew": lambda sig: stats.skew(sig),
     "kurtosis": lambda sig: stats.kurtosis(sig),
-    "energy": lambda sig: np.sum(sig**2)/100,
-    "momentum": lambda sig: stats.moment(sig, 2)
-    }
+    "energy": lambda sig: np.sum(sig ** 2) / 100,
+    "momentum": lambda sig: stats.moment(sig, 2),
+}
 
-def acc_stat_features(signals: list, signal_names:list, sampling_rate:float, magnitude:bool=False) -> dict:
+
+def acc_stat_features(signals: list, signal_names: list, sampling_rate: float, magnitude: bool = False) -> dict:
     """Calculates statistical features.
 
     From https://towardsdatascience.com/feature-engineering-on-time-series-data-transforming-signal-data-of-a-smartphone-accelerometer-for-72cbe34b8a60
-    
+
     mean: mean of the signal amplitude
     std: standard deviation of the signal amplitude
     mad: mean absolute deviation of the signal amplitude
@@ -36,8 +36,8 @@ def acc_stat_features(signals: list, signal_names:list, sampling_rate:float, mag
     median: median value of the signal amplitude
     medad: median absolute deviation of the signal amplitude
     iqr: interquartile range of the signal amplitude
-    ncount: number of negative values 
-    pcount: number of positibe values 
+    ncount: number of negative values
+    pcount: number of positibe values
     abmean: number of values above mean
     npeaks: number of peaks
     skew: Skewness of the signal
@@ -55,27 +55,27 @@ def acc_stat_features(signals: list, signal_names:list, sampling_rate:float, mag
         dict: Dictionary of statistical features.
     """
 
-    if(np.ndim(signals) == 1):
-        signals = [signals]        
-    if(isinstance(signal_names, str)):
+    if np.ndim(signals) == 1:
+        signals = [signals]
+    if isinstance(signal_names, str):
         signal_names = [signal_names]
 
     data = dict(zip(signal_names, signals))
 
     if magnitude:
-        sum=0
+        sum = 0
         for sig in signals:
             sum += np.square(sig)
 
-        magn=np.sqrt(sum)
-        data['magn'] = magn
+        magn = np.sqrt(sum)
+        data["magn"] = magn
 
-    features_stat={}
+    features_stat = {}
     for signal_name, signal in data.items():
-        for key,func in STAT_FEATURES.items():
+        for key, func in STAT_FEATURES.items():
             try:
-                features_stat["_".join([signal_name, key])]=func(signal)
+                features_stat["_".join([signal_name, key])] = func(signal)
             except:
-                features_stat["_".join([signal_name, key])]=np.nan
+                features_stat["_".join([signal_name, key])] = np.nan
 
     return features_stat

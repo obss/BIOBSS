@@ -1,10 +1,11 @@
 from typing import Tuple
+
 import numpy as np
 from numpy.typing import ArrayLike
 
 
 def hjorth_activity(sig: ArrayLike) -> float:
-    """ Calculates Hjörth activity for the given signal.
+    """Calculates Hjörth activity for the given signal.
     Activity parameter represents the signal power.
 
     Args:
@@ -16,8 +17,9 @@ def hjorth_activity(sig: ArrayLike) -> float:
 
     return np.var(sig)
 
+
 def hjorth_complexity_mobility(sig: ArrayLike) -> Tuple:
-    """ Calculates Hjörth complexity and mobility for the given signal.
+    """Calculates Hjörth complexity and mobility for the given signal.
     Mobility represents the mean frequency and complexity represents the change in frequency.
 
     Args:
@@ -32,6 +34,7 @@ def hjorth_complexity_mobility(sig: ArrayLike) -> Tuple:
     complexity = _hjorth_mobility(f_derivative) / _mobility
 
     return complexity, _mobility
+
 
 def _hjorth_mobility(sig: ArrayLike) -> float:
     """Calculates Hjorth mobility."""

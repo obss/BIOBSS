@@ -1,8 +1,10 @@
-from scipy import signal
-from numpy.typing import ArrayLike
 import warnings
 
-def filter_ppg(sig: ArrayLike, sampling_rate: float, method: str='bandpass') -> ArrayLike:
+from numpy.typing import ArrayLike
+from scipy import signal
+
+
+def filter_ppg(sig: ArrayLike, sampling_rate: float, method: str = "bandpass") -> ArrayLike:
     """Filters PPG signal using predefined filters.
 
     Args:
@@ -17,13 +19,13 @@ def filter_ppg(sig: ArrayLike, sampling_rate: float, method: str='bandpass') -> 
     Returns:
         ArrayLike: Filtered PPG signal.
     """
-    
+
     if sampling_rate <= 0:
         raise ValueError("Sampling rate must be greater than 0.")
 
     method = method.lower()
 
-    if method == 'bandpass':
+    if method == "bandpass":
         filtered_sig = _filter_ppg_bandpass(sig=sig, sampling_rate=sampling_rate)
 
     else:
@@ -35,12 +37,14 @@ def filter_ppg(sig: ArrayLike, sampling_rate: float, method: str='bandpass') -> 
 def _filter_ppg_bandpass(sig: ArrayLike, sampling_rate: float) -> ArrayLike:
 
     N = 2
-    btype = 'bandpass'
-    W1 = 0.5 / (sampling_rate/2)
-    W2 = 5 / (sampling_rate/2)
-    warnings.warn(f"Default parameters will be used for filtering. {N}th order bandpass filter with f1=0.5 Hz and f2=5 Hz.")
+    btype = "bandpass"
+    W1 = 0.5 / (sampling_rate / 2)
+    W2 = 5 / (sampling_rate / 2)
+    warnings.warn(
+        f"Default parameters will be used for filtering. {N}th order bandpass filter with f1=0.5 Hz and f2=5 Hz."
+    )
 
-    sos = signal.butter(N, [W1,W2], btype, output='sos')
-    filtered_sig=signal.sosfiltfilt(sos, sig)
+    sos = signal.butter(N, [W1, W2], btype, output="sos")
+    filtered_sig = signal.sosfiltfilt(sos, sig)
 
     return filtered_sig
