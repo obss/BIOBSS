@@ -6,13 +6,14 @@ import pytest
 
 from biobss import FIXTURES_ROOT
 
+
 @pytest.fixture(scope="package")
 def load_sample_ecg():
 
     info = {}
     sample_data = pd.DataFrame()
 
-    filename = FIXTURES_ROOT/"ecg_sample_data.csv"
+    filename = FIXTURES_ROOT / "ecg_sample_data.csv"
     data = pd.read_csv(filename)
 
     # Select the first segment to be used in the examples
@@ -33,7 +34,7 @@ def load_sample_ppg():
     info = {}
     sample_data = pd.DataFrame()
 
-    filename = FIXTURES_ROOT/"ppg_sample_data.csv"
+    filename = FIXTURES_ROOT / "ppg_sample_data.csv"
     data = pd.read_csv(filename, header=None)
 
     # Select the first segment to be used in the examples
@@ -54,7 +55,7 @@ def load_sample_acc():
     info = {}
     sample_data = pd.DataFrame()
 
-    filename = FIXTURES_ROOT/"acc_sample_data.csv"
+    filename = FIXTURES_ROOT / "acc_sample_data.csv"
     data = pd.read_csv(filename, header=None)
 
     # Select the first 60s segment to be used in the examples
@@ -80,7 +81,7 @@ def load_sample_eda():
     info = {}
     sample_data = pd.DataFrame()
 
-    filename = FIXTURES_ROOT/"EDA_Chest.pkl"
+    filename = FIXTURES_ROOT / "EDA_Chest.pkl"
     fs = 700
     L = 5920
     sig = pd.read_pickle(filename)

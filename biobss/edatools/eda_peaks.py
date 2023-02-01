@@ -1,6 +1,7 @@
 from typing import Tuple
 
 import neurokit2 as nk
+import pandas as pd
 from numpy.typing import ArrayLike
 
 

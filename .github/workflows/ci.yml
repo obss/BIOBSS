@@ -68,14 +68,6 @@ jobs:
           # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
           flake8 . --exit-zero --max-complexity=10 --max-line-length=127
 
-      - name: Install BIOBSS package from local setup.py
-        run: >
-          pip install -e .
-
-      - name: Install core dependencies
-        run: >
-          pip install -r requirements.txt
-
       - name: Run tests
         run: |
           python -m tests.run_tests
