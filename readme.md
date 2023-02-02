@@ -376,7 +376,7 @@ To learn more, visit the [Documentation page](biobss.readthedocs.io/en/latest/).
 
 Through pip,
 
-    Project not yet uploaded to pypi
+    pip install biobss
 
 or build from source,
 
