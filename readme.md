@@ -205,6 +205,7 @@ The table shows the capabilites of BIOBSS and the other Python packages for phys
 </table>
 
 (*): Pipeline module differs between the two packages. BIOBSS pipeline aims to provide a more flexible and customizable pipeline for the user.
+
 Modified from Föll, Simon, et al. “FLIRT: A feature generation toolkit for wearable data.” Computer Methods and Programs in Biomedicine 212 (2021): 106461.
 
 ## <div align="left"> __Preprocessing__ </div>
