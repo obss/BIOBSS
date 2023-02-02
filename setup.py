@@ -47,6 +47,7 @@ setuptools.setup(
     license="MIT",
     description="A biological signal processing and feature extraction library.",
     long_description=get_long_description(),
+    long_description_content_type="text/markdown",
     packages=setuptools.find_packages(exclude=["tests"]),
     url="https://github.com/obss/BIOBSS",
     python_requires=">=3.8",
