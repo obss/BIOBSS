@@ -204,7 +204,7 @@ The table shows the capabilites of BIOBSS and the other Python packages for phys
     </tbody>
 </table>
 
-(*): 
+(*): Pipeline module differs between the two packages. BIOBSS pipeline aims to provide a more flexible and customizable pipeline for the user.
 
 
 ## <div align="left"> __Preprocessing__ </div>
