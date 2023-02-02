@@ -65,7 +65,6 @@ setuptools.setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Education",
         "Topic :: Scientific/Engineering",
-        "Topic :: Scientific/Engineering :: Signal Processing",
     ],
     keywords="signal processing, feature extraction, photoplethysmography, PPG, electrocardiography, ECG, acceleration, electrodermal activity, EDA, galvanic skin response",
 )
