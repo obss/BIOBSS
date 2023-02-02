@@ -67,5 +67,5 @@ setuptools.setup(
         "Topic :: Scientific/Engineering",
         "Topic :: Scientific/Engineering :: Signal Processing",
     ],
-    keywords="signal processing, feature extraction, photoplethysmography, PPG, electrocardiography, ECG, acceleration, electrodermal activity, EDA, galvanic skin response",
+    keywords="signal processing, feature extraction, photoplethysmography, PPG, electrocardiography, ECG, acceleration, electrodermal activity, EDA, galvanic skin response, HRV, Heart Rate Variability",
 )
