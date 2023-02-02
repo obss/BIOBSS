@@ -205,7 +205,7 @@ The table shows the capabilites of BIOBSS and the other Python packages for phys
 </table>
 
 (*): Pipeline module differs between the two packages. BIOBSS pipeline aims to provide a more flexible and customizable pipeline for the user.
-
+Modified from Föll, Simon, et al. “FLIRT: A feature generation toolkit for wearable data.” Computer Methods and Programs in Biomedicine 212 (2021): 106461.
 
 ## <div align="left"> __Preprocessing__ </div>
 BIOBSS has modules with basic signal preprocessing functionalities. These include:
@@ -369,14 +369,14 @@ The main focus of BIOBSS is to generate and save pipelines for signal processing
 - Make it possible to save and share pipelines to compare results of different works
 
 
-To learn more, visit the [Documentation page](biobss.readthedocs.io/en/latest/).
+To learn more, visit the [Documentation page](https://biobss.readthedocs.io/en/latest/).
 
 
 ## <div align="center"> Installation </div>
 
 Through pip,
 
-    Project not yet uploaded to pypi
+    pip install biobss
 
 or build from source,
 
