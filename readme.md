@@ -16,197 +16,200 @@ Main features:
 
 The table shows the capabilites of BIOBSS and the other Python packages for physiological signal processing.
 
-
 <table>
-    <thead>
-        <tr>
-            <th style="text-align:center" rowspan="2">Package</th>
-            <th style="text-align:center" rowspan="2">File reader</th>
-            <th style="text-align:center" rowspan="2">Sliding window</th>
-            <th style="text-align:center" rowspan="2">Preprocessing</th>
-            <th style="text-align:center" rowspan="2">Pipeline</th>
-            <th style="text-align:center" colspan="5">Processing</th>
-            <th style="text-align:center" colspan="5">Feature extraction</th>
-        </tr>
-        <tr>
-            <th style="text-align:center">ECG</th>
-            <th style="text-align:center">PPG</th>
-            <th style="text-align:center">IBI / RRI</th>
-            <th style="text-align:center">EDA</th>
-            <th style="text-align:center">ACC</th>
-            <th style="text-align:center">ECG</th>
-            <th style="text-align:center">PPG</th>
-            <th style="text-align:center">EDA</th>
-            <th style="text-align:center">ACC</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td align="center">BioSPPy</td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center">&check;</td>
-            <td align="center">&check;</td>
-            <td align="center">&check;</td>
-            <td align="center">&check;</td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-        </tr>
-        <tr>
-            <td align="center">HeartPy</td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center">&check;</td>
-            <td align="center">&check;</td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-        </tr>
-        <tr>
-            <td align="center">HRV</td>
-            <td align="center">&check;</td>
-            <td align="center"></td>
-            <td align="center">&check;</td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center">&check;</td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>            
-        </tr>
-        <tr>
-            <td align="center">hrv-analysis</td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center">&check;</td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-        </tr>
-        <tr>
-            <td align="center">pyHRV</td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center">&check;</td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-        </tr>
-        <tr>
-            <td align="center">PyPhysio</td>
-            <td align="center"></td>
-            <td align="center">&check;</td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center">&check;</td>
-            <td align="center">&check;</td>
-            <td align="center"></td>
-            <td align="center">&check;</td>
-            <td align="center">&check;</td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-        </tr>
-        <tr>
-            <td align="center">PySiology</td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center">&check;</td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center">&check;</td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-        </tr>
-        <tr>
-            <td align="center">FLIRT</td>
-            <td align="center">&check;</td>
-            <td align="center">&check;</td>
-            <td align="center">&check;</td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center">&check;</td>
-            <td align="center">&check;</td>
-            <td align="center">&check;</td>
-            <td align="center">&check;</td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center">&check;</td>
-            <td align="center">&check;</td>
-        </tr>
-        <tr>
-            <td align="center">Neurokit2</td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center">&check;</td>
-            <td align="center">&check;</td>
-            <td align="center">&check;</td>
-            <td align="center">&check;</td>
-            <td align="center">&check;</td>
-            <td align="center">&check;</td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-            <td align="center"></td>
-        </tr>
-        <tr>
-            <td align="center">BIOBSS</td>
-            <td align="center">&check;</td>
-            <td align="center">&check;</td>
-            <td align="center">&check;</td>
-            <td align="center">&check;(*)</td>
-            <td align="center">&check;</td>
-            <td align="center">&check;</td>
-            <td align="center">&check;</td>
-            <td align="center">&check;</td>
-            <td align="center">&check;</td>
-            <td align="center">&check;</td>
-            <td align="center">&check;</td>
-            <td align="center">&check;</td>
-            <td align="center">&check;</td>
-        </tr>
-    </tbody>
+  <thead>
+    <tr>
+      <th style="text-align:center" colspan="2"><b>Functionality</b></th>
+      <th style="text-align:center">BIOBSS</th>
+      <th style="text-align:center">BioSPPy</th>
+      <th style="text-align:center">HeartPy</th>
+      <th style="text-align:center">HRV</th>
+      <th style="text-align:center">hrv-analysis</th>
+      <th style="text-align:center">pyHRV</th>
+      <th style="text-align:center">pyPhysio</th>
+      <th style="text-align:center">PySiology</th>
+      <th style="text-align:center">Neurokit2</th>
+      <th style="text-align:center">FLIRT</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="center" colspan="2"><b>File reader</b></td>
+      <td align="center"><b>&check;</b></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center">&check;</td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center">&check;</td>
+    </tr>
+    <tr>
+      <td align="center" colspan="2"><b>Sliding window</b></td>
+      <td align="center"><b>&check;</b></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center">&check;</td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center">&check;</td>
+    </tr>
+    <tr>
+      <td align="center" colspan="2"><b>Preprocessing</b></td>
+      <td align="center"><b>&check;</b></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center">&check;</td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center">&check;</td>
+      <td align="center">&check;</td>
+    </tr>
+    <tr>
+      <td align="center" colspan="2"><b>Pipeline</b></td>
+      <td align="center"><b>&check;(*)</b></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center">&check;</td>
+      <td align="center"></td>
+    </tr>
+    <tr>
+      <td align="center" style="text-align:center" rowspan="5"><b>Processing</b></td>
+      <td align="center"><b>ECG</b></td>
+      <td align="center"><b>&check;</b></td>
+      <td align="center">&check;</td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center">&check;</td>
+      <td align="center">&check;</td>
+      <td align="center">&check;</td>
+      <td align="center"></td>
+    </tr>
+    <tr>
+      <td align="center" style="text-align:center"><b>PPG</b></td>
+      <td align="center"><b>&check;</b></td>
+      <td align="center">&check;</td>
+      <td align="center">&check;</td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center">&check;</td>
+      <td align="center"></td>
+      <td align="center">&check;</td>
+      <td align="center">&check;</td>
+    </tr>
+    <tr>
+      <td align="center" style="text-align:center"><b>IBI / RRI</b></td>
+      <td align="center"><b>&check;</b></td>
+      <td align="center">&check;</td>
+      <td align="center">&check;</td>
+      <td align="center">&check;</td>
+      <td align="center">&check;</td>
+      <td align="center">&check;</td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center">&check;</td>
+      <td align="center">&check;</td>
+    </tr>
+    <tr>
+      <td align="center" style="text-align:center"><b>EDA</b></td>
+      <td align="center"><b>&check;</b></td>
+      <td align="center">&check;</td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center">&check;</td>
+      <td align="center">&check;</td>
+      <td align="center">&check;</td>
+      <td align="center">&check;</td>
+    </tr>
+    <tr>
+      <td align="center" style="text-align:center"><b>ACC</b></td>
+      <td align="center"><b>&check;</b></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center">&check;</td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center">&check;</td>
+    </tr>
+    <tr>
+      <td align="center" style="text-align:center" rowspan="4"><b>Feature Extraction</b></td>
+      <td align="center"><b>ECG</b></td>
+      <td align="center"><b>&check;</b></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+    </tr>
+    <tr>
+      <td align="center" style="text-align:center"><b>PPG</b></td>
+      <td align="center"><b>&check;</b></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+    </tr>
+    <tr>
+      <td align="center" style="text-align:center"><b>EDA</b></td>
+      <td align="center"><b>&check;</b></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center">&check;</td>
+    </tr>
+    <tr>
+      <td align="center" style="text-align:center"><b>ACC</b></td>
+      <td align="center"><b>&check;</b></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center"></td>
+      <td align="center">&check;</td>
+    </tr>
+  </tbody>
 </table>
 
 (*): Pipeline module differs between the two packages. BIOBSS pipeline aims to provide a more flexible and customizable pipeline for the user.
 
-Modified from Föll, Simon, et al. “FLIRT: A feature generation toolkit for wearable data.” Computer Methods and Programs in Biomedicine 212 (2021): 106461.
+__Modified from__ Föll, Simon, et al. “FLIRT: A feature generation toolkit for wearable data.” Computer Methods and Programs in Biomedicine 212 (2021): 106461.
 
 ## <div align="left"> __Preprocessing__ </div>
 BIOBSS has modules with basic signal preprocessing functionalities. These include:
@@ -422,3 +425,4 @@ If you have ideas for improving existing features or adding new features to BIOB
 [Devrim Çavuşoğlu](https://github.com/devrimcavusoglu)
 
 [Fatih Çağatay Akyön](https://github.com/fcakyon)
+
