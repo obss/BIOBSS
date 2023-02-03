@@ -6,13 +6,15 @@ BIOBSS's main focus is to generate end-to-end pipelines by adding required proce
 
 Main features:
 
-- Applying basic preprocessing steps 
+- Applying basic preprocessing steps (*)
 - Assessing quality of PPG and ECG signals
 - Extracting features for ECG, PPG, EDA and ACC signals
 - Performing Heart Rate Variability (HRV) analysis using PPG or ECG signals
-- Extracting respiratory signals from PPG or ECG signals and estimating respiratory rate
+- Extracting respiratory signals from PPG or ECG signals and estimating respiratory rate (*)
 - Calculating activity indices from ACC signals
 - Generating and saving pipelines 
+
+(*): Not all methods were implemented from scratch but imported from existing packages.
 
 The table shows the capabilites of BIOBSS and the other Python packages for physiological signal processing.
 
