@@ -1,6 +1,10 @@
 from pathlib import Path
 
-from . import (
+PROJECT_ROOT = Path(__file__).parent.parent.resolve()
+TESTS_ROOT = PROJECT_ROOT / "tests"
+FIXTURES_ROOT = PROJECT_ROOT / "sample_data"
+
+from biobss import (  # isort: skip
     common,
     ecgtools,
     edatools,
@@ -18,7 +22,3 @@ from . import (
 )
 
 __version__ = "0.1.0"
-
-PROJECT_ROOT = Path(__file__).parent.parent.resolve()
-TESTS_ROOT = PROJECT_ROOT / "tests"
-FIXTURES_ROOT = PROJECT_ROOT / "sample_data"

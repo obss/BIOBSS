@@ -3,6 +3,8 @@ import os
 import numpy as np
 import pandas as pd
 
+from biobss import FIXTURES_ROOT
+
 
 def load_sample_data(data_type: str) -> tuple:
     """Loads sample data file for the given data type.
@@ -18,24 +20,24 @@ def load_sample_data(data_type: str) -> tuple:
     """
 
     data_type = data_type.upper()
-    data_dir = os.path.join(os.path.normpath(os.getcwd() + os.sep + os.pardir), "sample_data")
+
     info = {}
     sample_data = pd.DataFrame()
 
     if data_type == "PPG_SHORT":
-        sample_data, info = _load_sample_ppg(data_dir)
+        sample_data, info = _load_sample_ppg(FIXTURES_ROOT)
 
     elif data_type == "PPG_LONG":
-        sample_data, info = _load_sample_ppg_long(data_dir)
+        sample_data, info = _load_sample_ppg_long(FIXTURES_ROOT)
 
     elif data_type == "ECG":
-        sample_data, info = _load_sample_ecg(data_dir)
+        sample_data, info = _load_sample_ecg(FIXTURES_ROOT)
 
     elif data_type == "ACC":
-        sample_data, info = _load_sample_acc(data_dir)
+        sample_data, info = _load_sample_acc(FIXTURES_ROOT)
 
     elif data_type == "EDA":
-        sample_data, info = _load_sample_eda(data_dir)
+        sample_data, info = _load_sample_eda(FIXTURES_ROOT)
 
     else:
         raise ValueError(f"Sample data does not exist for the selected data type {data_type}.")
@@ -48,8 +50,8 @@ def _load_sample_ppg(data_dir: str) -> tuple:
     info = {}
     sample_data = pd.DataFrame()
 
-    filename = "ppg_sample_data.csv"
-    data = pd.read_csv(os.path.join(data_dir, filename), header=None)
+    filename = data_dir / "ppg_sample_data.csv"
+    data = pd.read_csv(filename, header=None)
 
     # Select the first segment to be used in the examples
     fs = 64
@@ -68,8 +70,8 @@ def _load_sample_ppg_long(data_dir: str) -> tuple:
     info = {}
     sample_data = pd.DataFrame()
 
-    filename = "ppg_sample_data_long.csv"
-    data = pd.read_csv(os.path.join(data_dir, filename), header=None)
+    filename = data_dir / "ppg_sample_data_long.csv"
+    data = pd.read_csv(filename, header=None)
 
     # Select the first segment to be used in the examples
     fs = 64
@@ -88,8 +90,8 @@ def _load_sample_ecg(data_dir: str) -> tuple:
     info = {}
     sample_data = pd.DataFrame()
 
-    filename = "ecg_sample_data.csv"
-    data = pd.read_csv(os.path.join(data_dir, filename))
+    filename = data_dir / "ecg_sample_data.csv"
+    data = pd.read_csv(filename)
 
     # Select the first segment to be used in the examples
     fs = 256
@@ -108,8 +110,8 @@ def _load_sample_acc(data_dir: str) -> tuple:
     info = {}
     sample_data = pd.DataFrame()
 
-    filename = "acc_sample_data.csv"
-    data = pd.read_csv(os.path.join(data_dir, filename), header=None)
+    filename = data_dir / "acc_sample_data.csv"
+    data = pd.read_csv(filename, header=None)
 
     # Select the first 60s segment to be used in the examples
     fs = 32
@@ -133,10 +135,10 @@ def _load_sample_eda(data_dir: str) -> tuple:
     info = {}
     sample_data = pd.DataFrame()
 
-    filename = "EDA_Chest.pkl"
+    filename = data_dir / "EDA_Chest.pkl"
     fs = 700
     L = 5920
-    sig = pd.read_pickle(os.path.join(data_dir, filename))
+    sig = pd.read_pickle(filename)
     # Flatten the data
     sig = sig.flatten()
 
