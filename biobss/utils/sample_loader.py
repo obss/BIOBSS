@@ -94,7 +94,7 @@ def _load_sample_ppg_long(data_dir: str, download=False) -> tuple:
 def _load_sample_ecg(data_dir: str, download=False) -> tuple:
     info = {}
     sample_data = pd.DataFrame()
-    url = "https://raw.githubusercontent.com/obss/BIOBSS/main/sample_data/ppg_sample_data_long.csv"
+    url = "https://raw.githubusercontent.com/obss/BIOBSS/main/sample_data/ecg_sample_data.csv"
     filename = data_dir / "/sample_data/ecg_sample_data.csv"
     if not os.path.exists(filename):
         filename = os.getcwd() + "/sample_data/ecg_sample_data.csv"
