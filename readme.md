@@ -1,5 +1,15 @@
 # <div align="center"> __BIOBSS__ </div>
 
+<p align="center">
+<a href="https://pypi.org/project/biobss"><img src="https://img.shields.io/pypi/pyversions/biobss" alt="Python versions"></a>
+<a href="https://pepy.tech/project/biobss"><img src="https://pepy.tech/badge/biobss" alt="downloads"></a>
+<a href="https://pypi.org/project/biobss"><img src="https://img.shields.io/pypi/v/biobss" alt="PyPI version"></a>
+<br>
+<a href="https://github.com/obss/biobss/blob/main/LICENSE"><img alt="License: MIT" src="https://img.shields.io/github/license/obss/biobss"></a>
+<a href="https://github.com/obss/biobss/actions"><img alt="Build status" src="https://github.com/obss/biobss/actions/workflows/ci.yml/badge.svg"></a>
+<a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
+
+
 A package for processing signals recorded using wearable sensors, such as Electrocardiogram (ECG), Photoplethysmogram (PPG), Electrodermal activity (EDA) and 3-axis acceleration (ACC). 
 
 BIOBSS's main focus is to generate end-to-end pipelines by adding required processes from BIOBSS or other Python packages. Some preprocessing methods were not implemented from scratch but imported from the existing packages.
@@ -213,6 +223,8 @@ The table shows the capabilites of BIOBSS and the other Python packages for phys
 
 __Modified from__ Föll, Simon, et al. “FLIRT: A feature generation toolkit for wearable data.” Computer Methods and Programs in Biomedicine 212 (2021): 106461.
 
+You can also read the [blog post about BIOBSS](https://medium.com/codable/biobss-a-biological-signal-processing-and-feature-extraction-library-137f9b082634).
+
 ## <div align="left"> __Preprocessing__ </div>
 BIOBSS has modules with basic signal preprocessing functionalities. These include:
 - Resampling
@@ -374,7 +386,7 @@ The main focus of BIOBSS is to generate and save pipelines for signal processing
 - Decrease the amount of work for repetitive processes and for those who work on multiple datasets
 - Make it possible to save and share pipelines to compare results of different works
 
-
+<br/><br/>
 To learn more, visit the [Documentation page](https://biobss.readthedocs.io/en/latest/).
 
 
@@ -402,11 +414,11 @@ or build from source,
 
 ## <div align="center"> Tutorial notebooks </div>
 
-- [PPG Signal Processing](https://github.com/obss/BIOBSS/blob/main/examples/ppg_processing.ipynb)
-- [ECG Signal Processing](https://github.com/obss/BIOBSS/blob/main/examples/ecg_processing.ipynb)
-- [ACC Signal Processing](https://github.com/obss/BIOBSS/blob/main/examples/acc_processing.ipynb)
-- [HRV Analysis](https://github.com/obss/BIOBSS/blob/main/examples/hrv_analysis.ipynb)
-- [Respiratory Analysis](https://github.com/obss/BIOBSS/blob/main/examples/respiratory_analysis.ipynb)
+- PPG Signal Processing   [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/obss/BIOBSS/blob/main/examples/ppg_processing.ipynb)
+- ECG Signal Processing   [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/obss/BIOBSS/blob/main/examples/ecg_processing.ipynb)
+- ACC Signal Processing   [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/obss/BIOBSS/blob/main/examples/acc_processing.ipynb)
+- HRV Analysis    [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/obss/BIOBSS/blob/tutorials/main/hrv_analysis.ipynb)
+- Respiratory Analysis    [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/obss/BIOBSS/blob/main/examples/respiratory_analysis.ipynb)
 
 
 ## <div align="center"> License </div>
