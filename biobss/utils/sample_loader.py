@@ -2,11 +2,12 @@ import os
 
 import numpy as np
 import pandas as pd
-
+import os
 from biobss import FIXTURES_ROOT
+from .file import download_from_url
 
 
-def load_sample_data(data_type: str) -> tuple:
+def load_sample_data(data_type: str, download=True) -> tuple:
     """Loads sample data file for the given data type.
 
     Args:
@@ -25,19 +26,19 @@ def load_sample_data(data_type: str) -> tuple:
     sample_data = pd.DataFrame()
 
     if data_type == "PPG_SHORT":
-        sample_data, info = _load_sample_ppg(FIXTURES_ROOT)
+        sample_data, info = _load_sample_ppg(FIXTURES_ROOT, download)
 
     elif data_type == "PPG_LONG":
-        sample_data, info = _load_sample_ppg_long(FIXTURES_ROOT)
+        sample_data, info = _load_sample_ppg_long(FIXTURES_ROOT, download)
 
     elif data_type == "ECG":
-        sample_data, info = _load_sample_ecg(FIXTURES_ROOT)
+        sample_data, info = _load_sample_ecg(FIXTURES_ROOT, download)
 
     elif data_type == "ACC":
-        sample_data, info = _load_sample_acc(FIXTURES_ROOT)
+        sample_data, info = _load_sample_acc(FIXTURES_ROOT, download)
 
     elif data_type == "EDA":
-        sample_data, info = _load_sample_eda(FIXTURES_ROOT)
+        sample_data, info = _load_sample_eda(FIXTURES_ROOT, download)
 
     else:
         raise ValueError(f"Sample data does not exist for the selected data type {data_type}.")
@@ -45,12 +46,15 @@ def load_sample_data(data_type: str) -> tuple:
     return sample_data, info
 
 
-def _load_sample_ppg(data_dir: str) -> tuple:
-
+def _load_sample_ppg(data_dir: str, download=False) -> tuple:
     info = {}
     sample_data = pd.DataFrame()
-
+    url = "https://raw.githubusercontent.com/obss/BIOBSS/2bce481e94ecf08bb3b78122b4ede678e447dde4/sample_data/ppg_sample_data.csv"
     filename = data_dir / "ppg_sample_data.csv"
+    if not os.path.exists(filename):
+        filename = os.getcwd() + "/sample_data/ppg_sample_data.csv"
+        download_from_url(url, filename)
+        print("Downloaded sample data to " + filename)
     data = pd.read_csv(filename, header=None)
 
     # Select the first segment to be used in the examples
@@ -65,14 +69,16 @@ def _load_sample_ppg(data_dir: str) -> tuple:
     return sample_data, info
 
 
-def _load_sample_ppg_long(data_dir: str) -> tuple:
-
+def _load_sample_ppg_long(data_dir: str, download=False) -> tuple:
     info = {}
     sample_data = pd.DataFrame()
-
+    url = "https://raw.githubusercontent.com/obss/BIOBSS/main/sample_data/ppg_sample_data_long.csv"
     filename = data_dir / "ppg_sample_data_long.csv"
+    if not os.path.exists(filename):
+        filename = os.getcwd() + "/sample_data/ppg_sample_data_long.csv"
+        download_from_url(url, filename)
+        print("Downloaded sample data to " + filename)
     data = pd.read_csv(filename, header=None)
-
     # Select the first segment to be used in the examples
     fs = 64
     L = 40
@@ -85,14 +91,16 @@ def _load_sample_ppg_long(data_dir: str) -> tuple:
     return sample_data, info
 
 
-def _load_sample_ecg(data_dir: str) -> tuple:
-
+def _load_sample_ecg(data_dir: str, download=False) -> tuple:
     info = {}
     sample_data = pd.DataFrame()
-
-    filename = data_dir / "ecg_sample_data.csv"
-    data = pd.read_csv(filename)
-
+    url = "https://raw.githubusercontent.com/obss/BIOBSS/main/sample_data/ppg_sample_data_long.csv"
+    filename = data_dir / "/sample_data/ecg_sample_data.csv"
+    if not os.path.exists(filename):
+        filename = os.getcwd() + "/sample_data/ecg_sample_data.csv"
+        download_from_url(url, filename)
+        print("Downloaded sample data to " + filename)
+    data = pd.read_csv(filename, header=None)
     # Select the first segment to be used in the examples
     fs = 256
     L = 10
@@ -105,15 +113,18 @@ def _load_sample_ecg(data_dir: str) -> tuple:
     return sample_data, info
 
 
-def _load_sample_acc(data_dir: str) -> tuple:
-
+def _load_sample_acc(data_dir: str, download=False) -> tuple:
     info = {}
     sample_data = pd.DataFrame()
-
+    url = "https://raw.githubusercontent.com/obss/BIOBSS/main/sample_data/acc_sample_data.csv"
     filename = data_dir / "acc_sample_data.csv"
-    data = pd.read_csv(filename, header=None)
-
+    if not os.path.exists(filename):
+        if download:
+            filename = os.getcwd() + "/sample_data/acc_sample_data.csv"
+            download_from_url(url, filename)
+            print("Downloaded sample data to " + filename)
     # Select the first 60s segment to be used in the examples
+    data = pd.read_csv(filename, header=None)
     fs = 32
     L = 60
     accx = np.asarray(data.iloc[: fs * L, 0])  # x-axis acceleration signal
@@ -130,12 +141,16 @@ def _load_sample_acc(data_dir: str) -> tuple:
     return sample_data, info
 
 
-def _load_sample_eda(data_dir: str) -> tuple:
-
+def _load_sample_eda(data_dir: str, download=False) -> tuple:
     info = {}
     sample_data = pd.DataFrame()
-
+    url = "https://github.com/obss/BIOBSS/raw/main/sample_data/EDA_Chest.pkl"
     filename = data_dir / "EDA_Chest.pkl"
+    if not os.path.exists(filename):
+        if download:
+            filename = os.getcwd() + "/sample_data/EDA_Chest.pkl"
+            download_from_url(url, filename)
+            print("Downloaded sample data to " + filename)
     fs = 700
     L = 5920
     sig = pd.read_pickle(filename)
