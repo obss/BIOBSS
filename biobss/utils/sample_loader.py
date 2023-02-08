@@ -2,8 +2,9 @@ import os
 
 import numpy as np
 import pandas as pd
-import os
+
 from biobss import FIXTURES_ROOT
+
 from .file import download_from_url
 
 
