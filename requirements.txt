@@ -12,3 +12,4 @@ pyparsing==3.0.7
 PyYAML==6.0
 scipy==1.9.3
 sphinx-material==0.0.35
+nbformat==4.2.0
