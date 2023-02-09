@@ -417,7 +417,7 @@ or build from source,
 - PPG Signal Processing   [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/obss/BIOBSS/blob/main/examples/ppg_processing.ipynb)
 - ECG Signal Processing   [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/obss/BIOBSS/blob/main/examples/ecg_processing.ipynb)
 - ACC Signal Processing   [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/obss/BIOBSS/blob/main/examples/acc_processing.ipynb)
-- HRV Analysis    [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/obss/BIOBSS/blob/tutorials/main/hrv_analysis.ipynb)
+- HRV Analysis    [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/obss/BIOBSS/blob/main/examples/hrv_analysis.ipynb)
 - Respiratory Analysis    [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/obss/BIOBSS/blob/main/examples/respiratory_analysis.ipynb)
 
 
