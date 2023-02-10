@@ -3,7 +3,7 @@ Examples
 
 
 
-Example tutorials:
+Tutorial notebooks:
 
 `PPG Signal Processing <https://github.com/obss/BIOBSS/blob/main/examples/ppg_processing.ipynb>`__
 

@@ -31,6 +31,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.autosectionlabel",
     "sphinx.ext.viewcode",
+    "sphinx_rtd_theme",
 ]
 
 templates_path = ["_templates"]

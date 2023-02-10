@@ -50,15 +50,6 @@ channel\_input
    :undoc-members:
    :show-inheritance:
 
-channel\_output
-------------------------------------------
-
-.. automodule:: biobss.pipeline.channel_output
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-
 event\_channel
 ------------------------------------------
 
@@ -94,13 +85,6 @@ feature\_queue
    :show-inheritance:
 
 
-io\_mapper
-------------------------------------------
-
-.. automodule:: biobss.pipeline.io_mapper
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 pipeline\_export 
 ---------------------------------------
