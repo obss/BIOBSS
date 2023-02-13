@@ -8,7 +8,8 @@ You can install BIOBSS via pip:
 
 You can also build from source:
 
-.. code-block:: python
+.. code:: python
    git clone https://github.com/obss/BIOBSS
    cd BIOBSS
    python setup.py install
+
