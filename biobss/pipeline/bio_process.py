@@ -19,6 +19,8 @@ class Bio_Process:
         """Process the input arguments"""
         signature = inspect.signature(self.process_method)
         excess_args = []
+        if("kwargs" in signature.parameters.keys()):
+            return kwargs
         for key in kwargs.keys():
             if key not in signature.parameters.keys():
                 excess_args.append(key)
