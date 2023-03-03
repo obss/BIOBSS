@@ -8,3 +8,4 @@ from .ppg_sqa import *
 from .ppg_statistical import *
 from .ppg_timedomain import *
 from .vpg_features import *
+from .ppg_differentiate import *

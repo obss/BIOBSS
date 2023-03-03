@@ -54,7 +54,7 @@ class Process_List:
                 sampling_rate = []
                 get_rate = True
             for key in inputs.keys():
-                input_kwargs.append({key: bio_data[inputs[key]].channel})
+                input_kwargs.update({key: bio_data[inputs[key]].channel})
                 n_windows.append(bio_data[inputs[key]].n_windows)
                 if get_rate:
                     sampling_rate.append(bio_data[inputs[key]].sampling_rate)
