@@ -138,11 +138,11 @@ def _peakdetection_peakdet(v: ArrayLike, delta: float, x: ArrayLike = None) -> A
     return np.array(maxtab), np.array(mintab)
 
 
-def _peakdetection_heartpy(sig: ArrayLike, sampling_rate: float) -> Any:
+def _peakdetection_heartpy(sig: ArrayLike, sampling_rate: float) -> dict:
     """Detects signal peaks using HeartPy."""
-    wd, m = hp.process(sig, sample_rate=sampling_rate)
+    wd, _ = hp.process(sig, sample_rate=sampling_rate)
 
-    return wd, m
+    return wd
 
 
 def _peakdetection_scipy(sig: ArrayLike) -> Any:
